@@ -361,8 +361,20 @@ def draw_robots(figure: Figure, row: RobotRow) -> None:
                         'note', 'middle')
 
 
-def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scale:
-    """Add the reading's chart with its accepted band and legend, and return its value scale."""
+def draw_reading_legend(figure: Figure, entries: Sequence[LegendEntry]) -> None:
+    """Add the chart's legend: one line per entry, with the key of the entry's kind."""
+    left = DRIVE_TIME.first_position
+    for index, entry in enumerate(entries):
+        y = LEGEND_Y + index * LINE_HEIGHT
+        if entry.kind is LegendKind.ACCEPTED_BAND:
+            figure.rectangle(left, y - 9, 16, 10, entry.kind.value)
+        else:
+            figure.path(f'M{left},{y - 4} H{left + 16}', entry.kind.value)
+        figure.text(left + 22, y, entry.label, 'note')
+
+
+def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> None:
+    """Add the reading's chart with its accepted band and its legend."""
     figure.text_markup(8, CHART_TITLE_Y, reading.title, 'row-title')
     left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
     for tick in reading.ticks:
@@ -380,21 +392,11 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> Scal
     figure.text((band_left + band_right) / 2,
                 (band_top + band_bottom) / 2 + reading.band_label_offset, reading.band_label,
                 'note', 'middle')
-    for index, entry in enumerate(reading.legend):
-        y = LEGEND_Y + index * LINE_HEIGHT
-        if entry.kind is LegendKind.ACCEPTED_BAND:
-            figure.rectangle(left, y - 9, 16, 10, entry.kind.value)
-        else:
-            figure.path(f'M{left},{y - 4} H{left + 16}', entry.kind.value)
-        figure.text(left + 22, y, entry.label, 'note')
-    return reading.values
+    draw_reading_legend(figure, reading.legend)
 
 
-def draw_messages(figure: Figure, measure_start: float, count_rule: str) -> None:
-    """Add the IMU's messages, the ones the test keeps, and the time axis below them.
-
-    count_rule says how many of the kept messages the test needs.
-    """
+def draw_messages(figure: Figure, measure_start: float) -> None:
+    """Add the IMU's messages, the ones the test keeps and how many of them the test needs."""
     figure.text(8, MESSAGES_TITLE_Y, f'The IMU publishes, {IMU_RATE:g} messages per second',
                 'row-title')
     top, height = MESSAGES_BAR.top, MESSAGES_BAR.height
@@ -405,8 +407,14 @@ def draw_messages(figure: Figure, measure_start: float, count_rule: str) -> None
     figure.rectangle(kept_left, top, kept_right - kept_left, height, 'imu-bar', 4)
     figure.text((kept_left + kept_right) / 2, top - 4 + height + 16,
                 f'the test keeps these, about {MEASURE * IMU_RATE:g}', 'note', 'middle')
-    figure.text((kept_left + kept_right) / 2, top - 4 + height + 16 + LINE_HEIGHT, count_rule,
+    figure.text((kept_left + kept_right) / 2, top - 4 + height + 16 + LINE_HEIGHT,
+                f'pass rule: at least {fewest_messages_in_measure()} arrivals in {MEASURE:g} s',
                 'note', 'middle')
+
+
+def draw_drive_time_axis(figure: Figure) -> None:
+    """Add the time axis below all rows, with a number at each whole second."""
+    left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
     figure.path(f'M{left},{AXIS_Y} H{right}', 'axis')
     for second in range(4):
         figure.text(DRIVE_TIME.position(second), AXIS_Y + 14, str(second), 'note', 'middle')
@@ -453,11 +461,11 @@ def at_rest_figure() -> Figure:
                                                   f'{GAZEBO_GRAVITY} m/s²'),
                 LegendEntry(LegendKind.ACCEPTED_BAND, 'accepted mean of the IMU’s readings: '
                                                       f'{GRAVITY} ± {GRAVITY_TOLERANCE}')])
-    values = draw_reading(figure, reading, SETTLE)
-    figure.path(f'M{DRIVE_TIME.first_position},{values.position(GAZEBO_GRAVITY)} '
-                f'H{DRIVE_TIME.last_position}', 'reference-line')
-    draw_messages(figure, SETTLE,
-                  f'pass rule: at least {fewest_messages_in_measure()} arrivals in {MEASURE:g} s')
+    draw_reading(figure, reading, SETTLE)
+    figure.path(f'M{DRIVE_TIME.first_position},{reading.values.position(GAZEBO_GRAVITY)} '
+                f'H{DRIVE_TIME.last_position}', LegendKind.REFERENCE.value)
+    draw_messages(figure, SETTLE)
+    draw_drive_time_axis(figure)
     return figure
 
 
@@ -496,12 +504,13 @@ def left_turn_figure() -> Figure:
         legend=[LegendEntry(LegendKind.COMMAND, f'the test’s command: {TURN_RATE} rad/s'),
                 LegendEntry(LegendKind.ACCEPTED_BAND, 'accepted mean of the IMU’s yaw rates: '
                                                       f'{TURN_RATE} ± {TURN_RATE_TOLERANCE}')])
-    values = draw_reading(figure, reading, SPEED_UP)
+    draw_reading(figure, reading, SPEED_UP)
     start, end = DRIVE_TIME.position(0.0), DRIVE_TIME.position(turn_end)
-    figure.path(f'M{start},{values.position(0.0)} V{values.position(TURN_RATE)} H{end} '
-                f'V{values.position(0.0)} H{DRIVE_TIME.last_position}', 'command-line')
-    draw_messages(figure, SPEED_UP,
-                  f'pass rule: at least {fewest_messages_in_measure()} arrivals in {MEASURE:g} s')
+    zero, commanded = reading.values.position(0.0), reading.values.position(TURN_RATE)
+    figure.path(f'M{start},{zero} V{commanded} H{end} V{zero} H{DRIVE_TIME.last_position}',
+                LegendKind.COMMAND.value)
+    draw_messages(figure, SPEED_UP)
+    draw_drive_time_axis(figure)
     return figure
 
 
@@ -716,13 +725,17 @@ def reset_with_the_old_time_figure() -> Figure:
     return figure
 
 
-def figure_html(drawings: Sequence[Figure], caption: str, widths: PanelWidths) -> str:
-    """Return the drawings' style and a figure with the drawings side by side and one caption.
+def write_timeline_include(path: str, drawings: Sequence[Figure], caption: str,
+                           widths: PanelWidths) -> None:
+    """Write an include: this script's comment, the style and a figure with the drawings.
 
-    The drawings are the figure's panels, without an element around each. caption is Markdown.
+    The drawings are the figure's panels, side by side, without an element around each. caption
+    is Markdown.
     """
     panels = '\n'.join(drawing.svg() for drawing in drawings)
-    return f'{style_element(RULES)}\n{figure_element("tl", panels, caption, widths)}\n'
+    with open(path, 'w', encoding='utf-8') as include:
+        include.write(f'{INCLUDE_COMMENT}\n{style_element(RULES)}\n'
+                      f'{figure_element("tl", panels, caption, widths)}\n')
 
 
 def at_rest_caption() -> str:
@@ -759,18 +772,13 @@ def reset_caption() -> str:
 
 def main() -> None:
     """Write the three includes."""
-    with open('includes/imu-sim-test-at-rest.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html([at_rest_figure()], at_rest_caption(),
-                                  PanelWidths(basis=300, widest=480)))
-    with open('includes/imu-sim-test-left-turn.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html([left_turn_figure()], left_turn_caption(),
-                                  PanelWidths(basis=300, widest=480)))
-    with open('includes/imu-sim-test-reset.html', 'w', encoding='utf-8') as include:
-        include.write(INCLUDE_COMMENT + '\n')
-        include.write(figure_html([reset_with_the_copy_figure(), reset_with_the_old_time_figure()],
-                                  reset_caption(), PanelWidths(basis=280, widest=400)))
+    write_timeline_include('includes/imu-sim-test-at-rest.html', [at_rest_figure()],
+                           at_rest_caption(), PanelWidths(basis=300, widest=480))
+    write_timeline_include('includes/imu-sim-test-left-turn.html', [left_turn_figure()],
+                           left_turn_caption(), PanelWidths(basis=300, widest=480))
+    write_timeline_include('includes/imu-sim-test-reset.html',
+                           [reset_with_the_copy_figure(), reset_with_the_old_time_figure()],
+                           reset_caption(), PanelWidths(basis=280, widest=400))
 
 
 if __name__ == '__main__':

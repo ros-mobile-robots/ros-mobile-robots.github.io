@@ -47,6 +47,9 @@ from board_drawings import svg_element
 from board_drawings import svg_subscript
 from board_drawings import Tab
 from board_drawings import tab_set
+# The simulation's gravity and the left turn of test_imu.py have one source, the timelines' script
+from imu_sim_test_figures import GAZEBO_GRAVITY
+from imu_sim_test_figures import TURN_RATE
 
 # The first line of each include: the script that writes it
 INCLUDE_COMMENT = '<!-- Written by scripts/figures/imu_sim_robot_figures.py -->'
@@ -112,8 +115,9 @@ WHEEL_RADIUS = 0.033
 WHEEL_WIDTH = 0.025
 WHEEL_SEPARATION = 0.144
 FLOOR_Z = AXLE_Z - WHEEL_RADIUS
-# The hub that the schematic draws in the middle of a wheel
-HUB_RADIUS = 0.3 * WHEEL_RADIUS
+# The hub that the schematic draws in the middle of a wheel, as a share of the wheel's radius
+HUB_RADIUS_FRACTION = 0.3
+HUB_RADIUS = HUB_RADIUS_FRACTION * WHEEL_RADIUS
 # config/remo/caster_wheel.yaml: dx and the ball's radius
 CASTER_X = -0.051
 CASTER_RADIUS = 0.012
@@ -128,7 +132,7 @@ IMU_BOARD_SIZE = Vector3(0.027, 0.020, 0.004)
 DIFFBOT_PLATE = Box(-0.0975, 0.0975, -0.04, 0.04, -0.0025, 0.0025)
 # config/diffbot/front_wheel.yaml: x_offset, the wheels' distance from the plate's front edge.
 # diffbot.urdf.xacro, axle_x: the wheel axle lies this far in front of chassis_link
-DIFFBOT_AXLE_X = 0.195 / 2 - 0.079
+DIFFBOT_AXLE_X = DIFFBOT_PLATE.x_max - 0.079
 # front_wheel.yaml: z_offset and radius
 DIFFBOT_AXLE_Z = -0.017
 DIFFBOT_WHEEL_RADIUS = 0.0333
@@ -161,11 +165,10 @@ DIFFBOT_TAB_LABEL = 'DiffBot'
 # the viewer's line of sight. The drawing shows it as a ring
 RING_SHARE = 0.2
 
-# The examples of the specific force figure
-GAZEBO_GRAVITY = 9.8  # m/s², Gazebo's gravity in the robots' worlds
-# Below the drive controller's limit of 0.6 m/s² (diffbot_control.yaml, max_acceleration)
+# The examples of the specific force figure: GAZEBO_GRAVITY in m/s², TURN_RATE in rad/s and
+# FORWARD_ACCELERATION, which lies below the drive controller's limit of 0.6 m/s²
+# (diffbot_control.yaml, max_acceleration)
 FORWARD_ACCELERATION = 0.5  # m/s²
-TURN_RATE = 0.5  # rad/s, the left turn of test_imu.py
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -713,7 +716,7 @@ def draw_diffbot_from_the_side(figure: Figure, view: View) -> None:
     figure.circle(caster, DIFFBOT_CASTER_RADIUS * view.scale, 'wheel')
     wheel = view.project(Vector3(DIFFBOT_AXLE_X, 0.0, DIFFBOT_AXLE_Z))
     figure.circle(wheel, DIFFBOT_WHEEL_RADIUS * view.scale, 'wheel')
-    figure.circle(wheel, 0.3 * DIFFBOT_WHEEL_RADIUS * view.scale, 'body')
+    figure.circle(wheel, HUB_RADIUS_FRACTION * DIFFBOT_WHEEL_RADIUS * view.scale, 'body')
     draw_box_outline(figure, view, DIFFBOT_PLATE, 'body', 1)
     draw_box_outline(figure, view, diffbot_imu_board(), 'board', 1)
 
@@ -1047,13 +1050,6 @@ def turn_radius() -> float:
     return math.hypot(IMU_POSITION.x - AXLE_X, IMU_POSITION.y)
 
 
-def circle_points(center: Point, radius: float, first_angle: int, last_angle: int) -> List[Point]:
-    """Return points on a circle on the drawing, counterclockwise between two angles in degrees."""
-    return [Point(center.x + radius * math.cos(math.radians(angle)),
-                  center.y - radius * math.sin(math.radians(angle)))
-            for angle in range(first_angle, last_angle + 1, 6)]
-
-
 def turn_acceleration() -> Vector3:
     """Return the IMU's acceleration in a turn on the spot: toward the wheel axle's midpoint."""
     return Vector3(TURN_RATE ** 2 * (AXLE_X - IMU_POSITION.x), TURN_RATE ** 2 * -IMU_POSITION.y,
@@ -1062,7 +1058,15 @@ def turn_acceleration() -> Vector3:
 
 def centripetal_acceleration() -> float:
     """Return the size of the IMU's acceleration in a turn on the spot, in m/s²."""
-    return TURN_RATE ** 2 * turn_radius()
+    acceleration = turn_acceleration()
+    return math.hypot(acceleration.x, acceleration.y)
+
+
+def circle_points(center: Point, radius: float, first_angle: int, last_angle: int) -> List[Point]:
+    """Return points on a circle on the drawing, counterclockwise between two angles in degrees."""
+    return [Point(center.x + radius * math.cos(math.radians(angle)),
+                  center.y - radius * math.sin(math.radians(angle)))
+            for angle in range(first_angle, last_angle + 1, 6)]
 
 
 def specific_force_in_a_turn_figure() -> Figure:
