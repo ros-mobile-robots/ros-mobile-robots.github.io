@@ -5649,8 +5649,16 @@
 </code></pre></div></td></tr></tbody></table></div>
 <p><a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/config/diffbot/sensors.yaml#L16"><code>imu</code></a> in these lines holds the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s settings. They reach the link in three steps:</p>
 <ol>
-<li>DiffBot's <a href="#the-link-and-the-joint-in-the-robots-urdf-model">xacro</a> file reads the file <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/config/diffbot/sensors.yaml"><code>sensors.yaml</code></a> into the property <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33"><code>sensor_prop</code></a>, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33">lines 32–33 of <code>diffbot.urdf.xacro</code></a>.</li>
-<li>The call passes <code>sensor_prop</code> to the macro, as step 3 of the list above says.</li>
+<li>
+<p>DiffBot's <a href="#the-link-and-the-joint-in-the-robots-urdf-model">xacro</a> file reads the file <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/config/diffbot/sensors.yaml"><code>sensors.yaml</code></a> into the property <code>sensor_prop</code>. The xacro file builds the YAML path and loads it into that property, in <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33"><code>diffbot.urdf.xacro</code>, lines 32–33</a>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">diffbot.urdf.xacro: the property sensor_prop</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">&lt;xacro:property</span><span class="w"> </span><span class="na">name=</span><span class="s">"sensor_yaml"</span><span class="w"> </span><span class="na">value=</span><span class="s">"$(find ${package_name})/config/${robot_name}/sensors.yaml"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;xacro:property</span><span class="w"> </span><span class="na">name=</span><span class="s">"sensor_prop"</span><span class="w"> </span><span class="na">value=</span><span class="s">"${xacro.load_yaml(sensor_yaml)}"</span><span class="nt">/&gt;</span>
+</code></pre></div></td></tr></tbody></table></div>
+</li>
+<li>
+<p>The call passes <code>sensor_prop</code> to the macro, as step 3 of the list above says.</p>
+</li>
 <li>The highlighted line takes the entry <code>imu</code> out of <code>sensor_prop</code>.</li>
 </ol>
 <p>The excerpt shows the entry, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/config/diffbot/sensors.yaml#L16-L26"><code>sensors.yaml</code>, lines 16–26</a>:</p>
@@ -5676,7 +5684,7 @@
 <span class="w">  </span><span class="nt">mesh</span><span class="p">:</span><span class="w"> </span><span class="s">''</span><span class="w">          </span><span class="c1"># No mesh: a red box of this size</span>
 <span class="w">  </span><span class="nt">scale</span><span class="p">:</span><span class="w"> </span><span class="s">'0.001</span><span class="nv"> </span><span class="s">0.001</span><span class="nv"> </span><span class="s">0.001'</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/urdf/include/common_macros.urdf.xacro#L305"><code>box_inertia</code></a> gives the link the board's mass, 3 g. Remo's entry names a mesh of the BNO055 board, in <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/config/remo/sensors.yaml#L38-L51">lines 38–51 of Remo's <code>sensors.yaml</code></a>.</p>
+<p>DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_description/urdf/include/common_macros.urdf.xacro#L305"><code>box_inertia</code></a> gives the link the board's mass, 3 g. Remo's <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/config/remo/sensors.yaml#L38-L51"><code>sensors.yaml</code></a> entry names the mesh for the BNO055 board.</p>
 <!-- Mechanical parts and tools -->
 <!-- Human machine interface -->
 <!-- DiffBot parts list -->
