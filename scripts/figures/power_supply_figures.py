@@ -29,6 +29,7 @@ from typing import NamedTuple
 from typing import Sequence
 
 from board_drawings import board_rules
+from board_drawings import Box
 from board_drawings import draw_battery_holder
 from board_drawings import draw_bno055_breakout
 from board_drawings import draw_camera
@@ -78,25 +79,6 @@ class TextLine(NamedTuple):
 
     text: str
     css_class: str
-
-
-class Box(NamedTuple):
-    """A box on a figure, in drawing units: its top left corner, its width and its height."""
-
-    x: float
-    y: float
-    width: float
-    height: float
-
-    @property
-    def right(self) -> float:
-        """Return the x coordinate of the box's right edge."""
-        return self.x + self.width
-
-    @property
-    def bottom(self) -> float:
-        """Return the y coordinate of the box's lower edge."""
-        return self.y + self.height
 
 
 class WireRoute(NamedTuple):

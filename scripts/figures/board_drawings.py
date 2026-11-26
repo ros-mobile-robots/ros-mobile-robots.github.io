@@ -6,9 +6,10 @@ DG01D-E gear motor with its wheel, the motor's encoder seen from the motor's end
 BNO055 breakout. The parts keep the colors of the real ones in both color schemes. board_rules()
 returns their CSS.
 
-The module also holds what a figure script needs to write SVG: escape(), style_element(),
-svg_subscript(), svg_element() with its arrowhead markers, and Drawing, which collects the elements
-of one layout and draws its rectangles, circles, lines, text, boxes with text and numbers in discs.
+The module also holds what a figure script needs to write SVG: escape(), style_element(), Box
+for a rectangle with its edges and its middle, svg_subscript(), svg_element() with its arrowhead
+markers, and Drawing, which collects the elements of one layout and draws its rectangles,
+circles, lines, text, boxes with text and numbers in discs.
 For the HTML around a drawing it has figure_element(), the figure with its panels and its caption,
 and tab_set(), a set of content tabs.
 """
@@ -43,6 +44,35 @@ class Point(NamedTuple):
 
     x: float
     y: float
+
+
+class Box(NamedTuple):
+    """A box on a drawing, in SVG units: its top left corner, its width and its height."""
+
+    x: float
+    y: float
+    width: float
+    height: float
+
+    @property
+    def right(self) -> float:
+        """Return the x coordinate of the box's right edge."""
+        return self.x + self.width
+
+    @property
+    def bottom(self) -> float:
+        """Return the y coordinate of the box's lower edge."""
+        return self.y + self.height
+
+    @property
+    def middle_x(self) -> float:
+        """Return the x coordinate of the box's middle."""
+        return self.x + self.width / 2
+
+    @property
+    def middle_y(self) -> float:
+        """Return the y coordinate of the box's middle."""
+        return self.y + self.height / 2
 
 
 def svg_subscript(symbol: str, index: str, *, restore_baseline: bool = False) -> str:

@@ -57,6 +57,7 @@ from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import Box
 from board_drawings import Drawing
 from board_drawings import style_element
 from localization_figures import ANGULAR_VELOCITY_FUSED_VARIANCES
@@ -1085,35 +1086,6 @@ COVARIANCE_WIDTH = COVARIANCE_SIZE * COVARIANCE_CELL_WIDTH
 COVARIANCE_HEIGHT = COVARIANCE_HEADER_HEIGHT + COVARIANCE_SIZE * COVARIANCE_CELL_HEIGHT
 FILTER_BOX_HEIGHT = 44
 SUPERSCRIPT_DIGITS = str.maketrans('-0123456789', '⁻⁰¹²³⁴⁵⁶⁷⁸⁹')
-
-
-class Box(NamedTuple):
-    """A rectangle in a drawing, in SVG coordinates."""
-
-    x: float
-    y: float
-    width: float
-    height: float
-
-    @property
-    def right(self) -> float:
-        """Return the x coordinate of the box's right edge."""
-        return self.x + self.width
-
-    @property
-    def bottom(self) -> float:
-        """Return the y coordinate of the box's lower edge."""
-        return self.y + self.height
-
-    @property
-    def middle_x(self) -> float:
-        """Return the x coordinate of the box's middle."""
-        return self.x + self.width / 2
-
-    @property
-    def middle_y(self) -> float:
-        """Return the y coordinate of the box's middle."""
-        return self.y + self.height / 2
 
 
 class ArrowKind(Enum):
