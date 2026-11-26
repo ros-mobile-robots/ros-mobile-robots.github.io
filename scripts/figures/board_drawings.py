@@ -13,6 +13,7 @@ and draws its rectangles, circles, lines, text, boxes with text and numbers in d
 
 import math
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -42,16 +43,18 @@ def arrowhead_marker(marker_id: str) -> str:
 
 
 def svg_element(name: str, css_classes: str, size: Tuple[float, float], title: str,
-                elements: Sequence[str]) -> str:
+                elements: Sequence[str], markers: Optional[Sequence[str]] = None) -> str:
     """Return an SVG element of size (width, height) with the elements, named title.
 
     name starts the element's IDs: name-title for its accessible name, and name-head for the
-    arrowhead marker that its arrows point to.
+    arrowhead marker that its arrows point to. A figure with markers of its own passes them as
+    markers instead.
     """
     width, height = size
+    definitions = ''.join(markers) if markers is not None else arrowhead_marker(f'{name}-head')
     return (f'<svg class="{css_classes}" viewBox="0 0 {width:g} {height:g}" role="img" '
             f'aria-labelledby="{name}-title"><title id="{name}-title">{escape(title)}</title>'
-            f'<defs>{arrowhead_marker(f"{name}-head")}</defs>\n'
+            f'<defs>{definitions}</defs>\n'
             + '\n'.join(elements) + '\n</svg>')
 
 
@@ -131,6 +134,27 @@ def board_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
          'fill:#111;stroke:#e0e0e0;stroke-width:0.8'),
         (f'{scope} .connector', 'fill:#f4f4f4;stroke:#999;stroke-width:0.8'),
         (f'{scope} .imu-board', 'fill:#2450a6;stroke:#142e66;stroke-width:0.8'),
+    )
+
+
+def supply_part_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
+    """Return the CSS rules of the colors that only the supply's parts use, in scope.
+
+    The power bank, the battery holder, the LiDAR, the camera and the Grove board use these
+    together with board_rules(). The cases get a lighter fill and edge in the dark scheme, so
+    that they stand out from its background.
+    """
+    return (
+        (f'{scope} .case', 'fill:#3b3f45;stroke:#1f2226;stroke-width:0.8'),
+        (f'[data-md-color-scheme=slate] {scope} .case', 'fill:#4a4f57;stroke:#a0a6ae'),
+        (f'{scope} .led', 'fill:#4fc3f7'),
+        (f'{scope} .holder-lid', 'fill:none;stroke:#6b7078;stroke-width:0.8'),
+        (f'{scope} .lead-plus', 'fill:none;stroke:#d32f2f;stroke-width:1.6'),
+        (f'{scope} .lead-minus', 'fill:none;stroke:#222;stroke-width:1.6'),
+        (f'[data-md-color-scheme=slate] {scope} .lead-minus', 'stroke:#d0d4da'),
+        (f'{scope} .lidar-window', 'fill:#8a1c1c'),
+        (f'{scope} .lens', 'fill:#1b3f6b;stroke:#c8ccd2;stroke-width:0.6'),
+        (f'{scope} .ribbon', 'fill:#e9d8a6;stroke:#b39a55;stroke-width:0.6'),
     )
 
 
@@ -224,3 +248,58 @@ def draw_bno055_breakout(drawing: Drawing, x: float, y: float) -> None:
         drawing.circle(x + 19.6, y + 10.5 + index * 2.3, 0.9, 'pad')
     drawing.rect(x + 13, y + 3, 4, 8, 'chip', 0.5)
     drawing.rect(x + 8, y + 11.5, 7, 7, 'chip', 0.5)
+
+
+def draw_power_bank(drawing: Drawing, x: float, y: float) -> None:
+    """Add a USB power bank at (x, y): its case, a USB port at its end and four charge LEDs."""
+    drawing.rect(x, y, 44, 24, 'case', 4)
+    drawing.rect(x + 44, y + 8, 4, 8, 'metal', 1)
+    for index in range(4):
+        drawing.circle(x + 8 + index * 5, y + 18, 1.4, 'led')
+
+
+def draw_battery_holder(drawing: Drawing, x: float, y: float) -> None:
+    """Add the series motor pack at (x, y): a closed holder with its two leads.
+
+    The drawing shows no cells, so that it fits any number of cells and any holder. The red lead
+    is the plus pole, the black one the minus pole.
+    """
+    drawing.rect(x, y + 2, 48, 24, 'case', 3)
+    drawing.rect(x + 5, y + 7, 38, 14, 'holder-lid', 2)
+    drawing.line(f'M{x + 48},{y + 9} H{x + 52} Q{x + 56},{y + 9} {x + 56},{y + 5} V{y + 2}',
+                 'lead-plus')
+    drawing.line(f'M{x + 48},{y + 19} H{x + 52} Q{x + 56},{y + 19} {x + 56},{y + 23} V{y + 26}',
+                 'lead-minus')
+
+
+def draw_lidar(drawing: Drawing, x: float, y: float) -> None:
+    """Add an RPLIDAR A2 at (x, y), from the side: its base and the round head that turns on it."""
+    drawing.rect(x, y + 14, 38, 12, 'case', 2)
+    drawing.rect(x + 4, y, 30, 15, 'case', 6)
+    drawing.rect(x + 8, y + 5, 22, 4, 'lidar-window', 1)
+
+
+def draw_camera(drawing: Drawing, x: float, y: float) -> None:
+    """Add a Raspberry Pi Camera Module 2 at (x, y): its board, the lens and the ribbon cable."""
+    drawing.rect(x, y, 25, 24, 'mcu-board', 2)
+    drawing.rect(x + 7.5, y + 5, 10, 10, 'chip', 1)
+    drawing.circle(x + 12.5, y + 10, 3, 'lens')
+    drawing.rect(x + 5, y + 24, 15, 6, 'ribbon')
+
+
+def draw_grove_motor_driver(drawing: Drawing, x: float, y: float) -> None:
+    """Add the Grove I2C Motor Driver V1.3 at (x, y), from above, as the board's photo shows it.
+
+    Two motor terminals on the left, the power terminal at the top right, the flat L298 with its
+    pins, the square microcontroller, the jumper J4 and the white Grove socket below it.
+    """
+    drawing.rect(x, y, 46, 26, 'driver-board', 2)
+    for terminal_x, terminal_y in ((x + 1.5, y + 2), (x + 1.5, y + 16), (x + 37.5, y + 2)):
+        drawing.rect(terminal_x, terminal_y, 7, 8, 'terminal')
+    for index in range(6):
+        drawing.rect(x + 12 + index * 2.2, y + 7, 1.2, 1.6, 'metal')
+        drawing.rect(x + 12 + index * 2.2, y + 18.4, 1.2, 1.6, 'metal')
+    drawing.rect(x + 11, y + 8.5, 14, 10, 'chip', 0.8)
+    drawing.rect(x + 28, y + 11, 6.5, 6.5, 'chip')
+    drawing.rect(x + 38.5, y + 11, 5, 2, 'chip')
+    drawing.rect(x + 38.5, y + 14, 6, 10, 'connector', 0.6)
