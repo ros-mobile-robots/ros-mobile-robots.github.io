@@ -5,7 +5,7 @@ A stationary gyroscope gives slightly different readings from one sample to the 
 The sections build on each other, from one measured value to a vector of values and then to the filter:
 
 1. [The noise of one value](#the-noise-of-one-value): the bias, the mean, the variance and the standard deviation, worked by hand for three readings of a gyroscope.
-2. [The normal distribution](#the-normal-distribution): the shape of the noise that the simulated IMU adds and that the EKF assumes.
+2. [The normal distribution](#the-normal-distribution): the shape of the noise that the simulated IMU adds, and the model behind the EKF's mean and covariance.
 3. [The covariance of two values](#the-covariance-of-two-values): whether the errors of two values go up and down together, and why independent errors have the covariance 0.
 4. [The covariance matrix and its ellipsoid](#the-covariance-matrix-and-its-ellipsoid): all variances and covariances of a vector in one matrix, and the shape that the matrix describes.
 5. [How ROS messages store a covariance](#how-ros-messages-store-a-covariance): a matrix as an array of 9 or 36 numbers, and the arrays with a special meaning.
@@ -17,10 +17,10 @@ Each example says where its numbers come from: a setting in the robots' code, a 
 
 A gyroscope measures how fast the sensor turns, as an angular velocity in rad/s. The robots' EKF uses one of its three values, the yaw rate $\omega_z$, the angular velocity about the upward axis. A robot at rest doesn't turn, so a perfect gyroscope at rest would read $\omega_z$ = 0 rad/s every time. A real gyroscope doesn't. Two things move its readings away from the true value:
 
-- **The bias:** an offset that stays about the same for a while. Every reading is a little too large, or every reading is a little too small.
-- **The noise:** a scatter that changes from one reading to the next. The readings jump around their average.
+- **The bias:** an offset of the mean reading from the true value. A single reading can still lie on the other side of the true value.
+- **The noise:** what makes the individual readings scatter around that mean, differently from one reading to the next.
 
-A recording of $N$ readings $\omega_{z,1}, \omega_{z,2}, \dots, \omega_{z,N}$ at rest describes both with three numbers. The mean says where the readings lie. The variance and the standard deviation say how far they scatter. The example below has three readings, so that every step can be followed by hand. A real recording has thousands.
+A recording of $N$ readings $\omega_{z,1}, \omega_{z,2}, \dots, \omega_{z,N}$ at rest describes both with three numbers. The mean says where the readings lie. The variance and the standard deviation say how far they scatter. This example uses three readings, so that every step can be followed by hand. Remo's recording of 180 s contains thousands.
 
 ### The mean
 
@@ -36,7 +36,7 @@ $$
 \bar\omega_z = \frac{0 + \Delta + 2\Delta}{3} = \Delta = 0.00111\ \text{rad/s}
 $$
 
-At rest, the true yaw rate is 0 rad/s. So the mean of a recording at rest estimates the bias, here one step. A long recording estimates the bias better than three readings, because the noise of many readings averages out.
+At rest, the true yaw rate is 0 rad/s, so the sample mean estimates the bias, here one step. More independent readings reduce the uncertainty of that estimate while the bias stays steady. A bias that drifts during the recording, or readings that depend on each other, make a long recording say less than its number of readings suggests.
 
 ### The variance and the standard deviation
 
@@ -64,7 +64,7 @@ $$
 The formula has three parts that need a reason:
 
 - **The squares:** a deviation above the mean and one below would cancel in a plain sum. Their squares are both positive, so every deviation adds to the scatter. A large deviation adds much more than a small one.
-- **$N - 1$ instead of $N$:** the deviations are measured from the readings' own mean $\bar\omega_z$, not from the true mean, which nobody knows. The readings' own mean lies closer to the readings than the true mean does, so the squared deviations come out a little too small. Dividing by $N - 1$ makes up for that ([Bessel's correction](https://en.wikipedia.org/wiki/Bessel%27s_correction)). With $N$, the example's variance would be two thirds of $\Delta^2$.
+- **$N - 1$ instead of $N$:** the deviations are measured from the readings' own mean $\bar\omega_z$, not from the true mean, which nobody knows. Estimating the mean from the same readings uses one degree of freedom: the $N$ deviations add up to 0, so only $N - 1$ of them are free. The readings' own mean also lies closer to the readings than the true mean does, so the squared deviations come out a little too small. For independent readings from the same distribution, dividing by $N - 1$ gives an unbiased estimate of the variance, one that is right on average ([Bessel's correction](https://en.wikipedia.org/wiki/Bessel%27s_correction)). With $N$, the example's variance would be two thirds of $\Delta^2$.
 - **At least two readings:** one reading has no scatter, and its $N - 1$ is 0.
 
 Variances have a property that standard deviations don't have. When a value has two independent errors with the variances $\sigma_1^2$ and $\sigma_2^2$, the variance of their sum is $\sigma_1^2 + \sigma_2^2$. The standard deviations don't add up this way. So filters such as the EKF compute with variances. [The covariance of two values](#the-covariance-of-two-values) says what independent means.
@@ -85,7 +85,7 @@ The firmware's starting value is about a thousand times the variance that Remo's
 
 ## The normal distribution
 
-The variance says how far the noise scatters, but not how often each value appears. A **distribution** says that. The noise that the simulated IMU adds follows the **normal distribution**, also called the Gaussian distribution, and the EKF assumes that every error does. For a value $x$ with the mean $\mu$ and the standard deviation $\sigma$, the normal distribution has this density $p(x)$, the bell curve:
+The variance says how far the noise scatters, but not how often each value appears. A **distribution** says that. The best known one is the **normal distribution**, also called the Gaussian distribution. The robots' simulation adds normally distributed noise to each component of the angular velocity. The EKF models an uncertainty with a mean and a covariance, the two things that determine a normal distribution. For a value $x$ with the mean $\mu$ and the standard deviation $\sigma$, the normal distribution has this density $p(x)$, the bell curve:
 
 $$
 p(x) = \frac{1}{\sigma\sqrt{2\pi}}\,\exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
@@ -103,9 +103,9 @@ The figure draws the density $p(n)$ of the simulated IMU's noise $n$. Each brack
 
 --8<-- "includes/math-normal-distribution.html"
 
-**Why this distribution:** an error that is the sum of many small, independent parts tends to be normally distributed, whatever the distributions of the parts are ([central limit theorem](https://en.wikipedia.org/wiki/Central_limit_theorem)). The Kalman filter and the EKF assume normally distributed errors. Then a mean and a covariance describe each error completely, and the filter only has to carry these numbers from one step to the next. *Probabilistic Robotics* by Thrun, Burgard and Fox derives these filters in its chapter 3, "Gaussian Filters" ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links).
+**Why this distribution:** a sum of many small independent errors with finite variances can be approximately normal when no single one of them dominates ([central limit theorem](https://en.wikipedia.org/wiki/Central_limit_theorem)). A normal distribution of several values together, a joint normal distribution, is determined by its mean vector and its covariance matrix. So a filter with this model only has to carry a mean and a covariance from one step to the next. The Kalman filter does so exactly for a linear model. The EKF propagates an approximation through the robot's nonlinear motion. *Probabilistic Robotics* by Thrun, Burgard and Fox derives these filters in its chapter 3, "Gaussian Filters" ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links).
 
-**A real sensor:** the BNO055 reports whole steps of 1/900 rad/s. At rest, the standard deviation of Remo's gyroscope is smaller than one step ([bench checks](../../packages/imu/driver-bno055.md#bench-checks)), so its readings fall on a few steps around their mean. A histogram of them has a few bars, not a smooth bell. For such a sensor, the normal distribution is a model that the EKF's formulas need, not an exact description of the readings.
+**A limit of the model:** the BNO055 reports whole steps of 1/900 rad/s. At rest, the standard deviation of Remo's gyroscope is smaller than one step ([bench checks](../../packages/imu/driver-bno055.md#bench-checks)), so its readings fall on a few steps around their mean. A histogram of them has a few bars, not a smooth bell. The figure above draws the density of the simulation's noise, not a histogram of measured readings. For the real sensor, the normal distribution is a model, not an exact description of the readings. The filter's weighting in [What the EKF does with a variance](#what-the-ekf-does-with-a-variance) computes with means and variances only, so its arithmetic works for errors that aren't exactly normal too.
 
 ## The covariance of two values
 
@@ -158,7 +158,13 @@ $$
 
 Independence guarantees the factorization in the middle line: the expected value of a product of independent values is the product of their expected values. Dependent variables can also have the covariance 0, as the second limit below shows.
 
-**The simulated IMU:** the plugin calls [`GuassianKernel()`]({{ ekf_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206) once for each value of each message, so each axis gets a random number of its own. The noise on one axis says nothing about the noise on another, and the covariance of every two axes is 0. That is why the plugin's message has zeros off the diagonal of its covariance matrices, which [the next section](#the-covariance-matrix-and-its-ellipsoid) introduces.
+**The simulated IMU:** the plugin draws a separate random number for each component of the angular velocity. The excerpt shows the three calls of `GuassianKernel()`, one for each axis, from [`gazebo_ros_imu_sensor.cpp`, lines 164–166]({{ ekf_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L164-L166):
+
+```cpp title="gazebo_ros_imu_sensor.cpp: the noise on the angular velocity" linenums="164"
+--8<-- "{{ ekf_src_raw }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp:164:166"
+```
+
+The plugin's model treats the three errors as independent: the noise on one axis says nothing about the noise on another, and the covariance of every two axes is 0. That is why the plugin's message has zeros off the diagonal of its covariance matrices, which [the next section](#the-covariance-matrix-and-its-ellipsoid) introduces.
 
 Two limits apply:
 
