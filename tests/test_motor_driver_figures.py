@@ -7,7 +7,6 @@ from pathlib import Path
 import re
 import sys
 from typing import List
-from typing import NamedTuple
 from typing import Set
 import unittest
 from xml.etree import ElementTree
@@ -18,6 +17,7 @@ sys.path.insert(0, str(ROOT / 'tests'))
 
 from figure_script_runs import run_with_an_ascii_locale  # noqa: E402
 import motor_driver_figures as figures  # noqa: E402
+from svg_paths import path_segments  # noqa: E402
 
 SCRIPT_NAME = 'motor_driver_figures.py'
 PAGE = ROOT / 'docs' / 'theory' / 'actuation.md'
@@ -59,37 +59,6 @@ PERIOD_AT_THE_HIGHEST_FREQUENCY_MS = 0.65536
 COUNT_WORDS = {8: 'eight'}
 # The drawings write their coordinates with up to six digits
 COORDINATE_PLACES = 3
-
-
-class Segment(NamedTuple):
-    """A straight piece of a drawn line, from (x1, y1) to (x2, y2)."""
-
-    x1: float
-    y1: float
-    x2: float
-    y2: float
-
-
-def path_segments(path: str) -> List[Segment]:
-    """Return the straight pieces of an SVG path made of absolute M, L, H, V and Z commands."""
-    segments: List[Segment] = []
-    x = y = start_x = start_y = 0.0
-    for command, numbers in re.findall(r'([MLHVZ])([^MLHVZ]*)', path):
-        values = [float(value) for value in re.split(r'[ ,]+', numbers.strip()) if value]
-        if command == 'M':
-            x, y = start_x, start_y = values[0], values[1]
-            continue
-        if command == 'H':
-            new_x, new_y = values[0], y
-        elif command == 'V':
-            new_x, new_y = x, values[0]
-        elif command == 'L':
-            new_x, new_y = values[0], values[1]
-        else:
-            new_x, new_y = start_x, start_y
-        segments.append(Segment(x, y, new_x, new_y))
-        x, y = new_x, new_y
-    return segments
 
 
 def include_drawings(include_name: str) -> List[ElementTree.Element]:
