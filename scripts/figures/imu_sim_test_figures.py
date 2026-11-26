@@ -13,9 +13,10 @@ shows what one test of the simulated IMU does over simulation time:
   plugin that keeps the time from before the reset. The panels are an idealized example: the
   reset comes at exactly RUN_BEFORE_RESET, and the IMU publishes exactly IMU_RATE samples per
   second. The test itself only needs FRESH_SAMPLE_COUNT samples after the reset with advancing
-  stamps below RECOVERY. Both axes end a fifth of RUN_BEFORE_RESET after the time at which a
-  plugin that keeps the old time publishes again, and at least one period of the IMU after that
-  sample, so that the sample lies inside the plot for any RUN_BEFORE_RESET.
+  stamps below RECOVERY. After reset the plotted duration is the larger of 1.2 times the
+  pre-reset duration and the pre-reset duration plus two IMU periods. The old-time plugin
+  resumes one period after the pre-reset duration has elapsed, leaving at least one period
+  visible after its first sample.
 
 The durations, rates and tolerances below are the constants of diffbot_gazebo/test/test_imu.py
 and test_imu_reset.py in the diffbot repository, at the commit that mkdocs.yml pins as
@@ -596,10 +597,9 @@ IMU_PERIOD = 1.0 / IMU_RATE
 def run_after_reset() -> float:
     """Return how long the panels follow the simulation after the reset, in s.
 
-    A plugin that keeps the old time publishes again RUN_BEFORE_RESET and one period after the
-    reset. The panels show a fifth of RUN_BEFORE_RESET more, and at least one period after that
-    sample. So the sample lies inside the plot, also for a reset so early that a fifth of
-    RUN_BEFORE_RESET is shorter than a period.
+    After reset the plotted duration is the larger of 1.2 times the pre-reset duration and the
+    pre-reset duration plus two IMU periods. The old-time plugin resumes one period after the
+    pre-reset duration has elapsed, leaving at least one period visible after its first sample.
     """
     return max(1.2 * RUN_BEFORE_RESET, RUN_BEFORE_RESET + 2 * IMU_PERIOD)
 
