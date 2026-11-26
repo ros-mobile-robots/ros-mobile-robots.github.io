@@ -549,7 +549,8 @@ def main() -> None:
     """Write both includes."""
     write_include('includes/power-supply-flow-diffbot.html', DIFFBOT,
                   f"DiffBot's two supplies. {DIFFBOT.pack.label} feed the Grove driver and the "
-                  'motors. The Raspberry Pi sends the motor commands through the Grove I2C hub. '
+                  "motors. The Grove driver is wired to the Raspberry Pi's I2C through the "
+                  'Grove I2C hub. '
                   f"The Raspberry Pi's {USB_VOLTAGE} header rail powers both wheel encoders and "
                   "reaches the Grove connector's VCC pin through the hub. The encoders send "
                   'their signals to the Teensy.',

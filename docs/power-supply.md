@@ -1,6 +1,6 @@
 # Power Supply
 
-On both robots, a USB power bank runs the Raspberry Pi, and a separate battery runs the motors through their driver. DiffBot uses four primary alkaline AA cells in the kit's holder. Remo uses eight rechargeable nickel-metal hydride (NiMH) AA cells. Check the driver's input range before you choose cells of another type.
+On both robots, a USB power bank supplies the Raspberry Pi. A separate battery connects to the motor driver's power input. DiffBot uses four primary alkaline AA cells in the kit's holder. Remo uses eight rechargeable nickel-metal hydride (NiMH) AA cells. Check the driver's input range before you choose cells of another type.
 
 | | DiffBot | Remo |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ DiffBot's four alkaline AA cells sit in the battery holder of its robot car kit 
 
 - **From the power bank:** The Raspberry Pi gets 5 V at its USB-C port. It supplies the LiDAR through the LiDAR's USB adapter, and the microcontroller (MCU), a Teensy, over the USB cable that also carries the data. The Teensy's 3.3 V supplies the IMU. The Raspberry Pi's 5 V also supplies both wheel encoders, through the breadboard's power rail, and the encoders send their signals to the Teensy.
 - **Camera:** An optional Raspberry Pi Camera Module 2 connects to the Raspberry Pi's camera port. Its ribbon cable carries 3.3 V and camera data (the connector J3 in the [Raspberry Pi 4's schematics](https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-reduced-schematics.pdf), J1 in the [Camera Module 2's schematic](https://datasheets.raspberrypi.com/camera/camera-module-2-schematics.pdf)).
-- **Motor driver:** The Raspberry Pi sends the motor commands over I2C, through a Grove I2C hub. The driver makes the supply for its own logic from the battery, as the bullet on its logic supply below explains. The ground wire joins the grounds of the two supplies, and the I2C signals need it as their reference. The Grove I2C Motor Driver page gives the wiring, the jumper J4 and the signal levels.
+- **Motor driver:** The driver is wired to the Raspberry Pi's I2C, through a Grove I2C hub. The driver makes the supply for its own logic from the battery, as the bullet on its logic supply below explains. The ground wire joins the grounds of the two supplies, and the I2C signals need it as their reference. The Grove I2C Motor Driver page gives the wiring, the jumper J4 and the signal levels.
 
 The battery and the motor driver fit together like this:
 

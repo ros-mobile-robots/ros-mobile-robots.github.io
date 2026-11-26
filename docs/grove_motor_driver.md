@@ -13,7 +13,7 @@ Successfully created package files in /home/fjp/git/diffbot/ros/src/grove_motor_
 ```
 
 The package depends on the two ROS [client libraries](http://wiki.ros.org/Client%20Libraries) [`rospy`](http://wiki.ros.org/rospy) and [`roscpp`](http://wiki.ros.org/roscpp). 
-To control the two motors the package will use the [`geometry_msgs/Twist`](https://docs.ros.org/api/geometry_msgs/html/msg/Twist.html) message.
+The [ROS Node for Motor Driver](#ros-node-for-motor-driver) section describes the velocity messages used by this earlier package.
 The interface to the motor driver is done with the [Python library from DexterInd](https://github.com/DexterInd/GrovePi/blob/master/Software/Python/grove_i2c_motor_driver) 
 which is a rewerite of the [Seeed Studio Arduino library](https://github.com/Seeed-Studio/Grove_I2C_Motor_Driver_v1_3/blob/master).
 
@@ -42,7 +42,7 @@ The board drives DiffBot's two motors with an L298, a chip with two H-bridges.
 
 ### Connection
 
-DiffBot's Raspberry Pi 4 B sends the motor commands on its I2C bus 1, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/).
+The driver is wired to I2C bus 1 of DiffBot's Raspberry Pi 4 B, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/). DiffBot's standard bringup does not start the `motor_driver` node. In [`minimal.launch`]({{ diffbot_src_url }}/diffbot_bringup/launch/minimal.launch#L20-L23), the entry for `motor_driver.py` from the `grove_motor_driver` package is commented out and marked "Deprecated".
 Select DiffBot on the [Electronics](hardware_setup/electronics.md) page to trace the cable through the Grove hub.
 At the Raspberry Pi header, the drawing shows SDA on pin 4 (5 V) and SCL on pin 6 (ground).
 Use the table below for the header connections.
@@ -98,8 +98,7 @@ $ i2cdetect -y 1
 ### Test Motor Driver
 
 Support DiffBot with both drive wheels clear of the ground.
-On its Raspberry Pi, run `python3 motor_example.py` from the `grove_motor_driver/src` directory.
-Watch the wheels turn forward, reverse and stop.
+With the example from the separate `grove_motor_driver` package installed, run `python3 motor_example.py` in that package's `src` directory on the Raspberry Pi. Check whether both wheels turn forward, reverse and stop.
 
 ```console
 fjp@ubuntu:~/git/diffbot/ros/src/grove_motor_driver/src$ python3 motor_example.py 
@@ -227,10 +226,7 @@ Put the motor cells back before you power the Raspberry Pi, then retry the motor
 
 ### ROS Node for Motor Driver
 
-To use the available library of the Grove I2C motor driver in ROS we need to create a wrapper node, called [`motor_driver`](https://github.com/fjp/2wd-robot/blob/master/ros/src/grove_motor_driver/src/motor_driver.py).
-The node subscribes to the topic `/2wd_robot/cmd_vel` which is of type [Twist message](https://docs.ros.org/api/geometry_msgs/html/msg/Twist.html) 
-from the [geometry_msgs](https://docs.ros.org/api/geometry_msgs/html/index-msg.html) header. 
-To send commands to the motor the . These topics can be published with nodes from the navigation stack or with [`rostopic pub`](http://wiki.ros.org/rostopic#rostopic_pub) for test purposes.
+The historical [`motor_driver.py`](https://github.com/ros-mobile-robots/diffbot/blob/f98446cfa658ab520c61faa58146299a4697c736/ros/src/grove_motor_driver/src/motor_driver.py#L11-L38) wrapper subscribed to the relative topic `twist` for `geometry_msgs/Twist` messages. Its callback used the sign of `linear.x` to select forward, reverse or stop.
 
 https://en.wikipedia.org/wiki/Differential_wheeled_robot
 
