@@ -109,23 +109,23 @@ class TabSetParser(HTMLParser):
             self.division_depth -= 1
 
 
-def assert_figure_tabs(test: unittest.TestCase, include_name: str,
+def assert_figure_tabs(test: unittest.TestCase, include_name: str, group: str,
                        expected_tabs: Sequence[ExpectedTab]) -> None:
     """Assert that an include's tabs switch, select the first tab and show their drawings.
 
-    Each label has to switch a radio input of its own in one group, in the labels' order, only
-    the first input may be selected, and the block at each label's position has to hold exactly
-    the expected drawings.
+    Every radio input has to carry the group as its name and the ID group_1, group_2 and so on,
+    each label has to switch the input at its position, only the first input may be selected,
+    and the block at each label's position has to hold exactly the expected drawings.
     """
     parser = TabSetParser()
     parser.feed((ROOT / 'includes' / include_name).read_text(encoding='utf-8'))
-    radio_ids = [radio.element_id for radio in parser.radio_inputs]
-    test.assertEqual(len(radio_ids), len(expected_tabs), include_name)
-    test.assertEqual(len(set(radio_ids)), len(radio_ids), radio_ids)
-    test.assertEqual(len({radio.group for radio in parser.radio_inputs}), 1, include_name)
+    expected_ids = [f'{group}_{number}' for number in range(1, len(expected_tabs) + 1)]
+    test.assertEqual([radio.element_id for radio in parser.radio_inputs], expected_ids)
+    test.assertEqual([radio.group for radio in parser.radio_inputs],
+                     [group] * len(expected_tabs), include_name)
     test.assertEqual([radio.checked for radio in parser.radio_inputs],
                      [True] + [False] * (len(expected_tabs) - 1), include_name)
-    test.assertEqual([label.target_id for label in parser.labels], radio_ids)
+    test.assertEqual([label.target_id for label in parser.labels], expected_ids)
     test.assertEqual([label.text for label in parser.labels],
                      [tab.label for tab in expected_tabs])
     test.assertEqual(parser.title_ids_by_block, [tab.drawing_title_ids for tab in expected_tabs])
@@ -178,6 +178,8 @@ class TestFrameAxes(unittest.TestCase):
     DRAWING_WIDTH, DRAWING_HEIGHT = 340, 306
     FRAME_ORIGIN = imu_sim_robot_figures.Vector3(0.0, 0.0, 0.0)  # m
     AXIS_LENGTH = 42  # SVG units
+    # How far each stroke of a ring's cross reaches from the ring's center, along x and along y
+    CROSS_REACH = 3.2
 
     def test_only_the_upward_axis_points_along_the_line_of_sight_from_above(self) -> None:
         view = imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN)
@@ -230,11 +232,14 @@ class TestFrameAxes(unittest.TestCase):
         self.assertEqual(elements_with_class(frame, 'circle', 'head'), [])
         strokes = [polyline_points(stroke)
                    for stroke in elements_with_class(frame, 'polyline', 'thin')]
-        self.assertEqual(len(strokes), 2, strokes)
-        for first_end, second_end in strokes:
-            middle = board_drawings.Point((first_end.x + second_end.x) / 2,
-                                          (first_end.y + second_end.y) / 2)
-            self.assertEqual(middle, self.ORIGIN)
+        # A stroke may run either way, so each one counts from its left end to its right end
+        diagonals = sorted(tuple(sorted(stroke)) for stroke in strokes)
+        reach = self.CROSS_REACH
+        falling = (board_drawings.Point(self.ORIGIN.x - reach, self.ORIGIN.y - reach),
+                   board_drawings.Point(self.ORIGIN.x + reach, self.ORIGIN.y + reach))
+        rising = (board_drawings.Point(self.ORIGIN.x - reach, self.ORIGIN.y + reach),
+                  board_drawings.Point(self.ORIGIN.x + reach, self.ORIGIN.y - reach))
+        self.assertEqual(diagonals, sorted([falling, rising]))
 
 
 class TestTextsFromValues(unittest.TestCase):
@@ -399,26 +404,49 @@ class TestDriveTimelineScales(unittest.TestCase):
     COMMAND_Y_FOR_THE_FASTER_TURN = 206.0
     WIDER_GRAVITY_TOLERANCE = 1.0  # m/s², twice the test's: the test would accept 8.81 to 10.81
     LOWER_GAZEBO_GRAVITY = 8.5  # m/s², below the 9 m/s² at which the chart starts otherwise
-    EARLY_RESET = 0.08  # s, so early that a fifth of it is shorter than the IMU's period of 0.02 s
+    # Both tests measure from 1 s to 3 s, on a time axis from 0 to 3.3 s between x = 40 and 348
+    MEASURE_LEFT = 133.3
+    MEASURE_RIGHT = 320.0
+    # A reset test whose reset comes so early that a fifth of the time before it is shorter
+    # than the IMU's period of 0.02 s. Its freshness window and its count shrink with it, so a
+    # plugin that keeps the old time still has no fresh sample
+    EARLY_RESET = 0.08  # s
+    EARLY_RECOVERY = 0.06  # s
+    EARLY_FRESH_SAMPLE_COUNT = 2
+    # The panels then show 0.12 s after the reset: 0.2 s on the horizontal axis between x = 34
+    # and 292, and stamps up to 0.12 s between y = 190 and 60. The plugin that keeps the old
+    # time publishes again after 0.18 s, with the stamp 0.10 s
+    NEXT_SAMPLE_FOR_THE_EARLY_RESET = board_drawings.Point(266.2, 81.7)
 
-    def assert_rectangle_inside(self, rectangle: ElementTree.Element, edges: Edges) -> None:
-        """Assert that all four edges of a rect element lie within the edges."""
-        left, top = attribute_number(rectangle, 'x'), attribute_number(rectangle, 'y')
-        self.assertGreaterEqual(left, edges.left)
-        self.assertGreaterEqual(top, edges.top)
-        self.assertLessEqual(left + attribute_number(rectangle, 'width'), edges.right)
-        self.assertLessEqual(top + attribute_number(rectangle, 'height'), edges.bottom)
-        self.assertGreater(attribute_number(rectangle, 'height'), 0)
+    def assert_accepted_band_spans_the_measurement_inside_the_chart(
+            self, drawing: imu_sim_test_figures.Figure) -> None:
+        """Assert that the chart's row has one visible band over the measurement, inside it.
+
+        The legend's key and the wash of the messages' row have the band's class and lie below
+        the chart's row.
+        """
+        chart = self.chart_edges()
+        bands = []
+        for rectangle in elements_with_class(svg_root(drawing), 'rect', 'imu-wash'):
+            left, top = attribute_number(rectangle, 'x'), attribute_number(rectangle, 'y')
+            edges = Edges(left=left, top=top, right=left + attribute_number(rectangle, 'width'),
+                          bottom=top + attribute_number(rectangle, 'height'))
+            if edges.top < chart.bottom and edges.bottom > chart.top:
+                bands.append(edges)
+        self.assertEqual(len(bands), 1, bands)
+        band = bands[0]
+        self.assertAlmostEqual(band.left, self.MEASURE_LEFT, places=6)
+        self.assertAlmostEqual(band.right, self.MEASURE_RIGHT, places=6)
+        self.assertGreater(band.right, band.left)
+        self.assertGreater(band.bottom, band.top)
+        self.assertGreaterEqual(band.top, chart.top)
+        self.assertLessEqual(band.bottom, chart.bottom)
 
     def chart_edges(self) -> Edges:
         """Return the edges of the chart's row on a drive timeline."""
         return Edges(left=imu_sim_test_figures.DRIVE_TIME_LEFT, top=imu_sim_test_figures.CHART.top,
                      right=imu_sim_test_figures.DRIVE_TIME_RIGHT,
                      bottom=imu_sim_test_figures.CHART.bottom)
-
-    def accepted_band(self, drawing: imu_sim_test_figures.Figure) -> ElementTree.Element:
-        """Return the rectangle of the accepted band: the first orange wash of a timeline."""
-        return elements_with_class(svg_root(drawing), 'rect', 'imu-wash')[0]
 
     def test_time_axis_ends_shortly_after_the_last_command_of_the_tests(self) -> None:
         self.assertEqual(imu_sim_test_figures.drive_time_scale(),
@@ -458,13 +486,13 @@ class TestDriveTimelineScales(unittest.TestCase):
     def test_left_turn_keeps_the_accepted_band_inside_the_chart_for_a_faster_turn(self) -> None:
         with mock.patch.object(imu_sim_test_figures, 'TURN_RATE', self.FASTER_TURN_RATE):
             drawing = imu_sim_test_figures.left_turn_figure()
-        self.assert_rectangle_inside(self.accepted_band(drawing), self.chart_edges())
+        self.assert_accepted_band_spans_the_measurement_inside_the_chart(drawing)
 
     def test_at_rest_keeps_the_accepted_band_inside_the_chart_for_a_wider_tolerance(self) -> None:
         with mock.patch.object(imu_sim_test_figures, 'GRAVITY_TOLERANCE',
                                self.WIDER_GRAVITY_TOLERANCE):
             drawing = imu_sim_test_figures.at_rest_figure()
-        self.assert_rectangle_inside(self.accepted_band(drawing), self.chart_edges())
+        self.assert_accepted_band_spans_the_measurement_inside_the_chart(drawing)
 
     def test_at_rest_keeps_the_reference_line_inside_the_chart_for_a_lower_gravity(self) -> None:
         with mock.patch.object(imu_sim_test_figures, 'GAZEBO_GRAVITY', self.LOWER_GAZEBO_GRAVITY):
@@ -477,14 +505,14 @@ class TestDriveTimelineScales(unittest.TestCase):
         self.assertEqual(vertical_path_positions(lines[0]), [chart.bottom])
 
     def test_old_time_panel_marks_the_next_sample_inside_the_plot_for_an_early_reset(self) -> None:
-        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', self.EARLY_RESET):
-            drawing = imu_sim_test_figures.reset_with_the_old_time_figure()
-        markers = elements_with_class(svg_root(drawing), 'circle', 'imu-dot')
-        self.assertEqual(len(markers), 1, markers)
-        self.assertLessEqual(attribute_number(markers[0], 'cx'),
-                             imu_sim_test_figures.RESET_PLOT_RIGHT)
-        self.assertGreaterEqual(attribute_number(markers[0], 'cy'),
-                                imu_sim_test_figures.RESET_PLOT_TOP)
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', self.EARLY_RESET), \
+                mock.patch.object(imu_sim_test_figures, 'RECOVERY', self.EARLY_RECOVERY), \
+                mock.patch.object(imu_sim_test_figures, 'FRESH_SAMPLE_COUNT',
+                                  self.EARLY_FRESH_SAMPLE_COUNT):
+            markers = sample_markers(imu_sim_test_figures.reset_with_the_old_time_figure())
+        self.assertEqual(markers, [self.NEXT_SAMPLE_FOR_THE_EARLY_RESET])
+        self.assertLessEqual(markers[0].x, imu_sim_test_figures.RESET_PLOT_RIGHT)
+        self.assertGreaterEqual(markers[0].y, imu_sim_test_figures.RESET_PLOT_TOP)
 
 
 class TestResetPanels(unittest.TestCase):
@@ -585,14 +613,16 @@ class TestThreadDrawings(unittest.TestCase):
             root = svg_root(drawing)
             marker_ids = [marker.attrib['id'] for marker in root.iter('marker')]
             self.assertEqual(marker_ids, [f'{drawing.name}-flow', f'{drawing.name}-request'])
-            arrows = [path.attrib['marker-end'] for path in root.iter('path')
-                      if 'marker-end' in path.attrib]
-            self.assertGreater(len(arrows), 0)
-            for marker_end in arrows:
-                self.assertIn(marker_end, [f'url(#{marker_id})' for marker_id in marker_ids])
+            for kind in ('flow', 'request'):
+                # Inside the drawing: the markers' own paths have the classes flow-head and
+                # request-head
+                arrows = elements_with_class(root, 'path', kind)
+                self.assertGreater(len(arrows), 0, f'{drawing.name}: no {kind} arrow')
+                self.assertEqual([arrow.get('marker-end') for arrow in arrows],
+                                 [f'url(#{drawing.name}-{kind})'] * len(arrows))
 
     def test_include_has_a_working_tab_per_drawing_under_its_label(self) -> None:
-        assert_figure_tabs(self, 'imu-sim-threads.html', [
+        assert_figure_tabs(self, 'imu-sim-threads.html', '__tabbed_th', [
             ExpectedTab(imu_sim_figures.ORIGINAL_TAB_LABEL, ['th-original-title']),
             ExpectedTab(imu_sim_figures.COPY_TAB_LABEL, ['th-copy-title'])])
 
@@ -608,7 +638,7 @@ class TestFrameTabs(unittest.TestCase):
     """The frames' include has one tab per robot, with the labels of the page's tabs."""
 
     def test_include_has_a_working_tab_per_robot_under_its_label(self) -> None:
-        assert_figure_tabs(self, 'imu-sim-frames.html', [
+        assert_figure_tabs(self, 'imu-sim-frames.html', '__tabbed_imuframes', [
             ExpectedTab(imu_sim_robot_figures.REMO_TAB_LABEL,
                         ['imu-frames-above-title', 'imu-frames-side-title']),
             ExpectedTab(imu_sim_robot_figures.DIFFBOT_TAB_LABEL, ['imu-frames-diffbot-title'])])
@@ -625,32 +655,33 @@ class TestDiffbotMounting(unittest.TestCase):
     """DiffBot's drawing puts imu_link straight above chassis_link, by the model's height."""
 
     PLACEHOLDER_HEIGHT_M = 0.01  # imu_link above chassis_link in DiffBot's URDF model
-    # The magnified box draws 1 m as 1500 units, four times larger: 0.01 m rises by 60 units
-    EXPECTED_INSET_RISE = 60.0
     OTHER_HEIGHT_M = 0.015
-    EXPECTED_OTHER_RISE = 90.0
+    # The magnified box, between x = 150 and 330 and down to y = 150, has chassis_link's origin
+    # 65 units from its left edge and 15 above its lower edge
+    CHASSIS_ORIGIN = board_drawings.Point(215.0, 135.0)
+    # The box draws 1 m as 1500 units, four times larger: 0.01 m rises by 60 units, 0.015 m by 90
+    IMU_ORIGIN = board_drawings.Point(215.0, 75.0)
+    IMU_ORIGIN_AT_THE_OTHER_HEIGHT = board_drawings.Point(215.0, 45.0)
 
-    def joint_in_the_magnified_box(
-            self, drawing: imu_sim_robot_figures.Figure) -> List[board_drawings.Point]:
-        """Return the two ends of the one dashed line that the drawing has for imu_joint."""
+    def assert_joint_endpoints(self, drawing: imu_sim_robot_figures.Figure,
+                               expected_start: board_drawings.Point,
+                               expected_end: board_drawings.Point) -> None:
+        """Assert that the drawing has one dashed line for imu_joint, between the two points."""
         joints = elements_with_class(svg_root(drawing), 'polyline', 'joint')
         self.assertEqual(len(joints), 1, joints)
-        return polyline_points(joints[0])
+        self.assertEqual(polyline_points(joints[0]), [expected_start, expected_end])
 
     def test_diffbot_drawing_draws_imu_joint_straight_up_by_the_models_height(self) -> None:
         self.assertEqual(imu_sim_robot_figures.DIFFBOT_IMU_POSITION.z, self.PLACEHOLDER_HEIGHT_M)
-        chassis, imu = self.joint_in_the_magnified_box(
-            imu_sim_robot_figures.frames_on_diffbot_figure())
-        self.assertEqual(imu.x - chassis.x, 0.0)
-        self.assertAlmostEqual(chassis.y - imu.y, self.EXPECTED_INSET_RISE, places=2)
+        self.assert_joint_endpoints(imu_sim_robot_figures.frames_on_diffbot_figure(),
+                                    self.CHASSIS_ORIGIN, self.IMU_ORIGIN)
 
     def test_diffbot_drawing_draws_imu_joint_as_long_as_another_height(self) -> None:
         other_position = imu_sim_robot_figures.Vector3(0.0, 0.0, self.OTHER_HEIGHT_M)
         with mock.patch.object(imu_sim_robot_figures, 'DIFFBOT_IMU_POSITION', other_position):
-            chassis, imu = self.joint_in_the_magnified_box(
-                imu_sim_robot_figures.frames_on_diffbot_figure())
-        self.assertEqual(imu.x - chassis.x, 0.0)
-        self.assertAlmostEqual(chassis.y - imu.y, self.EXPECTED_OTHER_RISE, places=2)
+            drawing = imu_sim_robot_figures.frames_on_diffbot_figure()
+        self.assert_joint_endpoints(drawing, self.CHASSIS_ORIGIN,
+                                    self.IMU_ORIGIN_AT_THE_OTHER_HEIGHT)
 
     def test_diffbot_drawing_names_the_models_height(self) -> None:
         drawing = imu_sim_robot_figures.frames_on_diffbot_figure()
