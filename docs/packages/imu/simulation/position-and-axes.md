@@ -172,7 +172,12 @@ The macro's link gives the IMU a shape, a collision box and a mass. The excerpt 
 
 [`imu`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml#L16) in these lines holds the IMU's settings. They reach the link in three steps:
 
-1. DiffBot's [xacro](#the-link-and-the-joint-in-the-robots-urdf-model) file reads the file [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml) into the property [`sensor_prop`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33), in [lines 32–33 of `diffbot.urdf.xacro`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33).
+1. DiffBot's [xacro](#the-link-and-the-joint-in-the-robots-urdf-model) file reads the file [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml) into the property `sensor_prop`. The xacro file builds the YAML path and loads it into that property, in [`diffbot.urdf.xacro`, lines 32–33]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33):
+
+    ```xml title="diffbot.urdf.xacro: the property sensor_prop" linenums="32"
+    --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:32:33"
+    ```
+
 2. The call passes `sensor_prop` to the macro, as step 3 of the list above says.
 3. The highlighted line takes the entry `imu` out of `sensor_prop`.
 
@@ -182,4 +187,4 @@ The excerpt shows the entry, from [`sensors.yaml`, lines 16–26]({{ imu_sim_src
 --8<-- "{{ imu_sim_src_raw }}/diffbot_description/config/diffbot/sensors.yaml:16:26"
 ```
 
-DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and [`box_inertia`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L305) gives the link the board's mass, 3 g. Remo's entry names a mesh of the BNO055 board, in [lines 38–51 of Remo's `sensors.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/config/remo/sensors.yaml#L38-L51).
+DiffBot's entry has no mesh, so the link draws a red box of the board's size, 27 × 20 × 4 mm. The collision box has the same size, and [`box_inertia`]({{ imu_sim_src_url }}/diffbot_description/urdf/include/common_macros.urdf.xacro#L305) gives the link the board's mass, 3 g. Remo's [`sensors.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/config/remo/sensors.yaml#L38-L51) entry names the mesh for the BNO055 board.

@@ -144,7 +144,7 @@ So every reading is the acceleration minus gravity, on all three axes. A real ac
 The list has four cases. The figure shows the first three:
 
 - **At rest**, $\mathbf a$ is zero. With `imu_link`'s z axis up, gravity is $\mathbf g = (0, 0, -9.8)$ m/s², so the sensor reads $\mathbf f = (0, 0, +9.8)$ m/s². The floor holds the robot up, and the sensor reads that as 9.8 m/s² upward, although the robot doesn't move. At a steady speed in a straight line on a level floor, $\mathbf a$ is zero too, and the reading is the same.
-- **Speeding up forward** with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is `imu_link`'s y axis, so the three numbers of this example are (0, +0.5, +9.8) m/s². The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller raises the robots' speed by at most 0.6 m/s in a second, the [`max_acceleration`]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L48) in [lines 47–48 of its configuration]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L47-L48).
+- **Speeding up forward** with 0.5 m/s², the sensor reads 0.5 m/s² forward and 9.8 m/s² up. On Remo, forward is `imu_link`'s y axis, so the three numbers of this example are (0, +0.5, +9.8) m/s². The reading leans forward by only 3° from straight up, so the figure shows its tip in a circle, ten times larger. The forward value stays small next to the 9.8: the drive controller's [`max_acceleration`]({{ imu_sim_src_url }}/diffbot_control/config/diffbot_control.yaml#L47-L48) setting limits forward acceleration to 0.6 m/s².
 - **In a turn**, the sensor moves on a circle, and its acceleration points to the circle's center. So the sensor accelerates although the turn rate stays the same. Its size is the turn rate squared times the distance to the center. Remo's IMU sits 8 cm from the midpoint of the wheel axle, which Remo turns about on the spot. At 0.5 rad/s, that gives $0.5^2 \cdot 0.08 = 0.02$ m/s², which is tiny next to the 9.8 m/s².
 - **In free fall**, nothing holds the sensor up. $\mathbf a$ equals $\mathbf g$, and the sensor reads 0 m/s² on all three axes.
 
@@ -170,7 +170,7 @@ $$
 \end{pmatrix}
 $$
 
-- **On the diagonal** are the variances. $\sigma_x^2$ is the variance of the angular velocity about x: the square of its standard deviation $\sigma_x$, which says how far the value typically lies from the true one.
+- **On the diagonal** are the variances. For angular velocity about x, the variance $\sigma_x^2$ is the square of the standard deviation $\sigma_x$. The standard deviation describes how widely repeated readings scatter around their mean.
 - **Off the diagonal** are the covariances. $\sigma_{xy}$ says whether the errors of the values about x and about y go up and down together. It's 0 when the two errors have nothing to do with each other. $\sigma_{xy}$ and $\sigma_{yx}$ are always equal.
 
 The linear acceleration's matrix is built the same way, for its three components along the x, y and z axes. The orientation's matrix has three rows and three columns too, although a quaternion has four numbers. Its rows and columns stand for the rotation's errors about the x, y and z axes, not for three of the quaternion's four numbers. [`Imu.msg`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L18) says so in the comment of its line 18: "about x, y, z axes".

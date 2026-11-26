@@ -717,8 +717,8 @@ def reset_caption() -> str:
             'with a stamp later than 0 s, later than the last fresh stamp and below `RECOVERY`, '
             f'{RECOVERY:g} s. In this ideal run, these are the '
             'samples in the gray area. The test '
-            f'passes with {FRESH_SAMPLE_COUNT} fresh samples, which have to arrive within '
-            f'{RECOVERY_TIMEOUT:g} s of wall time. The dot in the first panel is sample '
+            f'passes with {FRESH_SAMPLE_COUNT} fresh samples. It polls with a wall-time timeout '
+            f'of {RECOVERY_TIMEOUT:g} s. The dot in the first panel is sample '
             f'{FRESH_SAMPLE_COUNT}, stamped about {FRESH_SAMPLE_COUNT * IMU_PERIOD:.2f} s. A '
             'repeated stamp doesn’t count, so a stream that repeats one stamp fails.')
 
