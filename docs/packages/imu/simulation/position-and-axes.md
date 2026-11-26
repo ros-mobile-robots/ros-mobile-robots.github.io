@@ -172,7 +172,7 @@ The macro's link gives the IMU a shape, a collision box and a mass. The excerpt 
 
 [`imu`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml#L16) in these lines holds the IMU's settings. They reach the link in three steps:
 
-1. DiffBot's [xacro](#the-link-and-the-joint-in-the-robots-urdf-model) file reads the file [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml) into the property `sensor_prop`. The xacro file builds the YAML path and loads it into that property, in [`diffbot.urdf.xacro`, lines 32–33]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33):
+1. DiffBot's [xacro](#the-link-and-the-joint-in-the-robots-urdf-model) file reads the file [`sensors.yaml`]({{ imu_sim_src_url }}/diffbot_description/config/diffbot/sensors.yaml) into the property [`sensor_prop`]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33). The xacro file builds the YAML path and loads it into that property, in [`diffbot.urdf.xacro`, lines 32–33]({{ imu_sim_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L32-L33):
 
     ```xml title="diffbot.urdf.xacro: the property sensor_prop" linenums="32"
     --8<-- "{{ imu_sim_src_raw }}/diffbot_description/urdf/diffbot.urdf.xacro:32:33"
