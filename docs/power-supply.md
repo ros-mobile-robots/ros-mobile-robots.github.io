@@ -1,6 +1,6 @@
 # Power Supply
 
-On both robots, a USB power bank runs the Raspberry Pi, and a separate battery runs the motors through their driver. DiffBot uses four primary alkaline AA cells in the kit's holder. Remo uses eight rechargeable nickel-metal hydride (NiMH) AA cells. Check the driver's input range before you choose cells of another type.
+On both robots, a USB power bank supplies the Raspberry Pi. A separate battery connects to the motor driver's power input. DiffBot uses four primary alkaline AA cells in the kit's holder. Remo uses eight rechargeable nickel-metal hydride (NiMH) AA cells. Check the driver's input range before you choose cells of another type.
 
 | | DiffBot | Remo |
 | --- | --- | --- |
