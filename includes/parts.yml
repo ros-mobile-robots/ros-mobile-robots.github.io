@@ -96,7 +96,7 @@ parts:
       - label: Amazon.de
         ref: amazon_battery_holder_8x_aa_ger
   nimh-aa-2000mah:
-    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics), eight per robot from one 8-pack
+    name: NiMH AA cell, 1.2 V, 2000 mAh (Amazon Basics), eight for Remo from one 8-pack
     offers:
       - label: Amazon.com (8-pack)
         ref: amazon_nimh_aa_2000mah_8x_us

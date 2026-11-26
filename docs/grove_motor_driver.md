@@ -37,54 +37,44 @@ pip3 install smbus
 
 ### Connection
 
-Connect the I2C port of the motor driver to the I2C port 1 of the Raspberry Pi 4 B.
-Two things matter for this connection: the voltage of the two signals and a common ground.
+DiffBot's Raspberry Pi 4 B sends the motor commands on its I2C bus 1, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/).
+Select DiffBot on the [Electronics](hardware_setup/electronics.md) page to see the cable routing.
+The drawing also attaches the data wire to the adjacent pin 4 (5 V) and the clock wire to the adjacent pin 6 (ground).
+Use the physical header pins in the table for the wiring.
+Shut down the Raspberry Pi, unplug its power bank and take out the motor cells before you change connections.
 
-- **Signal voltage:** The motor driver's I2C bus works with 5 V ([Seeed's specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)). The Raspberry Pi's GPIO pins work with 3.3 V and aren't 5 V tolerant ([Raspberry Pi's documentation of the 40-pin GPIO header](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)). So the data line SDA and the clock line SCL go through a bidirectional I2C level shifter, for example [Adafruit's BSS138 level converter](https://www.adafruit.com/product/757). The level shifter connects the 3.3 V signals on its low side with the 5 V signals on its high side.
-- **Common ground:** Each board measures the voltages on SDA and SCL against its own ground. On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and eight NiMH AA cells for the motor driver ([Power Supply](power-supply.md)). So the grounds of the Raspberry Pi, the level shifter and the motor driver have to be connected.
+| Signal | Raspberry Pi header to the hub's port J1 | Hub's port J4 to the driver's Grove I2C connector |
+| --- | --- | --- |
+| SDA, data | Pin 3, GPIO2 → SDA | SDA → SDA |
+| SCL, clock | Pin 5, GPIO3 → SCL | SCL → SCL |
+| 5 V supply | Pin 2 → breadboard's positive rail → VCC | VCC → VCC |
+| Ground | Pin 9 → breadboard's ground rail → GND | GND → GND |
 
-!!! warning "Not tested on a DiffBot yet"
-    The wiring below follows the specifications of the two boards. It isn't tested on a DiffBot yet.
+The Raspberry Pi's power bank and the motor battery share their ground through the hub and the driver.
+Both boards use this ground as the reference for SDA and SCL.
+The Raspberry Pi's 5 V rail also supplies both wheel encoders.
 
-Switch off both supplies before you connect the wires: shut down the Raspberry Pi and unplug its power bank, and take the batteries out of the motor driver's holder.
-With Adafruit's converter as the example, each row is one wire. The pins of the Raspberry Pi are those of its 40-pin header ([I2C pinout](https://pinout.xyz/pinout/i2c)), and the level shifter's pins are named as printed on its board:
+On the motor driver, the jumper J4 connects the output of the board's regulator to the VCC pin of the Grove connector.
+Seeed asks to remove this jumper when the battery powers the screw terminal and the Raspberry Pi supplies the connector, as in DiffBot's wiring ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
+With the jumper removed, the regulator supplies the driver's logic, the Raspberry Pi supplies the connector's VCC pin, and the grounds stay connected.
 
-| From | To |
-| --- | --- |
-| Raspberry Pi pin 1, 3.3 V | Level shifter `LV` |
-| Motor driver's I2C connector, VCC | Level shifter `HV` |
-| Raspberry Pi pin 6, GND | Level shifter `GND`, on the `LV` side |
-| Level shifter `GND`, on the `HV` side | Motor driver's I2C connector, GND |
-| Raspberry Pi pin 3, SDA | Level shifter `A1` |
-| Level shifter `B1` | Motor driver's I2C connector, SDA |
-| Raspberry Pi pin 5, SCL | Level shifter `A2` |
-| Level shifter `B2` | Motor driver's I2C connector, SCL |
+DiffBot connects SDA and SCL through the hub without a level shifter.
+I2C devices pull these lines low, and pull-up resistors bring them high when the devices release them.
+GPIO2 and GPIO3 each have a fixed 1.8 kΩ pull-up to 3.3 V on the Raspberry Pi.
+Its GPIO inputs are designed for 3.3 V signals and can be damaged by 5 V ([Raspberry Pi's documentation of the 40-pin GPIO header](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)).
+Seeed lists 5 V for the driver's I2C interface ([specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications)).
+The idle voltages on DiffBot's connected signal lines haven't been measured.
 
-The level shifter connects `A1` with `B1` and `A2` with `B2` itself. Don't connect these pins with a wire.
+With the motor cells removed and the Raspberry Pi powered, SDA and SCL can feed the unpowered microcontroller of the driver, an ATmega8, through the protection diodes of its inputs ([ATmega8 datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf), I/O Ports).
+So shut down and unplug the Raspberry Pi before you take out the motor cells, and put the cells back before you power the Raspberry Pi.
 
-Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and the logic supply of the motor driver, which Seeed gives as 5 V.
-The motor driver makes this supply from its batteries, with its own 5 V regulator.
-DiffBot's eight NiMH cells give the regulator enough input for its 5 V, as [DiffBot: eight NiMH cells and the Grove I2C Motor Driver](power-supply.md#diffbot-eight-nimh-cells-and-the-grove-i2c-motor-driver) on the Power Supply page explains.
-Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the I2C connector, and Seeed asks for the jumper when 5 V should be supplied to the I2C bus ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
-Connect this VCC pin only to the level shifter's `HV`, never to the Raspberry Pi, which has its own supply.
-The GND pin of the I2C connector is connected to the board's ground, with or without the jumper.
+Set the driver's DIP switches to the address `0x0f` to match the Python library ([`grove_i2c_motor_driver.py`](https://github.com/ros-mobile-robots/diffbot/blob/f98446cfa658ab520c61faa58146299a4697c736/ros/src/grove_motor_driver/src/grove_i2c_motor_driver.py#L35-L38)).
+[Seeed's address switch diagram](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/img/I2CMotorDriver-9.jpg) shows how the switches encode the address.
 
-Keep the motor driver powered whenever the Raspberry Pi has power.
-Without its batteries, the motor driver would get current from the Raspberry Pi's 3.3 V side through the level shifter and the SDA and SCL wires.
-These wires end at the board's microcontroller, an ATmega8 ([Seeed's schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), and each of its pins has a protection diode to its supply line ([ATmega8 datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf), I/O Ports).
-The level shifter keeps the two sides apart only when the Raspberry Pi's side is off ([Philips application note AN97055](https://cdn-shop.adafruit.com/datasheets/an97055.pdf), section 2.3.4).
-So recharge the cells in this order:
-
-1. Stop the motors and shut down the Raspberry Pi.
-2. Unplug the Raspberry Pi's power bank. After a shutdown, the Raspberry Pi keeps power on its header while the power bank is plugged in ([Raspberry Pi's bootloader documentation, `POWER_OFF_ON_HALT`](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#POWER_OFF_ON_HALT)).
-3. Take out the eight cells, recharge them as [Charging the NiMH cells](power-supply.md#charging-the-nimh-cells) on the Power Supply page describes, and put them back.
-4. Plug the power bank in again, which starts the Raspberry Pi.
-
-Make sure to set the address with the dip switches on the motor driver to `0x0f` because this is the default address used
-in the library files.
-
-To test the physical I2C connection use `i2cdetect` described in [Hardware Interfaces](processing_units/hardware-interfaces.md#single-board-computer-i2c-connection):
-The output should list `0f` in the address table:
+To check that the driver responds to motor commands, follow [Test Motor Driver](#test-motor-driver).
+The GrovePi motor example advises against scanning this controller with `i2cdetect`, because the driver can stop responding and hold the clock line low ([`motor_example.py`](https://github.com/ros-mobile-robots/diffbot/blob/f98446cfa658ab520c61faa58146299a4697c736/ros/src/grove_motor_driver/src/motor_example.py#L9-L13)).
+If this happens after a scan, try the driver's `RESET` button.
+The following output records a scan on DiffBot's Raspberry Pi. A device answered at the configured address, `0x0f`, on bus 1.
 
 ```console
 $ i2cdetect -y 1
@@ -101,7 +91,9 @@ $ i2cdetect -y 1
 
 ### Test Motor Driver
 
-Test the motor driver by running one of the python files:
+Support DiffBot with both drive wheels clear of the ground.
+On its Raspberry Pi, run `python3 motor_example.py` from the `grove_motor_driver/src` directory.
+Watch the wheels turn forward, reverse and stop.
 
 ```console
 fjp@ubuntu:~/git/diffbot/ros/src/grove_motor_driver/src$ python3 motor_example.py 
@@ -189,8 +181,8 @@ Traceback (most recent call last):
 IOError: [Errno 121] Remote I/O error
 ```
 
-Try pressing the `RESET` button and release it right before executing one of the scripts.
-You should also be able to detect the motor driver with `i2cdetect -y 1`:
+If the driver remains unresponsive, press and release its `RESET` button, then retry the motor example.
+The following terminal output records a scan of bus 1 on DiffBot.
 
 ```console
 fjp@ubuntu:~/git/2wd-robot/ros/src/control/src$ sudo i2cdetect -y 1
@@ -205,10 +197,9 @@ fjp@ubuntu:~/git/2wd-robot/ros/src/control/src$ sudo i2cdetect -y 1
 70: -- -- -- -- -- -- -- --
 ```
 
-As you can see the address of the motor driver is detected at `0x0f`.
-
-In case of the following output, where every address of the I2C bus seems to be taken,
-it is most likely that the SDA (data) and SCL (clock) signal cables are switched:
+The first capture shows a response at `0x0f`.
+In the capture below, the scan reports a response at every probed address.
+The output alone doesn't identify the cause.
 
 ```console
 i2cdetect -y 1
@@ -223,10 +214,9 @@ i2cdetect -y 1
 70: 70 71 72 73 74 75 76 77
 ```
 
-To solve this make sure the SDA and SCL cables are connected to the right pins on the Raspberry Pi.
-See [Hardware Interfaces](processing_units/hardware-interfaces.md#single-board-computer-i2c-connection) for more infos.
-
-Another solution is to restart the Raspberry Pi while making sure that the motor driver is powerd on by connecting it to the battery pack.
+To check the wiring, shut down and unplug the Raspberry Pi, then take out the motor cells.
+Check SDA at the physical pin 3, SCL at the physical pin 5 and the common ground against the [Connection table](#connection).
+Put the motor cells back before you power the Raspberry Pi, then retry the motor example.
 
 
 ### ROS Node for Motor Driver
