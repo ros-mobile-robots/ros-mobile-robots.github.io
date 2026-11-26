@@ -228,7 +228,8 @@ RULES = (
 
 def dot(first: Vector3, second: Vector3) -> float:
     """Return the dot product of two vectors."""
-    return sum(a * b for a, b in zip(first, second))
+    return sum(first_component * second_component
+               for first_component, second_component in zip(first, second))
 
 
 def cross(first: Vector3, second: Vector3) -> Vector3:
@@ -238,7 +239,7 @@ def cross(first: Vector3, second: Vector3) -> Vector3:
                    first.x * second.y - first.y * second.x)
 
 
-def add(start: Vector3, direction: Vector3, length: float = 1.0) -> Vector3:
+def offset_point(start: Vector3, direction: Vector3, length: float = 1.0) -> Vector3:
     """Return the position that lies length times direction away from start."""
     return Vector3(start.x + length * direction.x, start.y + length * direction.y,
                    start.z + length * direction.z)
@@ -340,15 +341,17 @@ class Figure:
         path = ' '.join(f'{x:.2f},{y:.2f}' for x, y in points)
         self.elements.append(f'<polyline class="{css_class}" points="{path}"/>')
 
-    def head(self, tip: Point, direction: Point, css_class: str, size: float = 8.0) -> None:
+    def draw_arrowhead(self, tip: Point, direction: Point, css_class: str,
+                       size: float = 8.0) -> None:
         """Add an arrowhead whose tip points along direction."""
         length = math.hypot(*direction)
         along = Point(direction.x / length, direction.y / length)
         across = Point(-along.y, along.x)
         base = Point(tip.x - size * along.x, tip.y - size * along.y)
-        half = 0.42 * size
-        self.polygon([tip, Point(base.x + half * across.x, base.y + half * across.y),
-                      Point(base.x - half * across.x, base.y - half * across.y)],
+        half_width = 0.42 * size
+        self.polygon([tip,
+                      Point(base.x + half_width * across.x, base.y + half_width * across.y),
+                      Point(base.x - half_width * across.x, base.y - half_width * across.y)],
                      f'head {css_class}')
 
     def arrow(self, start: Point, end: Point, css_class: str, size: float = 8.0) -> None:
@@ -358,14 +361,14 @@ class Figure:
         shaft_end = Point(end.x - 0.8 * size * direction.x / length,
                           end.y - 0.8 * size * direction.y / length)
         self.polyline([start, shaft_end], f'shaft {css_class}')
-        self.head(end, direction, css_class, size)
+        self.draw_arrowhead(end, direction, css_class, size)
 
     def curved_arrow(self, points: Sequence[Point], css_class: str, size: float = 7.0) -> None:
         """Add an arrow along the points, with its head at the last one."""
         self.polyline(points[:-1], f'shaft {css_class}')
         tip, before_the_tip = points[-1], points[-3]
         direction = Point(tip.x - before_the_tip.x, tip.y - before_the_tip.y)
-        self.head(tip, direction, css_class, size)
+        self.draw_arrowhead(tip, direction, css_class, size)
 
     def text(self, position: Point, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
@@ -396,7 +399,7 @@ def box_corners(box: Box) -> List[Vector3]:
             for z in (box.z_min, box.z_max)]
 
 
-def imu_board() -> Box:
+def remo_imu_board() -> Box:
     """Return the BNO055 board as a box in chassis_link's axes.
 
     imu_link is turned by -90 degrees about z, so the board's x edge lies along the robot's y axis.
@@ -407,7 +410,8 @@ def imu_board() -> Box:
                z - height / 2, z + height / 2)
 
 
-def outline(figure: Figure, view: View, box: Box, css_class: str, radius: float = 0) -> None:
+def draw_box_outline(figure: Figure, view: View, box: Box, css_class: str,
+                     radius: float = 0) -> None:
     """Add a box as the rectangle that a view along one of the axes shows."""
     points = [view.project(corner) for corner in box_corners(box)]
     figure.rectangle(Point(min(point.x for point in points), min(point.y for point in points)),
@@ -424,21 +428,22 @@ def draw_remo_from_above(figure: Figure, view: View) -> None:
     """Add Remo as the view from above shows it: wheels, deck, breadboard and IMU board."""
     for side in WheelSide:
         x, y, z = wheel_center(side)
-        outline(figure, view, Box(x - WHEEL_RADIUS, x + WHEEL_RADIUS, y - WHEEL_WIDTH / 2,
-                                  y + WHEEL_WIDTH / 2, z, z), 'wheel', 4)
-    outline(figure, view, DECK, 'body', 5)
-    outline(figure, view, BREADBOARD, 'part', 2)
-    outline(figure, view, imu_board(), 'board', 1.5)
+        wheel_from_above = Box(x - WHEEL_RADIUS, x + WHEEL_RADIUS, y - WHEEL_WIDTH / 2,
+                               y + WHEEL_WIDTH / 2, z, z)
+        draw_box_outline(figure, view, wheel_from_above, 'wheel', 4)
+    draw_box_outline(figure, view, DECK, 'body', 5)
+    draw_box_outline(figure, view, BREADBOARD, 'part', 2)
+    draw_box_outline(figure, view, remo_imu_board(), 'board', 1.5)
 
 
 def draw_remo_from_the_side(figure: Figure, view: View) -> None:
     """Add Remo as the view from its right side shows it, standing on the floor."""
     caster = view.project(Vector3(CASTER_X, 0.0, FLOOR_Z + CASTER_RADIUS))
     figure.circle(caster, CASTER_RADIUS * view.scale, 'wheel')
-    outline(figure, view, PLATE, 'body', 2)
-    outline(figure, view, DECK, 'body')
-    outline(figure, view, BREADBOARD, 'part', 1.5)
-    outline(figure, view, imu_board(), 'board', 1)
+    draw_box_outline(figure, view, PLATE, 'body', 2)
+    draw_box_outline(figure, view, DECK, 'body')
+    draw_box_outline(figure, view, BREADBOARD, 'part', 1.5)
+    draw_box_outline(figure, view, remo_imu_board(), 'board', 1)
     wheel = view.project(wheel_center(WheelSide.RIGHT))
     figure.circle(wheel, WHEEL_RADIUS * view.scale, 'wheel')
     figure.circle(wheel, HUB_RADIUS * view.scale, 'body')
@@ -467,10 +472,12 @@ def visible_faces(view: View, box: Box) -> List[List[Vector3]]:
             if view.toward_viewer(Vector3(*normal)) <= 0:
                 continue
             corners = []
-            for a, b in ((low[first], low[second]), (high[first], low[second]),
-                         (high[first], high[second]), (low[first], high[second])):
+            for first_coordinate, second_coordinate in (
+                    (low[first], low[second]), (high[first], low[second]),
+                    (high[first], high[second]), (low[first], high[second])):
                 corner = [0.0, 0.0, 0.0]
-                corner[axis], corner[first], corner[second] = value, a, b
+                corner[axis], corner[first], corner[second] = (
+                    value, first_coordinate, second_coordinate)
                 corners.append(Vector3(*corner))
             faces.append(corners)
     return faces
@@ -486,10 +493,13 @@ def convex_hull(points: Sequence[Point]) -> List[Point]:
     """Return the corners of the smallest convex shape around the points."""
     ordered = sorted(set(points))
 
-    def turns_left(a: Point, b: Point, c: Point) -> bool:
-        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0
+    def turns_left(start: Point, middle: Point, end: Point) -> bool:
+        """Return whether the ordered vertices make a left turn."""
+        return ((middle.x - start.x) * (end.y - start.y)
+                - (middle.y - start.y) * (end.x - start.x)) > 0
 
-    def half(sequence: Sequence[Point]) -> List[Point]:
+    def hull_chain(sequence: Sequence[Point]) -> List[Point]:
+        """Build one hull chain and omit its shared endpoint."""
         hull: List[Point] = []
         for point in sequence:
             while len(hull) >= 2 and not turns_left(hull[-2], hull[-1], point):
@@ -497,7 +507,7 @@ def convex_hull(points: Sequence[Point]) -> List[Point]:
             hull.append(point)
         return hull[:-1]
 
-    return half(ordered) + half(ordered[::-1])
+    return hull_chain(ordered) + hull_chain(ordered[::-1])
 
 
 def wheel_rim(view: View, side: WheelSide, y_offset: float, radius: float) -> List[Point]:
@@ -526,12 +536,16 @@ def draw_remo_from_behind(figure: Figure, view: View) -> None:
     draw_box(figure, view, PLATE, 'body')
     draw_box(figure, view, DECK, 'body')
     draw_box(figure, view, BREADBOARD, 'part')
-    draw_box(figure, view, imu_board(), 'board')
+    draw_box(figure, view, remo_imu_board(), 'board')
     draw_wheel(figure, view, WheelSide.RIGHT)
 
 
 def points_along_the_line_of_sight(view: View, direction: Vector3) -> bool:
-    """Return whether a direction points at the viewer or away from the viewer."""
+    """Return whether a direction points at the viewer or away from the viewer.
+
+    A direction counts as along the line of sight within the projected-length threshold: when
+    its arrow on the drawing would be shorter than RING_SHARE of its length.
+    """
     return math.hypot(*view.on_drawing(direction, 1.0)) < RING_SHARE
 
 
@@ -603,17 +617,17 @@ def draw_joint(figure: Figure, view: View, imu_position: Optional[Vector3] = Non
     figure.polyline([view.project(CHASSIS_ORIGIN), view.project(end)], 'joint')
 
 
-def number(value: float) -> str:
+def format_number(value: float) -> str:
     """Return a value with at most two decimals, without a plus sign."""
     return f'{value:.2f}'.rstrip('0').rstrip('.')
 
 
-def centimeters(meters: float) -> str:
+def format_centimeters(meters: float) -> str:
     """Return a length in cm with at most two decimals, without the unit."""
-    return number(100 * meters)
+    return format_number(100 * meters)
 
 
-def degrees(radians: float) -> str:
+def format_degrees(radians: float) -> str:
     """Return an angle in whole degrees with the degree sign, and a minus sign below zero."""
     return f'{math.degrees(radians):.0f}°'.replace('-', '\u2212')
 
@@ -621,7 +635,7 @@ def degrees(radians: float) -> str:
 def frames_from_above_figure() -> Figure:
     """Return the drawing of the two frames and their joint on Remo, from above."""
     x, y, z = IMU_POSITION
-    back, left, up = centimeters(-x), centimeters(y), centimeters(z)
+    back, left, up = format_centimeters(-x), format_centimeters(y), format_centimeters(z)
     figure = Figure('imu-frames-above', 340, 306, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from above',
                     'Remo with the Raspberry Pi deck, from above, with its front at the top. '
@@ -646,14 +660,15 @@ def frames_from_above_figure() -> Figure:
     figure.text(Point(226, 248), 'breadboard', 'note', 'end')
     figure.text(Point(170, 279), f'imu_joint puts imu_link {back} cm back, {left} cm left', 'note',
                 'middle')
-    figure.text(Point(170, 295), f'and {up} cm up, and turns it by {degrees(IMU_YAW)} about z',
-                'note', 'middle')
+    figure.text(Point(170, 295),
+                f'and {up} cm up, and turns it by {format_degrees(IMU_YAW)} about z', 'note',
+                'middle')
     return figure
 
 
 def frames_from_the_side_figure() -> Figure:
     """Return the drawing of the two frames and their joint on Remo, from its right side."""
-    up = centimeters(IMU_POSITION.z)
+    up = format_centimeters(IMU_POSITION.z)
     figure = Figure('imu-frames-side', 340, 270, 'chassis_link, imu_joint and imu_link on Remo, '
                     'from the right side',
                     'Remo with the Raspberry Pi deck, from its right side, with its front on '
@@ -699,8 +714,8 @@ def draw_diffbot_from_the_side(figure: Figure, view: View) -> None:
     wheel = view.project(Vector3(DIFFBOT_AXLE_X, 0.0, DIFFBOT_AXLE_Z))
     figure.circle(wheel, DIFFBOT_WHEEL_RADIUS * view.scale, 'wheel')
     figure.circle(wheel, 0.3 * DIFFBOT_WHEEL_RADIUS * view.scale, 'body')
-    outline(figure, view, DIFFBOT_PLATE, 'body', 1)
-    outline(figure, view, diffbot_imu_board(), 'board', 1)
+    draw_box_outline(figure, view, DIFFBOT_PLATE, 'body', 1)
+    draw_box_outline(figure, view, diffbot_imu_board(), 'board', 1)
 
 
 # DiffBot's drawing shows the two frames again in a box, DIFFBOT_MAGNIFICATION times larger: at the
@@ -733,7 +748,7 @@ def draw_magnified_diffbot_frames(figure: Figure, inset: InsetBounds) -> None:
     chassis = view.project(CHASSIS_ORIGIN)
     imu = view.project(DIFFBOT_IMU_POSITION)
     figure.circle(chassis, 3, 'dot')
-    up = centimeters(DIFFBOT_IMU_POSITION.z)
+    up = format_centimeters(DIFFBOT_IMU_POSITION.z)
     joint_middle = (chassis.y + imu.y) / 2
     figure.text(Point(inset.left + 8, inset.top + 15), f'{DIFFBOT_MAGNIFICATION}\u00d7 larger',
                 'note')
@@ -749,7 +764,7 @@ def frames_on_diffbot_figure() -> Figure:
     imu_link has chassis_link's directions and lies straight above it. So the drawing shows
     imu_link's axes and marks chassis_link's origin with a dot, in a magnified box.
     """
-    up = centimeters(DIFFBOT_IMU_POSITION.z)
+    up = format_centimeters(DIFFBOT_IMU_POSITION.z)
     figure = Figure('imu-frames-diffbot', 340, 318, 'chassis_link, imu_joint and imu_link on '
                     'DiffBot, from the right side',
                     'DiffBot from its right side, with its front on the right. chassis_link is '
@@ -779,8 +794,8 @@ def frames_on_diffbot_figure() -> Figure:
     return figure
 
 
-def rotation_arrow(view: View, origin: Vector3, axis: Vector3, distance: float, radius: float,
-                   first_angle: float) -> List[Point]:
+def rotation_arrow_points(view: View, origin: Vector3, axis: Vector3, distance: float,
+                          radius: float, first_angle: float) -> List[Point]:
     """Return the points of an arrow that turns about an axis in the positive direction.
 
     Positive follows the right-hand rule: with the right thumb along the axis, the fingers curl
@@ -791,12 +806,12 @@ def rotation_arrow(view: View, origin: Vector3, axis: Vector3, distance: float, 
     helper = UP if abs(axis.z) < 0.9 else FORWARD
     first = normalized(cross(axis, helper))
     second = cross(axis, first)
-    center = add(origin, axis, distance)
+    center = offset_point(origin, axis, distance)
     points = []
     for step in range(0, 291, 10):
         angle = math.radians(first_angle + step)
-        position = add(add(center, first, radius * math.cos(angle)), second,
-                       radius * math.sin(angle))
+        position = offset_point(offset_point(center, first, radius * math.cos(angle)), second,
+                                radius * math.sin(angle))
         points.append(view.project(position))
     return points
 
@@ -810,8 +825,8 @@ def angular_velocity_figure() -> Figure:
                     'curved arrow turns about each axis in the direction that counts as '
                     'positive: counterclockwise when the axis points at the viewer. The arrow '
                     'about z is the yaw rate, which is positive in a left turn: a left turn at '
-                    f'{TURN_RATE} rad/s reads {signed(TURN_RATE)} rad/s. The EKF fuses this '
-                    'value.')
+                    f'{TURN_RATE} rad/s reads {format_signed_number(TURN_RATE)} rad/s. The EKF '
+                    'fuses this value.')
     view = view_from_behind(1300, Point(166, 168), 30, 35)
     figure.elements.append('<g class="context">')
     draw_remo_from_behind(figure, view)
@@ -822,18 +837,19 @@ def angular_velocity_figure() -> Figure:
     # Where each curved arrow starts on its circle, so that its head lies on the viewer's side
     first_angles = {'x': 140.0, 'y': 60.0, 'z': -170.0}
     for axis, name in zip(IMU_AXES, AXIS_NAMES):
-        end = view.project(add(IMU_POSITION, axis, length))
+        end = view.project(offset_point(IMU_POSITION, axis, length))
         figure.arrow(start, end, name, 9)
         offset = Point(end.x - start.x, end.y - start.y)
         reach = math.hypot(*offset)
         figure.text(Point(end.x + 10 * offset.x / reach, end.y + 10 * offset.y / reach + 4),
                     name, f'{name} halo', 'middle')
-        figure.curved_arrow(rotation_arrow(view, IMU_POSITION, axis, 0.68 * length,
-                                           0.2 * length, first_angles[name]), f'turn {name}', 8)
+        figure.curved_arrow(rotation_arrow_points(view, IMU_POSITION, axis, 0.68 * length,
+                                                  0.2 * length, first_angles[name]),
+                            f'turn {name}', 8)
     figure.circle(start, 3, 'dot')
     figure.text_markup(Point(70, 28), svg_subscript('ω', 'z'), 'z', 'end')
-    figure.text(Point(78, 28),
-                f'yaw rate. Left turn at {TURN_RATE} rad/s: {signed(TURN_RATE)} rad/s.')
+    figure.text(Point(78, 28), f'yaw rate. Left turn at {TURN_RATE} rad/s: '
+                               f'{format_signed_number(TURN_RATE)} rad/s.')
     figure.text(Point(78, 44), 'The EKF fuses this value.')
     figure.text_markup(Point(186, 150), svg_subscript('ω', 'y'), 'y halo')
     figure.text_markup(Point(199, 246), svg_subscript('ω', 'x'), 'x halo')
@@ -873,14 +889,17 @@ def factor_in_words(factor: int) -> str:
     return 'ten' if factor == 10 else str(factor)
 
 
-def signed(value: float) -> str:
-    """Return a value with at most two decimals and its sign, without a unit. Zero has no sign."""
+def format_signed_number(value: float) -> str:
+    """Return a value with at most two decimals and its sign, without a unit.
+
+    A value that rounds to zero has no sign.
+    """
     return '0' if abs(value) < 0.005 else f'{value:+.2f}'.rstrip('0').rstrip('.')
 
 
 def specific_force(acceleration: Vector3) -> Vector3:
     """Return what the sensor reads for an acceleration: the acceleration minus gravity."""
-    return add(acceleration, UP, GAZEBO_GRAVITY)
+    return offset_point(acceleration, UP, GAZEBO_GRAVITY)
 
 
 def tilt_from_vertical(reading: Vector3) -> float:
@@ -894,26 +913,26 @@ EXAMPLE_IN_A_SENTENCE = ('In this level, noise-free example, the reading along i
                          'and z axes on Remo is')
 
 
-def message_numbers(reading: Vector3) -> List[str]:
+def formatted_imu_components(reading: Vector3) -> List[str]:
     """Return an ideal reading as x, y and z on Remo, along imu_link's axes.
 
     These are the message's three numbers when the floor is level and the reading has no noise.
     """
-    return [signed(dot(reading, axis)) for axis in IMU_AXES]
+    return [format_signed_number(dot(reading, axis)) for axis in IMU_AXES]
 
 
 def message_values(reading: Vector3) -> str:
     """Return an ideal reading's x, y and z on Remo as a drawing shows them: (x, y, z)."""
-    return '(' + ', '.join(message_numbers(reading)) + ')'
+    return '(' + ', '.join(formatted_imu_components(reading)) + ')'
 
 
 def message_values_in_a_sentence(reading: Vector3) -> str:
     """Return an ideal reading's x, y and z on Remo as a sentence names them: x, y and z."""
-    x, y, z = message_numbers(reading)
+    x, y, z = formatted_imu_components(reading)
     return f'{x}, {y} and {z}'
 
 
-def reading_lines(figure: Figure, first: str, second: str, reading: Vector3) -> None:
+def draw_reading_lines(figure: Figure, first: str, second: str, reading: Vector3) -> None:
     """Add what the sensor reads at the bottom of a specific force drawing.
 
     first and second say it in the robot's directions. reading, in chassis_link's axes, becomes
@@ -954,7 +973,7 @@ def draw_magnified_tip(figure: Figure, tip: Point, acceleration: float) -> None:
     figure.arrow(Point(reading_tip.x - shown_height * acceleration / GAZEBO_GRAVITY,
                        reading_tip.y + shown_height), reading_tip, 'reading', 9)
     figure.arrow(above_sensor, reading_tip, 'acceleration', 7)
-    figure.text(Point(center.x, reading_tip.y - 8), f'a = {number(acceleration)}',
+    figure.text(Point(center.x, reading_tip.y - 8), f'a = {format_number(acceleration)}',
                 'acceleration', 'middle')
     figure.text(Point(reading_tip.x + 6, reading_tip.y + 17), 'f', 'reading')
 
@@ -998,14 +1017,14 @@ def specific_force_at_rest_figure() -> Figure:
         f'down with {GAZEBO_GRAVITY} m/s². The acceleration a is zero. The sensor reads '
         f'f = a − g, which points up with {GAZEBO_GRAVITY} m/s². {EXAMPLE_IN_A_SENTENCE} '
         f'{message_values_in_a_sentence(reading)}.', 0.0)
-    reading_lines(figure, 'forward 0,', f'up +{GAZEBO_GRAVITY} m/s²', reading)
+    draw_reading_lines(figure, 'forward 0,', f'up +{GAZEBO_GRAVITY} m/s²', reading)
     return figure
 
 
 def specific_force_speeding_up_figure() -> Figure:
     """Return the drawing of the specific force while the robot speeds up forward."""
     reading = specific_force(Vector3(FORWARD_ACCELERATION, 0.0, 0.0))
-    forward = number(FORWARD_ACCELERATION)
+    forward = format_number(FORWARD_ACCELERATION)
     figure = specific_force_from_the_side_figure(
         'imu-force-speeding-up', 'Speeding up forward',
         f'Remo speeds up forward with {forward} m/s², seen from its right side. At the IMU, '
@@ -1018,8 +1037,8 @@ def specific_force_speeding_up_figure() -> Figure:
         FORWARD_ACCELERATION)
     figure.arrow(Point(132, 46), Point(178, 46), 'motion thin', 7)
     figure.text(Point(155, 39), 'speeds up', 'note', 'middle')
-    reading_lines(figure, f'forward {signed(FORWARD_ACCELERATION)},',
-                  f'up +{GAZEBO_GRAVITY} m/s²', reading)
+    draw_reading_lines(figure, f'forward {format_signed_number(FORWARD_ACCELERATION)},',
+                       f'up +{GAZEBO_GRAVITY} m/s²', reading)
     return figure
 
 
@@ -1079,8 +1098,8 @@ def specific_force_in_a_turn_figure() -> Figure:
     figure.circle(sensor, 5.5, 'ring reading')
     figure.circle(sensor, 2.0, 'head reading')
     figure.text(Point(sensor.x - 10, sensor.y + 4), 'f', 'reading halo', 'end')
-    reading_lines(figure, f'toward the center {centripetal},', f'up +{GAZEBO_GRAVITY} m/s²',
-                  reading)
+    draw_reading_lines(figure, f'toward the center {centripetal},', f'up +{GAZEBO_GRAVITY} m/s²',
+                       reading)
     return figure
 
 
@@ -1112,7 +1131,7 @@ def frame_tabs() -> List[Tab]:
 
     The tab set is raw HTML, so the captions are HTML.
     """
-    up = centimeters(DIFFBOT_IMU_POSITION.z)
+    up = format_centimeters(DIFFBOT_IMU_POSITION.z)
     remo = ('Remo’s frames, to scale. <code>chassis_link</code> is at the center of the base '
             'plate’s top. <code>imu_joint</code>, the dashed line, is a fixed joint. It puts '
             '<code>imu_link</code> on <code>chassis_link</code>, at the IMU’s board (blue) on '
@@ -1145,7 +1164,7 @@ def write_angular_velocity() -> None:
                'x, green is y and blue is z. Point your right thumb along an axis: your fingers '
                'curl in the positive direction. On Remo, `imu_link`’s y axis points forward and '
                'its x axis to the robot’s right, because the board is mounted turned by '
-               f'{degrees(IMU_YAW)} about z, as the [figure of Remo’s frames]'
+               f'{format_degrees(IMU_YAW)} about z, as the [figure of Remo’s frames]'
                '(position-and-axes.md) shows.')
     write_include('includes/imu-sim-angular-velocity.html', figure_element(
         'imu', panels_html([Panel(angular_velocity_figure())]), caption,
@@ -1154,7 +1173,7 @@ def write_angular_velocity() -> None:
 
 def specific_force_panels() -> List[Panel]:
     """Return the three specific force drawings, each with the text below it, as HTML."""
-    forward = number(FORWARD_ACCELERATION)
+    forward = format_number(FORWARD_ACCELERATION)
     forward_tilt = tilt_from_vertical(specific_force(Vector3(FORWARD_ACCELERATION, 0.0, 0.0)))
     turn_tilt = tilt_from_vertical(specific_force(turn_acceleration()))
     a, f, g = '<strong>a</strong>', '<strong>f</strong>', '<strong>g</strong>'

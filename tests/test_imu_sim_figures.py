@@ -74,7 +74,7 @@ class TestIncludes(unittest.TestCase):
             ['imu-sim-frames.html', 'imu-sim-angular-velocity.html',
              'imu-sim-specific-force.html'])
 
-    def test_test_figures_write_the_repository_includes_with_an_ascii_locale(self) -> None:
+    def test_timeline_script_writes_the_repository_includes_with_an_ascii_locale(self) -> None:
         self.assert_script_writes_the_repository_includes(
             'imu_sim_test_figures.py',
             ['imu-sim-test-at-rest.html', 'imu-sim-test-left-turn.html',
@@ -133,13 +133,13 @@ class TestFrameAxes(unittest.TestCase):
 class TestTextsFromValues(unittest.TestCase):
     """The drawings' texts take their numbers from the scripts' constants."""
 
-    def test_centimeters_drops_trailing_zeros_after_two_decimals(self) -> None:
+    def test_format_centimeters_drops_trailing_zeros_after_two_decimals(self) -> None:
         for meters, text in ((0.0401, '4.01'), (0.013, '1.3'), (0.08, '8'), (0.12346, '12.35')):
-            self.assertEqual(imu_sim_robot_figures.centimeters(meters), text, f'{meters} m')
+            self.assertEqual(imu_sim_robot_figures.format_centimeters(meters), text, f'{meters} m')
 
-    def test_degrees_writes_a_minus_sign_for_a_negative_angle(self) -> None:
-        self.assertEqual(imu_sim_robot_figures.degrees(-math.pi / 2), '\u221290°')
-        self.assertEqual(imu_sim_robot_figures.degrees(math.pi), '180°')
+    def test_format_degrees_writes_a_minus_sign_for_a_negative_angle(self) -> None:
+        self.assertEqual(imu_sim_robot_figures.format_degrees(-math.pi / 2), '\u221290°')
+        self.assertEqual(imu_sim_robot_figures.format_degrees(math.pi), '180°')
 
     def test_message_values_in_a_sentence_are_along_imu_links_axes(self) -> None:
         # On Remo, imu_link's y axis points forward: a reading forward is the message's y
@@ -241,7 +241,7 @@ class TestResetPanels(unittest.TestCase):
     def test_run_axis_numbers_no_time_beyond_the_plot_for_a_later_reset(self) -> None:
         with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET',
                                self.OTHER_RUN_BEFORE_RESET):
-            run = imu_sim_test_figures.reset_run()
+            run = imu_sim_test_figures.reset_run_scale()
             last_tick = imu_sim_test_figures.run_axis_ticks()[-1]
             first_sample_with_the_old_time = (
                 2 * self.OTHER_RUN_BEFORE_RESET + imu_sim_test_figures.IMU_PERIOD)
@@ -254,9 +254,9 @@ class TestResetPanels(unittest.TestCase):
         passing_stamp = (imu_sim_test_figures.FRESH_SAMPLE_COUNT
                          * imu_sim_test_figures.IMU_PERIOD)  # s after the reset
         expected = (
-            imu_sim_test_figures.reset_run().position(
+            imu_sim_test_figures.reset_run_scale().position(
                 imu_sim_test_figures.RUN_BEFORE_RESET + passing_stamp),
-            imu_sim_test_figures.reset_stamp().position(passing_stamp))
+            imu_sim_test_figures.reset_stamp_scale().position(passing_stamp))
         self.assertEqual(markers, [expected])
 
 

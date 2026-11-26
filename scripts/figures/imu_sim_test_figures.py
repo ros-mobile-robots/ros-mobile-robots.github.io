@@ -234,15 +234,15 @@ class TimedNote(NamedTuple):
     lines: Sequence[str]
 
 
-class Robots(NamedTuple):
+class RobotRow(NamedTuple):
     """The row with the robot from above: its title, the robot at each time and notes."""
 
     title: str
-    robots: Sequence['Robot']
+    robots: Sequence['TimedRobotPose']
     notes: Sequence[TimedNote]
 
 
-class Robot(NamedTuple):
+class TimedRobotPose(NamedTuple):
     """The robot from above at one time: its heading and the label below it."""
 
     time: float
@@ -347,7 +347,7 @@ def robot_elements(heading: float) -> List[str]:
     return elements
 
 
-def draw_robots(figure: Figure, row: Robots) -> None:
+def draw_robots(figure: Figure, row: RobotRow) -> None:
     """Add the row's title, the robot from above at each time, and the notes at their times."""
     figure.text(8, ROBOT_TITLE_Y, row.title, 'row-title')
     for robot in row.robots:
@@ -437,9 +437,9 @@ def at_rest_figure() -> Figure:
         'm/s². It is not a reading.')
     draw_command(figure, 'stand still: all velocities 0',
                  [Phase('SETTLE', SETTLE), Phase('MEASURE', MEASURE)], stops=False)
-    draw_robots(figure, Robots(
+    draw_robots(figure, RobotRow(
         title='The robot, seen from above',
-        robots=[Robot(SETTLE + MEASURE / 2, 0.0, 'stands still')],
+        robots=[TimedRobotPose(SETTLE + MEASURE / 2, 0.0, 'stands still')],
         notes=[TimedNote(SETTLE / 2, ['may still brake', 'after the left turn'])]))
     reading = Reading(
         title=('Reading on the upward axis, ' + svg_subscript('f', 'z', restore_baseline=True)
@@ -477,13 +477,13 @@ def left_turn_figure() -> Figure:
         f'{TURN_RATE - TURN_RATE_TOLERANCE:.2f} and {TURN_RATE + TURN_RATE_TOLERANCE:.2f} rad/s.')
     draw_command(figure, f'turn left: angular.z = {TURN_RATE} rad/s',
                  [Phase('SPEED_UP', SPEED_UP), Phase('MEASURE', MEASURE)], stops=True)
-    robots = [Robot(0.0, 0.0, 'start')]
+    robots = [TimedRobotPose(0.0, 0.0, 'start')]
     for time, anchor in ((SPEED_UP, 'middle'), (turn_end, 'end')):
         turned = TURN_RATE * time
-        robots.append(Robot(time, turned, f'about {turned:g} rad, {math.degrees(turned):.0f}°',
-                            anchor))
-    draw_robots(figure, Robots(title='The robot from above: ideal headings from the command',
-                               robots=robots, notes=[]))
+        robots.append(TimedRobotPose(
+            time, turned, f'about {turned:g} rad, {math.degrees(turned):.0f}°', anchor))
+    draw_robots(figure, RobotRow(title='The robot from above: ideal headings from the command',
+                                 robots=robots, notes=[]))
     reading = Reading(
         title=('Turn rate about the upward axis, '
                + svg_subscript('ω', 'z', restore_baseline=True) + ', in rad/s'),
@@ -526,12 +526,12 @@ def run_after_reset() -> float:
     return 1.2 * RUN_BEFORE_RESET
 
 
-def reset_run() -> Scale:
+def reset_run_scale() -> Scale:
     """Return the horizontal scale: how long the simulation has run, in s."""
     return Scale(0.0, RUN_BEFORE_RESET + run_after_reset(), RESET_PLOT_LEFT, RESET_PLOT_RIGHT)
 
 
-def reset_stamp() -> Scale:
+def reset_stamp_scale() -> Scale:
     """Return the vertical scale: the stamps of the IMU's samples, in s."""
     return Scale(0.0, run_after_reset(), RESET_PLOT_BOTTOM, RESET_PLOT_TOP)
 
@@ -549,7 +549,7 @@ def draw_reset_heading(figure: Figure, heading: str) -> None:
 
 def draw_fresh_region(figure: Figure) -> None:
     """Add the region in which a sample counts as fresh: after the reset, below RECOVERY."""
-    run, stamp = reset_run(), reset_stamp()
+    run, stamp = reset_run_scale(), reset_stamp_scale()
     reset_x = run.position(RUN_BEFORE_RESET)
     figure.rectangle(reset_x, stamp.position(RECOVERY), run.last_position - reset_x,
                      stamp.position(0.0) - stamp.position(RECOVERY), 'fresh')
@@ -557,7 +557,7 @@ def draw_fresh_region(figure: Figure) -> None:
 
 def draw_stamp_grid(figure: Figure) -> None:
     """Add a horizontal grid line with its stamp at 0, RECOVERY and RUN_BEFORE_RESET."""
-    run, stamp = reset_run(), reset_stamp()
+    run, stamp = reset_run_scale(), reset_stamp_scale()
     for value in (0.0, RECOVERY, RUN_BEFORE_RESET):
         y = stamp.position(value)
         figure.path(f'M{run.first_position},{y} H{run.last_position}', 'grid')
@@ -566,15 +566,15 @@ def draw_stamp_grid(figure: Figure) -> None:
 
 def draw_run_axis(figure: Figure) -> None:
     """Add the horizontal axis as a line at stamp 0."""
-    run = reset_run()
-    figure.path(f'M{run.first_position},{reset_stamp().position(0.0)} H{run.last_position}',
+    run = reset_run_scale()
+    figure.path(f'M{run.first_position},{reset_stamp_scale().position(0.0)} H{run.last_position}',
                 'axis')
 
 
 def draw_reset_guide(figure: Figure) -> None:
     """Add a vertical line where the test resets the simulation, with its label."""
-    stamp = reset_stamp()
-    reset_x = reset_run().position(RUN_BEFORE_RESET)
+    stamp = reset_stamp_scale()
+    reset_x = reset_run_scale().position(RUN_BEFORE_RESET)
     figure.path(f'M{reset_x},{stamp.position(0.0)} V{stamp.last_position - 8}', 'span')
     for index, line in enumerate(('the test resets', 'the simulation')):
         figure.text(reset_x - 6, stamp.last_position - 3 + index * LINE_HEIGHT, line, 'note',
@@ -583,8 +583,8 @@ def draw_reset_guide(figure: Figure) -> None:
 
 def draw_run_axis_labels(figure: Figure) -> None:
     """Add the horizontal axis's numbers and, below them, what the axis shows."""
-    run = reset_run()
-    axis_y = reset_stamp().position(0.0)
+    run = reset_run_scale()
+    axis_y = reset_stamp_scale().position(0.0)
     for seconds in run_axis_ticks():
         figure.text(run.position(seconds), axis_y + 14, f'{seconds:g}', 'note', 'middle')
     figure.text((run.first_position + run.last_position) / 2, axis_y + 28,
@@ -594,7 +594,7 @@ def draw_run_axis_labels(figure: Figure) -> None:
 def draw_reset_legend(figure: Figure) -> None:
     """Add the legend below the horizontal axis: Gazebo's clock and the IMU's samples."""
     left = RESET_PLOT_LEFT
-    axis_y = reset_stamp().position(0.0)
+    axis_y = reset_stamp_scale().position(0.0)
     figure.path(f'M{left},{axis_y + 44} H{left + 16}', 'clock-line')
     figure.text(left + 22, axis_y + 48, 'Gazebo’s clock', 'note')
     figure.path(f'M{left + 118},{axis_y + 44} H{left + 134}', 'imu-line')
@@ -618,7 +618,7 @@ def draw_reset_chart(figure: Figure, heading: str) -> None:
 
 def clock_path(first_run: float, last_run: float, clock_start: float) -> str:
     """Return the path of a clock that started at clock_start, between two run times."""
-    run, stamp = reset_run(), reset_stamp()
+    run, stamp = reset_run_scale(), reset_stamp_scale()
     return (f'M{run.position(first_run)},{stamp.position(first_run - clock_start)} '
             f'L{run.position(last_run)},{stamp.position(last_run - clock_start)}')
 
@@ -636,7 +636,7 @@ def draw_clock_and_samples(figure: Figure, silent_until: Optional[float]) -> Non
     """Add Gazebo's clock and the IMU's samples, before and after the reset."""
     end = RUN_BEFORE_RESET + run_after_reset()
     figure.path(clock_path(0.0, RUN_BEFORE_RESET, 0.0)
-                + f' V{reset_stamp().position(0.0)} '
+                + f' V{reset_stamp_scale().position(0.0)} '
                 + clock_path(RUN_BEFORE_RESET, end, RUN_BEFORE_RESET).replace('M', 'L', 1),
                 'clock-line')
     figure.path(clock_path(IMU_PERIOD, RUN_BEFORE_RESET, 0.0), 'imu-line')
@@ -646,8 +646,8 @@ def draw_clock_and_samples(figure: Figure, silent_until: Optional[float]) -> Non
 
 def draw_sample_marker(figure: Figure, stamp_after_reset: float) -> Point:
     """Add a dot at the sample with a stamp after the reset, and return the dot's position."""
-    marker = Point(reset_run().position(RUN_BEFORE_RESET + stamp_after_reset),
-                   reset_stamp().position(stamp_after_reset))
+    marker = Point(reset_run_scale().position(RUN_BEFORE_RESET + stamp_after_reset),
+                   reset_stamp_scale().position(stamp_after_reset))
     figure.circle(marker.x, marker.y, 4.5, 'imu-dot')
     return marker
 
@@ -658,8 +658,8 @@ def draw_recovery_with_the_copy(figure: Figure) -> None:
     passing_stamp = FRESH_SAMPLE_COUNT * IMU_PERIOD
     draw_sample_marker(figure, passing_stamp)
     # Two short lines at the right end of the fresh region, clear of the samples' line
-    right = reset_run().last_position - 4
-    middle = reset_stamp().position(RECOVERY / 2) + 5
+    right = reset_run_scale().last_position - 4
+    middle = reset_stamp_scale().position(RECOVERY / 2) + 5
     figure.text(right, middle - LINE_HEIGHT / 2,
                 f'sample {FRESH_SAMPLE_COUNT}: {passing_stamp:.2f} s', 'note', 'end')
     # "<" keeps the line short enough to end clear of the dot and the samples' line
@@ -672,7 +672,7 @@ def draw_silence_with_the_old_time(figure: Figure) -> None:
     draw_clock_and_samples(figure, RUN_BEFORE_RESET)
     first_stamp = first_stamp_after_reset(RUN_BEFORE_RESET)
     first = draw_sample_marker(figure, first_stamp)
-    run, stamp = reset_run(), reset_stamp()
+    run, stamp = reset_run_scale(), reset_stamp_scale()
     reset_x = run.position(RUN_BEFORE_RESET)
     figure.text(first.x - 8, first.y - 8, f'next: about {first_stamp:.2f} s', 'note', 'end')
     figure.text(run.last_position - 6, stamp.position(RECOVERY / 2) + 4, 'no fresh sample',
