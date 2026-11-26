@@ -11,7 +11,7 @@
         <link rel="prev" href="../../../laser-range-scanner/">
       
       
-        <link rel="next" href="../../raspicam_node/">
+        <link rel="next" href="../noise-at-rest-tests/">
       
       
         
@@ -61,6 +61,26 @@
         <script src="../../../js/katex.js"></script>
         <script src="../../../js/katex-0.19.0/katex.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../../../js/katex-0.19.0/katex.min.css">
+        
+        <script src="../../../js/mermaid-8.8.0/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true, securityLevel: "loose" });</script>
+        <style>
+          /* Mermaid 8.8's themes are fixed colors for a light page. In the dark scheme, these rules
+             give the diagrams dark fills with light lines and text, in the light theme's hues. Being
+             CSS, they also apply when visitors switch the scheme without reloading. */
+          [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect,
+          [data-md-color-scheme="slate"] .mermaid .node polygon { fill: #2b2b46 !important; stroke: #9370db !important; }
+          /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
+          .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
+          [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
+          [data-md-color-scheme="slate"] .mermaid .cluster rect { fill: #2a2b22 !important; stroke: #aaaa33 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgePath .path { stroke: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .arrowheadPath { fill: var(--md-default-fg-color--light) !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel { background-color: #3a3c48 !important; }
+          [data-md-color-scheme="slate"] .mermaid .edgeLabel rect { fill: #3a3c48 !important; opacity: 1 !important; }
+        </style>
         
 
     
@@ -1955,6 +1975,66 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU (BNO055)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU (BNO055)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -2057,9 +2137,161 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bias-and-noise-at-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias and noise at rest
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bias and noise at rest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bias-and-noise-in-a-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias and noise in a picture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-the-tool-on-a-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the tool on a recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make-a-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Make a recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-the-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read the report
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-mean-and-the-variance-of-three-readings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mean and the variance of three readings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-the-report-to-the-ekf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From the report to the EKF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#results-on-remo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results on Remo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-the-tool-is-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the tool is tested
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trying-the-breakout-on-its-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trying the breakout on its own
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../noise-at-rest-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests of the Noise Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -5087,6 +5319,122 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bias-and-noise-at-rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias and noise at rest
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bias and noise at rest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bias-and-noise-in-a-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias and noise in a picture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-the-tool-on-a-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the tool on a recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make-a-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Make a recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-the-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read the report
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-mean-and-the-variance-of-three-readings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mean and the variance of three readings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-the-report-to-the-ekf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From the report to the EKF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#results-on-remo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results on Remo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-the-tool-is-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the tool is tested
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trying-the-breakout-on-its-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trying the breakout on its own
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -5160,6 +5508,24 @@
   
 
       
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    IMU (BNO055)
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
     </ol>
   </nav>
 
@@ -5194,7 +5560,8 @@
   </p>
 <figcaption>Adafruit Bosch BNO055 IMU</figcaption>
 </figure>
-<p>The robot uses one value from it: the <strong>yaw rate</strong>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over rosserial.</p>
+<p>The robot uses one value from it: the <strong>yaw rate</strong> <span class="arithmatex">\(\omega_z\)</span>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over <a href="../../../processing_units/teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a>.</p>
+<p>To measure how far your robot's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is off at rest and how much its readings scatter, go to <a href="#bias-and-noise-at-rest">Bias and noise at rest</a>. Its figure shows what the bias and the noise are, and one command measures both on a recording of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s messages.</p>
 <p><a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. In the Gazebo simulation, a simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes on the same topic, with the same message type and frame and with the orientation marked unavailable, as <a href="../simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a> shows. Its noise and its variances are settings of the simulation, not the firmware's, as <a href="../simulation/#the-simulation-and-the-real-robot">the simulation and the real robot</a> explains.</p>
 <div class="admonition info">
 <p class="admonition-title">Checked on Remo</p>
@@ -5337,12 +5704,12 @@
 <p>With the bringup running on the robot and its wheels off the ground:</p>
 <ol>
 <li><strong>Rate and stamps:</strong> <code>rostopic hz /diffbot/imu/data_raw</code> shows about 50 Hz, and the stamps in <code>rostopic echo /diffbot/imu/data_raw</code> are the current ROS time.</li>
-<li><strong>Axes and signs:</strong> with the robot level and still, the accelerometer's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about that axis (<a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>). These checks identify the upward axis and its sign. To check the horizontal axes, lift the robot's front slightly and hold the robot still while reading the acceleration. Return the robot to level, then lift the left side and hold still again. For sensor axes aligned with the robot's directions, a horizontal axis pointing toward the raised side reads positive. An axis pointing the opposite way reads negative. On Remo, raising the front gives positive y and raising the left side gives negative x. These checks establish the orientation of <code>imu_link</code> in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The mounting position must be checked separately.</li>
-<li><strong>Noise and bias:</strong> a stationary recording of a few minutes (<code>rosbag record /diffbot/imu/data_raw</code>) gives the gyroscope's bias and variance at 50 Hz, to replace the covariances' starting values.</li>
-<li><strong>Faults:</strong> unplugging the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic and logs a warning. While it stays missing, each retry logs another warning. The wheels keep following commands. Plugged back in, it's found at the next try, at most <code>retry_ms</code> (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The firmware's command timeout keeps working: after 1 s without a wheel command, it stops driving the motors and resets the wheels' PIDs (<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L35-L39"><code>COMMAND_TIMEOUT_MS</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L564-L575"><code>eStop()</code></a>).</li>
+<li><strong>Axes and signs:</strong> with the robot level and still, the accelerometer's upward axis reads about +9.8 m/s². Turning the robot counterclockwise by hand, seen from above, gives a positive angular velocity about that axis (<a href="https://www.ros.org/reps/rep-0103.html"><abbr title="ROS Enhancement Proposal. A document that defines a ROS convention, such as REP 103 for units and coordinate frames.">REP</abbr> 103</a>). These checks identify the upward axis and its sign. To check the horizontal axes, lift the robot's front slightly and hold the robot still while reading the acceleration. Return the robot to level, then lift the left side and hold still again. For sensor axes aligned with the robot's directions, a horizontal axis pointing toward the raised side reads positive. An axis pointing the opposite way reads negative. On Remo, raising the front gives positive y and raising the left side gives negative x. These checks establish the orientation of <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L12-L27"><code>imu_link</code></a> in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>. The mounting position must be checked separately.</li>
+<li><strong>Noise and bias:</strong> a recording of 180 s at rest gives the gyroscope's remaining bias and the noise of each axis, as <a href="#bias-and-noise-at-rest">Bias and noise at rest</a> shows.</li>
+<li><strong>Faults:</strong> unplugging the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> stops the topic and logs a warning. While it stays missing, each retry logs another warning. The wheels keep following commands. Plugged back in, it's found at the next try, at most <a href="#what-the-firmware-publishes"><code>retry_ms</code></a> (10 s) later, and publishes again after its start-up, which takes about another second. The control loop keeps its rate during all this. The firmware's command timeout keeps working: after 1 s without a wheel command, it stops driving the motors and resets the wheels' PIDs (<a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/config/diffbot_base_config.h#L35-L39"><code>COMMAND_TIMEOUT_MS</code></a>, <a href="https://github.com/ros-mobile-robots/diffbot/blob/1a3b5476e1188565872b0bcc1a3d239d8b2ed529/diffbot_firmware/lib/base_controller/base_controller.h#L564-L575"><code>eStop()</code></a>).</li>
 <li><strong>Timing:</strong> the control loop keeps its rate with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running, for example <code>rostopic hz /diffbot/measured_joint_states</code>.</li>
 </ol>
-<p>Remo was checked on 2026-10-31 with firmware <code>1a3b547</code> built for the Teensy 3.2, and the ROS commands ran in the <a href="../../../processing_units/robot-container/usage/">robot container</a>. The BNO055 used SDA 18 and SCL 19, with VIN supplied by the Raspberry Pi's 3.3 V (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a>, checklist <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a>). The bias is the average reading at rest. The standard deviation is the spread of the readings around that average.</p>
+<p>Remo was checked on 2026-10-31 with firmware <code>1a3b547</code> built for the Teensy 3.2, and the ROS commands ran in the <a href="../../../processing_units/robot-container/usage/">robot container</a>. The BNO055 used SDA 18 and SCL 19, with VIN supplied by the Raspberry Pi's 3.3 V (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a>, checklist <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a>).</p>
 <table>
 <thead>
 <tr>
@@ -5353,7 +5720,7 @@
 <tbody>
 <tr>
 <td style="text-align: left;">Rate and stamps</td>
-<td style="text-align: left;">50.0 Hz. 180 s at rest: 8,986 messages, gaps between 14 and 27 ms. Stamps in current ROS time, also after rosserial reconnected</td>
+<td style="text-align: left;">50.0 Hz. 180 s at rest: 8,986 messages, intervals between the header stamps of 14 to 27 ms. Stamps in current ROS time, also after <a href="#how-the-firmware-reads-it">rosserial</a> reconnected</td>
 </tr>
 <tr>
 <td style="text-align: left;">Axes and signs</td>
@@ -5361,7 +5728,7 @@
 </tr>
 <tr>
 <td style="text-align: left;">Noise and bias at rest</td>
-<td style="text-align: left;">Gyroscope: bias below 0.0001 rad/s, variance 2 to 6 · 10⁻⁷ (rad/s)². The standard deviation is 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. Accelerometer: variance 4 to 8 · 10⁻⁴ (m/s²)²</td>
+<td style="text-align: left;">Gyroscope: bias below 0.0001 rad/s, standard deviation 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. The same with the Teensy 4.0 (<a href="#results-on-remo">Results on Remo</a>)</td>
 </tr>
 <tr>
 <td style="text-align: left;">Faults</td>
@@ -5369,16 +5736,888 @@
 </tr>
 <tr>
 <td style="text-align: left;">Timing</td>
-<td style="text-align: left;"><code>measured_joint_states</code> at 20.0 Hz with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running</td>
+<td style="text-align: left;"><a href="../../../development/simulation-test/#on-the-real-robot"><code>measured_joint_states</code></a> at 20.0 Hz with the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> running</td>
 </tr>
 </tbody>
 </table>
-<p>A <a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6684760031">tilt test</a> on 2026-11-05 checked the BNO055's axes on Remo using the Teensy 4.0. With the front held raised, the average y acceleration was +3.21 m/s². With the left side held raised, the average x acceleration was −7.24 m/s². The z acceleration remained positive during both tilts and was close to +9.8 m/s² with the robot level. These readings show that the board's y axis points forward, its x axis points right, and its z axis points up when Remo is level. The corresponding <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> orientation is <code>imu_rpy="0 0 -1.5707963"</code>, a −90° rotation about <code>chassis_link</code>'s z axis. The chip's pin-1 dot sits at the board's front right corner, which with the datasheet's default axes, placement P1 (<a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=27">BNO055 datasheet, page 27</a>) gives the same. Remo's model has this orientation and the checked position on Remo's Raspberry Pi deck (<a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L12-L27"><code>remo.urdf.xacro</code>, lines 12–27</a> in remo_description 2.5.0). The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s header pins sit in the breadboard, and <code>imu_link</code> lies about 7.6 cm behind the wheel axle and 2.34 cm left of the robot's center line.</p>
-<p>The covariances stay at their starting values for now: driving adds vibration and drift, which a recording at rest doesn't show. The <a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a> has the numbers and log excerpts, <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a> the full checklist.</p>
+<p>The <a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">evidence</a> has the numbers and log excerpts, <a href="https://github.com/ros-mobile-robots/diffbot/issues/169">diffbot#169</a> the full checklist.</p>
+<p>A <a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6684760031">tilt test</a> on 2026-11-05 checked the BNO055's axes on Remo using the Teensy 4.0. With the front held raised, the average y acceleration was +3.21 m/s². With the left side held raised, the average x acceleration was −7.24 m/s². The z acceleration remained positive during both tilts and was close to +9.8 m/s² with the robot level. These readings show that the board's y axis points forward, its x axis points right, and its z axis points up when Remo is level. The corresponding <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> orientation is <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L27"><code>imu_rpy="0 0 -1.5707963"</code></a>, a −90° rotation about <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L212-L215"><code>chassis_link</code></a>'s z axis. The chip's pin-1 dot sits at the board's front right corner, which with the datasheet's default axes, placement P1 (<a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=27">BNO055 datasheet, page 27</a>) gives the same. Remo's model has this orientation and the checked position on Remo's Raspberry Pi deck (<a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L12-L27">the mounting arguments in <code>remo.urdf.xacro</code></a> in <a href="../../remo_description/">remo_description</a> 2.5.0). The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s header pins sit in the breadboard, and <code>imu_link</code> lies about 7.6 cm behind the wheel axle and 2.34 cm left of the robot's center line.</p>
+<h2 id="bias-and-noise-at-rest">Bias and noise at rest</h2>
+<p>An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the <strong>bias</strong>, and they scatter around their average, the <strong>noise</strong>. The tool <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_bringup/scripts/imu_noise_at_rest.py"><code>imu_noise_at_rest.py</code></a> in the diffbot repository reads a recording of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s messages, made while the robot stood still, and prints the gyroscope's remaining bias and the noise of each axis.</p>
+<h3 id="bias-and-noise-in-a-picture">Bias and noise in a picture</h3>
+<p>The figure shows what the two words mean. It plots the yaw rate <span class="arithmatex">\(\omega_z\)</span> that a gyroscope at rest reads, against time. A robot at rest doesn't turn, so every reading should lie on the zero line.</p>
+<!-- Written by scripts/figures/imu_noise_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-noise .lv-fig .level{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.7;stroke-dasharray:1.5 3}
+.lv-noise .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .spread-band{fill:var(--lv-imu);fill-opacity:.14;stroke:none}
+.lv-noise .lv-fig .mean-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .spread-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6;stroke-dasharray:5 3}
+.lv-noise .lv-fig .reading{fill:var(--md-default-fg-color);fill-opacity:.85;stroke:none}
+.lv-noise .lv-fig .deviation-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-noise .lv-fig .deviation-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .step-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.lv-noise .lv-fig .step-bad{fill:none;stroke:var(--lv-bad);stroke-width:2;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .long-interval{fill:none;stroke:var(--lv-bad);stroke-width:1.6}
+.lv-noise .lv-fig .box-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-noise .lv-fig .gravity-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .gravity-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .class-name{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-noise .lv-fig .flow-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .flow-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-noise .lv-fig .refused-line{fill:none;stroke:var(--lv-bad);stroke-width:1.6;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .refused-head{fill:var(--lv-bad);stroke:none}
+.lv-noise .lv-fig .command-span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
+</style>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-noise lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 306" role="img" aria-labelledby="imu-noise-trace-title"><title id="imu-noise-trace-title">Yaw-rate readings of a gyroscope at rest against time. The readings lie on output steps. Their mean lies above zero: the bias. A band of one standard deviation around the mean shows their spread</title>
+<text class="mono" x="4.0" y="13.0" text-anchor="start">angular_velocity.z in rad/s</text>
+<path class="level" d="M52,167.0 H182"></path>
+<text class="note" x="47.0" y="171.0" text-anchor="end">−0.0011</text>
+<path class="level" d="M52,141.0 H182"></path>
+<text class="note" x="47.0" y="145.0" text-anchor="end">0</text>
+<path class="level" d="M52,115.0 H182"></path>
+<text class="note" x="47.0" y="119.0" text-anchor="end">+0.0011</text>
+<path class="level" d="M52,89.0 H182"></path>
+<text class="note" x="47.0" y="93.0" text-anchor="end">+0.0022</text>
+<path class="level" d="M52,63.0 H182"></path>
+<text class="note" x="47.0" y="67.0" text-anchor="end">+0.0033</text>
+<path class="level" d="M52,37.0 H182"></path>
+<text class="note" x="47.0" y="41.0" text-anchor="end">+0.0044</text>
+<rect class="spread-band" x="52.0" y="88.3" width="130.0" height="36.3" rx="0"></rect>
+<path class="zero-line" d="M52,141.0 H182"></path>
+<path class="spread-line" d="M52,88.3 H182"></path>
+<text x="187.0" y="92.3" text-anchor="start">mean + s</text>
+<text x="298.0" y="92.3" text-anchor="end">+0.0023</text>
+<path class="mean-line" d="M52,106.5 H182"></path>
+<text class="strong" x="187.0" y="110.5" text-anchor="start">mean</text>
+<text class="strong" x="298.0" y="110.5" text-anchor="end">+0.0015</text>
+<path class="spread-line" d="M52,124.6 H182"></path>
+<text x="187.0" y="128.6" text-anchor="start">mean − s</text>
+<text x="298.0" y="128.6" text-anchor="end">+0.0007</text>
+<text x="187.0" y="145.0" text-anchor="start">zero</text>
+<text x="298.0" y="145.0" text-anchor="end">0</text>
+<circle class="reading" cx="52.0" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="54.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="57.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="59.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="62.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="65.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="67.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="70.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="72.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="75.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="78.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="80.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="83.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="85.8" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="88.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="91.0" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="93.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="96.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="98.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="101.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="104.0" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="106.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="109.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="111.8" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="114.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="117.0" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="119.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="122.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="124.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="127.4" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="130.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="132.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="135.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="137.8" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="140.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="143.0" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="145.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="148.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="150.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="153.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="156.0" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="158.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="161.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="163.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="166.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="169.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="171.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="174.2" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="176.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="179.4" cy="115.0" r="1.3"></circle>
+<path class="axis" d="M52,24 V180.0 H182"></path>
+<path class="tick" d="M52.0,180.0 v4"></path>
+<text class="note" x="52.0" y="197.0" text-anchor="middle">0</text>
+<path class="tick" d="M117.0,180.0 v4"></path>
+<text class="note" x="117.0" y="197.0" text-anchor="middle">0.5</text>
+<path class="tick" d="M182.0,180.0 v4"></path>
+<text class="note" x="182.0" y="197.0" text-anchor="middle">1</text>
+<text class="note" x="117.0" y="216.0" text-anchor="middle">seconds after the first header stamp</text>
+<circle class="reading" cx="16.0" cy="238.0" r="2"></circle>
+<text x="34.0" y="242.0" text-anchor="start">reading, one every 20 ms</text>
+<path class="mean-line" d="M4.0,256.0 H28.0"></path>
+<text x="34.0" y="260.0" text-anchor="start">mean: its offset from zero is the bias</text>
+<rect class="spread-band" x="4.0" y="269.0" width="24.0" height="10.0" rx="0"></rect>
+<path class="spread-line" d="M4.0,269.0 H28.0 M4.0,279.0 H28.0"></path>
+<text x="34.0" y="278.0" text-anchor="start">mean ± s: the noise</text>
+<path class="level" d="M4.0,292.0 H28.0"></path>
+<text x="34.0" y="296.0" text-anchor="start">output steps, 1/900 rad/s apart</text>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 270" role="img" aria-labelledby="imu-noise-trace-wide-title"><title id="imu-noise-trace-wide-title">Yaw-rate readings of a gyroscope at rest against time. The readings lie on output steps. Their mean lies above zero: the bias. A band of one standard deviation around the mean shows their spread</title>
+<text class="mono" x="4.0" y="13.0" text-anchor="start">angular_velocity.z in rad/s</text>
+<path class="level" d="M52,167.0 H412"></path>
+<text class="note" x="47.0" y="171.0" text-anchor="end">−0.0011</text>
+<path class="level" d="M52,141.0 H412"></path>
+<text class="note" x="47.0" y="145.0" text-anchor="end">0</text>
+<path class="level" d="M52,115.0 H412"></path>
+<text class="note" x="47.0" y="119.0" text-anchor="end">+0.0011</text>
+<path class="level" d="M52,89.0 H412"></path>
+<text class="note" x="47.0" y="93.0" text-anchor="end">+0.0022</text>
+<path class="level" d="M52,63.0 H412"></path>
+<text class="note" x="47.0" y="67.0" text-anchor="end">+0.0033</text>
+<path class="level" d="M52,37.0 H412"></path>
+<text class="note" x="47.0" y="41.0" text-anchor="end">+0.0044</text>
+<rect class="spread-band" x="52.0" y="88.3" width="360.0" height="36.3" rx="0"></rect>
+<path class="zero-line" d="M52,141.0 H412"></path>
+<path class="spread-line" d="M52,88.3 H412"></path>
+<text x="417.0" y="92.3" text-anchor="start">mean + s</text>
+<text x="538.0" y="92.3" text-anchor="end">+0.0023</text>
+<path class="mean-line" d="M52,106.5 H412"></path>
+<text class="strong" x="417.0" y="110.5" text-anchor="start">mean</text>
+<text class="strong" x="538.0" y="110.5" text-anchor="end">+0.0015</text>
+<path class="spread-line" d="M52,124.6 H412"></path>
+<text x="417.0" y="128.6" text-anchor="start">mean − s</text>
+<text x="538.0" y="128.6" text-anchor="end">+0.0007</text>
+<text x="417.0" y="145.0" text-anchor="start">zero</text>
+<text x="538.0" y="145.0" text-anchor="end">0</text>
+<circle class="reading" cx="52.0" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="59.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="66.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="73.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="80.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="88.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="95.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="102.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="109.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="116.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="124.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="131.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="138.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="145.6" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="152.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="160.0" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="167.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="174.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="181.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="188.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="196.0" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="203.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="210.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="217.6" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="224.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="232.0" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="239.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="246.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="253.6" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="260.8" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="268.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="275.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="282.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="289.6" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="296.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="304.0" cy="63.0" r="1.3"></circle>
+<circle class="reading" cx="311.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="318.4" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="325.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="332.8" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="340.0" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="347.2" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="354.4" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="361.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="368.8" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="376.0" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="383.2" cy="89.0" r="1.3"></circle>
+<circle class="reading" cx="390.4" cy="141.0" r="1.3"></circle>
+<circle class="reading" cx="397.6" cy="115.0" r="1.3"></circle>
+<circle class="reading" cx="404.8" cy="115.0" r="1.3"></circle>
+<path class="axis" d="M52,24 V180.0 H412"></path>
+<path class="tick" d="M52.0,180.0 v4"></path>
+<text class="note" x="52.0" y="197.0" text-anchor="middle">0</text>
+<path class="tick" d="M124.0,180.0 v4"></path>
+<text class="note" x="124.0" y="197.0" text-anchor="middle">0.2</text>
+<path class="tick" d="M196.0,180.0 v4"></path>
+<text class="note" x="196.0" y="197.0" text-anchor="middle">0.4</text>
+<path class="tick" d="M268.0,180.0 v4"></path>
+<text class="note" x="268.0" y="197.0" text-anchor="middle">0.6</text>
+<path class="tick" d="M340.0,180.0 v4"></path>
+<text class="note" x="340.0" y="197.0" text-anchor="middle">0.8</text>
+<path class="tick" d="M412.0,180.0 v4"></path>
+<text class="note" x="412.0" y="197.0" text-anchor="middle">1</text>
+<text class="note" x="232.0" y="216.0" text-anchor="middle">seconds after the first header stamp</text>
+<circle class="reading" cx="16.0" cy="238.0" r="2"></circle>
+<text x="34.0" y="242.0" text-anchor="start">reading, one every 20 ms</text>
+<path class="mean-line" d="M270.0,238.0 H294.0"></path>
+<text x="300.0" y="242.0" text-anchor="start">mean: its offset from zero is the bias</text>
+<rect class="spread-band" x="4.0" y="251.0" width="24.0" height="10.0" rx="0"></rect>
+<path class="spread-line" d="M4.0,251.0 H28.0 M4.0,261.0 H28.0"></path>
+<text x="34.0" y="260.0" text-anchor="start">mean ± s: the noise</text>
+<path class="level" d="M270.0,256.0 H294.0"></path>
+<text x="300.0" y="260.0" text-anchor="start">output steps, 1/900 rad/s apart</text>
+</svg>
+<figcaption><strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest that reads in steps of 1/900 rad/s, like the BNO055. The dots are the 50 readings of the first second. The lines come from all 9,000 readings of 180 s: the mean +0.00148 rad/s is the bias, and the standard deviation <em>s</em> = 0.00078 rad/s is the noise. The readings take 6 distinct values.</figcaption>
+</figure>
+</div>
+
+<ul>
+<li><strong>The bias</strong> is how far the mean of the readings lies from zero.</li>
+<li><strong>The noise</strong> is how far the readings scatter around their mean. The band reaches one standard deviation <span class="arithmatex">\(s\)</span> above and below the mean.</li>
+<li><strong>The steps:</strong> the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055's step is 1/900 rad/s, about 0.0011 rad/s.</li>
+</ul>
+<p>The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show it. With Remo's +0.00005 rad/s, which <a href="#results-on-remo">Results on Remo</a> lists, the line of the mean would lie on the zero line.</p>
+<h3 id="run-the-tool-on-a-recording">Run the tool on a recording</h3>
+<p><strong>You need:</strong> the recording, a <a href="https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag">rosbag</a> file with the topic <a href="#what-the-firmware-publishes"><code>/diffbot/imu/data_raw</code></a> that was recorded while the robot stood still, and a terminal in which the diffbot workspace is built and sourced. <a href="#make-a-recording">Make a recording</a> shows how to get both.</p>
+<p>In the folder that holds the recording, run the tool with the recording's file name:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosrun diffbot_bringup \</span>
+<span class="go">  imu_noise_at_rest.py \</span>
+<span class="go">  imu_still_2026-11-18-13-18-16.bag</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>imu_still_2026-11-18-13-18-16.bag</code> is an example of a name. Use the name of your own recording. For Remo's 180 s at rest, recorded on 2026-11-03 with the Teensy 4.0, the tool's report has these results for the yaw rate <span class="arithmatex">\(\omega_z\)</span>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Result</th>
+<th style="text-align: left;">Remo at rest</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Messages</td>
+<td style="text-align: left;">8,990 at 50.00 Hz</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Bias</strong> of the yaw rate: the column <code>mean (bias)</code></td>
+<td style="text-align: left;">+0.00005 rad/s</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Noise</strong> of the yaw rate: the column <code>std dev</code></td>
+<td style="text-align: left;">0.00073 rad/s</td>
+</tr>
+<tr>
+<td style="text-align: left;">The noise as a variance: the column <code>variance</code></td>
+<td style="text-align: left;">5.317 · 10⁻⁷ (rad/s)²</td>
+</tr>
+</tbody>
+</table>
+<p>The bias is small: 0.00005 rad/s is less than a twentieth of the smallest step that the BNO055 can report. The noise is a baseline for the variances in the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s messages, which tell the <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> how much to trust each reading, as <a href="#from-the-report-to-the-ekf">From the report to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> shows.</p>
+<p>The <code>\</code> at the end of a line continues the command on the next line, so the three lines above are one command. The tool only reads the file: it needs no robot and no ROS master. Its report starts with the messages and their time stamps. A table for the angular velocity and a table for the acceleration follow, each with one row for each axis. The yaw rate is the row <code>z</code> of <code>angular_velocity</code>, the value that the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> uses. For the acceleration, the mean of an axis isn't a bias: it is gravity's share on the axis together with the sensor's error, as <a href="#read-the-report">Read the report</a> explains.</p>
+<p>The rest of this section explains the result:</p>
+<ol>
+<li><a href="#make-a-recording">Make a recording</a>: 180 s on the robot, without overwriting the recording before.</li>
+<li><a href="#read-the-report">Read the report</a>: what each number means.</li>
+<li><a href="#the-mean-and-the-variance-of-three-readings">The mean and the variance of three readings</a>: the calculation by hand.</li>
+<li><a href="#from-the-report-to-the-ekf">From the report to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a>: where one measured number belongs.</li>
+<li><a href="#results-on-remo">Results on Remo</a> and <a href="#how-the-tool-is-tested">How the tool is tested</a>.</li>
+</ol>
+<h3 id="make-a-recording">Make a recording</h3>
+<p>The commands of the tabs "Robot container" below and the copy with <code>sftp</code> weren't run on a robot yet. The tool itself ran on recordings on a PC.</p>
+<p>Put the robot on a firm surface, with the <a href="../../../processing_units/robot-container/usage/#start">bringup running</a>. Don't touch the robot or its table during the recording. The command records the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s topic for 180 s and then stops by itself.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Robot container</label><label for="__tabbed_1_2">Native ROS</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>On the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose exec \</span>
+<span class="go">  -w /home/ros/.ros bringup \</span>
+<span class="go">  /entrypoint.sh rosbag record \</span>
+<span class="go">  -o imu_still --duration=180 \</span>
+<span class="go">  /diffbot/imu/data_raw</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p><code>-w /home/ros/.ros</code> runs the command in this folder of the container. Compose mounts a folder of the Raspberry Pi there: <code>~/robot-data</code>, or the folder that the variable <a href="../../../processing_units/robot-container/setup/#all-settings"><code>ROBOT_DATA</code></a> names if you set it. Without <code>-w</code>, the file would be saved inside the container and be gone after <code>docker compose down</code>. The box "Running a command in a container" under <a href="../../../processing_units/robot-container/usage/#all-commands">All commands</a> explains <code>docker compose exec</code> and <code>/entrypoint.sh</code>.</p>
+</div>
+<div class="tabbed-block">
+<p>On a robot with a native ROS installation (<a href="../../../processing_units/ros-setup/">ROS Setup</a>), in the folder where the recording should be saved:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosbag record \</span>
+<span class="go">  -o imu_still --duration=180 \</span>
+<span class="go">  /diffbot/imu/data_raw</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p>The recorder prints the name of the file that it writes. Its second line ends with the name:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>Recording to 'imu_still_2026-11-18-13-18-16.bag'.
+</code></pre></div></td></tr></tbody></table></div>
+<p>The two options of <a href="https://github.com/ros/ros_comm/blob/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag/src/rosbag/rosbag_main.py#L91-L96"><code>rosbag record</code></a> do this:</p>
+<ul>
+<li><strong><code>-o imu_still</code>:</strong> the recorder puts <code>imu_still</code> in front of the date and the time at which the recording starts, to the second. A second recording that starts at least a second later, by a clock that goes forward, gets another name. So a repeated check of 180 s keeps the recording before it.</li>
+<li><strong><code>--duration=180</code>:</strong> the recorder stops after 180 s.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Not the capital <code>-O</code></p>
+<p><code>-O imu_still.bag</code> would write exactly this name and replace a file of that name without asking. A second run would destroy the first recording. In our test with ROS Noetic it did so even when it recorded no message at all, because no <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> was publishing.</p>
+</div>
+<p>Then run the tool where the recording is, with the name that the recorder printed:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><input id="__tabbed_2_3" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">Robot container</label><label for="__tabbed_2_2">Native ROS</label><label for="__tabbed_2_3">Dev container on the PC</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>On the Raspberry Pi, in <code>~/diffbot/.docker/robot</code>:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">docker compose exec \</span>
+<span class="go">  -w /home/ros/.ros bringup \</span>
+<span class="go">  /entrypoint.sh rosrun \</span>
+<span class="go">  diffbot_bringup imu_noise_at_rest.py \</span>
+<span class="go">  imu_still_2026-11-18-13-18-16.bag</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The image holds the diffbot repository as it was when the image was built. In an image that is older than the tool, <code>rosrun</code> doesn't find <code>imu_noise_at_rest.py</code>. Then update the code and build the image again: <code>git pull</code>, then <code>docker compose up -d --build</code> (<a href="../../../processing_units/robot-container/usage/#all-commands">All commands</a>).</p>
+</div>
+<div class="tabbed-block">
+<p>In the folder of the recording:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosrun diffbot_bringup \</span>
+<span class="go">  imu_noise_at_rest.py \</span>
+<span class="go">  imu_still_2026-11-18-13-18-16.bag</span>
+</code></pre></div></td></tr></tbody></table></div>
+</div>
+<div class="tabbed-block">
+<p>The <a href="../../../development/dev-container/">dev container</a> mounts your clone of the diffbot repository on the PC as <code>/home/ros/catkin_ws/src/diffbot</code>. A file in the clone is therefore also in the container, and a file anywhere else on the PC isn't.</p>
+<p><strong>1. Copy the recording into the clone.</strong> In a terminal on the PC, in the folder of your clone:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">BAG=imu_still_2026-11-18-13-18-16.bag</span>
+<span class="go">FROM='robot@remo.local:robot-data'</span>
+<span class="go">sftp "$FROM/$BAG"</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>The first two lines hold what differs from one robot and one recording to the next, and the third line copies. Replace the values in the first two lines with yours:</p>
+<ul>
+<li><strong><code>BAG</code>:</strong> the name of your recording.</li>
+<li><strong><code>FROM</code>:</strong> the user and the name or address of the Raspberry Pi, as you use them for <code>ssh</code>, and after the colon the folder of the recording on the Raspberry Pi. <code>robot@remo.local</code> is the example of <a href="../../../processing_units/robot-container/setup/#2-first-login-and-updates">Set Up the Raspberry Pi</a>. <code>robot-data</code> is the robot container's folder. If you set <code>ROBOT_DATA</code>, use the folder that the variable names. If you recorded with a native ROS installation, use the folder in which you ran <code>rosbag record</code>.</li>
+<li><strong>The quotes</strong> keep a folder's name with a space in it in one piece.</li>
+<li><strong><a href="https://manpages.ubuntu.com/manpages/jammy/man1/sftp.1.html"><code>sftp</code></a></strong> is SSH's file transfer. Given the path of a file, it fetches that file. The file is saved in the current folder of your PC.</li>
+</ul>
+<p><strong>2. Run the tool in the dev container.</strong> A terminal of the dev container starts in <code>/home/ros/catkin_ws/src/diffbot</code>, the same folder, with the built workspace sourced:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="go">rosrun diffbot_bringup \</span>
+<span class="go">  imu_noise_at_rest.py \</span>
+<span class="go">  imu_still_2026-11-18-13-18-16.bag</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Git lists the copy as an untracked file of your clone. Delete the copy after the check, or leave it out of your commits.</p>
+</div>
+</div>
+</div>
+<h3 id="read-the-report">Read the report</h3>
+<p>After the checks of the input, the report has 18 lines when each of the two fields, the angular velocity and the acceleration, has at least two readings. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. <a href="#the-mean-and-the-variance-of-three-readings">The mean and the variance of three readings</a> calculates its row <code>z</code> by hand.</p>
+<details class="example">
+<summary>The whole report for three messages</summary>
+<p>The tool's test <a href="../noise-at-rest-tests/#the-whole-report-for-three-messages"><code>test_tool_prints_the_report_of_three_readings_one_output_step_apart</code></a> writes this bag and compares every line of the report:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span></pre></div></td><td class="code"><div><pre><span></span><code>/diffbot/imu/data_raw: 3 messages, frame_id "imu_link"
+Header stamps: 40.0 ms from the first to the last, 50.00 Hz
+Header intervals: shortest 20.0 ms, longest 20.0 ms, 0 longer than 30 ms
+Stamps that don't advance: 0 repeated, 0 earlier than the one before
+
+angular_velocity  mean (bias)     variance  std dev  distinct
+3 readings            [rad/s]  [(rad/s)^2]  [rad/s]    values
+x                    +0.00000    0.000e+00  0.00000         1
+y                    +0.00000    0.000e+00  0.00000         1
+z                    +0.00111    1.235e-06  0.00111         3
+
+linear_acceleration  mean (gravity + bias)     variance  std dev  distinct
+3 readings                         [m/s^2]  [(m/s^2)^2]  [m/s^2]    values
+x                                 +0.00000    0.000e+00  0.00000         1
+y                                 +0.00000    0.000e+00  0.00000         1
+z                                 +9.81000    0.000e+00  0.00000         1
+
+Gravity, the length of the mean acceleration: 9.810 m/s^2
+</code></pre></div></td></tr></tbody></table></div>
+</details>
+<p>The first four lines are about the messages and their header stamps. The firmware takes a message's stamp before it reads the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<a href="#what-the-firmware-publishes">What the firmware publishes</a>), and the tool reads the stamps in the order in which the bag stored the messages.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Line</th>
+<th style="text-align: left;">What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>3 messages, frame_id "imu_link"</code></td>
+<td style="text-align: left;">The number of messages <span class="arithmatex">\(N\)</span> on the topic, and the frame whose axes x, y and z the readings have.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Header stamps</code></td>
+<td style="text-align: left;">The time from the first header stamp <span class="arithmatex">\(t_1\)</span> to the last <span class="arithmatex">\(t_N\)</span>, and the rate: the number of intervals in that time, <span class="arithmatex">\((N - 1) / (t_N - t_1)\)</span>. Three messages have two intervals, so 2 / 0.040 s gives 50 Hz.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Header intervals</code></td>
+<td style="text-align: left;">The shortest and the longest time between two consecutive header stamps, and how many are longer than 30 ms. The firmware takes a sample every 20 ms, and 30 ms is one and a half of these periods. A longer interval is worth a look. Two possible reasons are a sample that the firmware took late and a sample that is missing. The header stamps don't say when a message arrived, so the report can't show a message that was delivered late. A longest interval just above 30 ms that would read <code>30.0 ms</code> is given to the nanosecond, such as <code>30.040000 ms</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Stamps that don't advance</code></td>
+<td style="text-align: left;">How many stamps repeat the stamp before, and how many are earlier than the stamp before, for example because the clock was set back. Both counts should be 0. If one isn't, the line <code>Header stamps</code> says "no rate" instead of a rate in Hz.</td>
+</tr>
+</tbody>
+</table>
+<p>Each table has one row for each axis and these columns:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>3 readings</code></td>
+<td style="text-align: left;">Below the field's name: how many messages have a measurement of this field. A <a href="#what-the-firmware-publishes"><code>sensor_msgs/Imu</code></a> message marks a field that it didn't measure with −1 as the first element of the field's covariance (<a href="https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L5-L13"><code>Imu.msg</code></a>). The tool leaves such a message out of the field's statistics.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mean</code> of <code>angular_velocity</code></td>
+<td style="text-align: left;">The gyroscope's <strong>bias</strong>: what the gyroscope reads while the robot doesn't turn. In the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> mode that the firmware selects, the BNO055's fusion estimates the gyroscope's offset in the background and subtracts the estimate from the output (<a href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf">datasheet</a>, sections 3.6.5.1 and 3.6.5.3). So the mean is the bias that remains in the corrected output. It isn't the bias of the raw sensor, which the firmware never reads.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mean</code> of <code>linear_acceleration</code></td>
+<td style="text-align: left;">Gravity's share on each axis, plus the accelerometer's remaining error. One recording at rest can't separate the two. The shares depend on how the robot stands, so they change from one recording to the next.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>variance</code></td>
+<td style="text-align: left;">The <strong>noise</strong> as a variance <span class="arithmatex">\(s^2\)</span>: how far the readings scatter around their mean, as a squared distance in (rad/s)² or (m/s²)². <a href="#the-mean-and-the-variance-of-three-readings">The mean and the variance of three readings</a> has the formula. The variances in the message's covariances have the same unit.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>std dev</code></td>
+<td style="text-align: left;">The standard deviation <span class="arithmatex">\(s\)</span>, the square root of the variance. Its unit is the readings' own, so it is easier to compare with them.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>distinct values</code></td>
+<td style="text-align: left;">How many different values the axis read in this recording. The BNO055 reports in steps of 1/900 rad/s (0.0011 rad/s) and 1/100 m/s² (0.01 m/s²). When the noise is smaller than one step, the readings take only a handful of values around their mean. The count says how many steps the recording used. It doesn't say how large a step is.</td>
+</tr>
+</tbody>
+</table>
+<p>A report can be shorter. An <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> can leave a field out, and each field needs two readings for its table:</p>
+<ul>
+<li><strong>A field with fewer than two readings:</strong> instead of the table, the report has the field's number of readings and the reason, for example <code>angular_velocity: 0 readings, the statistics need at least two</code>. If the other field has at least two readings, its table stays, and the tool ends with status 0, as for a full report.</li>
+<li><strong>Fewer than two readings of the acceleration:</strong> the report has no line about gravity.</li>
+<li><strong>No field with two readings:</strong> the tool prints one line with the reason and ends with status 1.</li>
+</ul>
+<p>The last line is gravity as the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> measures it: the length of the mean acceleration. A robot that stands tilted measures gravity on all three axes, and the length puts the three shares together again:</p>
+<div class="arithmatex">\[
+\sqrt{\bar{a}_x^2 + \bar{a}_y^2 + \bar{a}_z^2}
+\]</div>
+<p><span class="arithmatex">\(\bar{a}_x\)</span>, <span class="arithmatex">\(\bar{a}_y\)</span> and <span class="arithmatex">\(\bar{a}_z\)</span> are the means of the three acceleration axes. Remo's means of −0.23153, +0.07258 and +9.78867 m/s² give <span class="arithmatex">\(\sqrt{0.0536 + 0.0053 + 95.8181}\)</span> m/s² = 9.792 m/s². The result should be close to 9.81 m/s², however the robot stands.</p>
+<p>The tool refuses a recording that it can't interpret. It then prints one line that names the file and the reason, and ends with status 1 instead of a report: when the file isn't a readable <a href="https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag">rosbag</a>, when the topic's messages aren't ROS's <code>sensor_msgs/Imu</code>, when the topic has fewer than two messages, when a message has no <code>frame_id</code> or the messages have different ones, and when a reading is NaN, infinite or beyond 1,000,000 rad/s or m/s², the tool's limit for a plausible reading. For a recording that was cut off before the recorder finished, the line says that the file has no index and that <code>rosbag reindex</code> can repair it.</p>
+<p><a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_bringup/scripts/imu_noise_at_rest.py#L770-L771"><code>--topic</code></a> selects another <code>sensor_msgs/Imu</code> topic than <code>/diffbot/imu/data_raw</code>. The 30 ms of the line <code>Header intervals</code> belong to the firmware's 50 Hz and don't adapt to a topic with another rate.</p>
+<h3 id="the-mean-and-the-variance-of-three-readings">The mean and the variance of three readings</h3>
+<p>The row <code>z</code> of the example report comes from three readings of the yaw rate. One step of the BNO055's gyroscope is <span class="arithmatex">\(\Delta\)</span> = 1/900 rad/s, about 0.00111 rad/s, and the three readings <span class="arithmatex">\(\omega_{z,1}\)</span>, <span class="arithmatex">\(\omega_{z,2}\)</span> and <span class="arithmatex">\(\omega_{z,3}\)</span> are 0, <span class="arithmatex">\(\Delta\)</span> and <span class="arithmatex">\(2\Delta\)</span>:</p>
+<!-- Written by scripts/figures/imu_noise_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-noise .lv-fig .level{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.7;stroke-dasharray:1.5 3}
+.lv-noise .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .spread-band{fill:var(--lv-imu);fill-opacity:.14;stroke:none}
+.lv-noise .lv-fig .mean-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .spread-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6;stroke-dasharray:5 3}
+.lv-noise .lv-fig .reading{fill:var(--md-default-fg-color);fill-opacity:.85;stroke:none}
+.lv-noise .lv-fig .deviation-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-noise .lv-fig .deviation-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .step-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.lv-noise .lv-fig .step-bad{fill:none;stroke:var(--lv-bad);stroke-width:2;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .long-interval{fill:none;stroke:var(--lv-bad);stroke-width:1.6}
+.lv-noise .lv-fig .box-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-noise .lv-fig .gravity-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .gravity-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .class-name{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-noise .lv-fig .flow-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .flow-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-noise .lv-fig .refused-line{fill:none;stroke:var(--lv-bad);stroke-width:1.6;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .refused-head{fill:var(--lv-bad);stroke:none}
+.lv-noise .lv-fig .command-span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+</style>
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-noise">
+<svg class="lv-fig" viewBox="0 0 300 126" role="img" aria-labelledby="imu-noise-three-readings-title"><title id="imu-noise-three-readings-title">Three yaw-rate readings on an axis: zero, one output step and two output steps. Their mean is one step. The outer readings deviate from the mean by one step each</title>
+<path class="axis" d="M22,78 H278"></path>
+<path class="mean-line" d="M150.0,34 V86"></path>
+<text class="strong" x="150.0" y="28.0" text-anchor="middle">mean</text>
+<path class="deviation-line" d="M150.0,54 H68.0"></path>
+<path class="deviation-head" d="M63.0,54.0 L70.0,49.8 L70.0,58.2 z"></path>
+<text class="strong" x="106.0" y="48.0" text-anchor="middle">−Δ</text>
+<path class="deviation-line" d="M150.0,54 H232.0"></path>
+<path class="deviation-head" d="M237.0,54.0 L230.0,58.2 L230.0,49.8 z"></path>
+<text class="strong" x="194.0" y="48.0" text-anchor="middle">+Δ</text>
+<circle class="imu-dot" cx="62.0" cy="78.0" r="5.5"></circle>
+<text class="strong" x="62.0" y="100.0" text-anchor="middle">0</text>
+<text class="note" x="62.0" y="116.0" text-anchor="middle">0.00000</text>
+<circle class="imu-dot" cx="150.0" cy="78.0" r="5.5"></circle>
+<text class="strong" x="150.0" y="100.0" text-anchor="middle">Δ</text>
+<text class="note" x="150.0" y="116.0" text-anchor="middle">0.00111</text>
+<circle class="imu-dot" cx="238.0" cy="78.0" r="5.5"></circle>
+<text class="strong" x="238.0" y="100.0" text-anchor="middle">2Δ</text>
+<text class="note" x="238.0" y="116.0" text-anchor="middle">0.00222</text>
+<text class="mono" x="4.0" y="13.0" text-anchor="start">angular_velocity.z in rad/s</text>
+</svg>
+<figcaption>Three readings one output step Δ = 1/900 rad/s apart. Their mean is Δ. The arrows are the deviations from the mean: −Δ, 0 and +Δ.</figcaption>
+</figure>
+
+<p><strong>The mean</strong> <span class="arithmatex">\(\bar{\omega}_z\)</span> is the sum of the <span class="arithmatex">\(N\)</span> = 3 readings, divided by <span class="arithmatex">\(N\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\bar{\omega}_z &amp;= \frac{1}{N}\sum_{i=1}^{N} \omega_{z,i} \\
+&amp;= \frac{0 + \Delta + 2\Delta}{3} = \Delta \\
+&amp;= 0.00111\ \text{rad/s}
+\end{aligned}
+\]</div>
+<p><strong>The sample variance</strong> <span class="arithmatex">\(s^2\)</span> adds up the squared deviations of the readings from the mean, here <span class="arithmatex">\(-\Delta\)</span>, 0 and <span class="arithmatex">\(+\Delta\)</span>, and divides the sum by <span class="arithmatex">\(N - 1\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+s^2 &amp;= \frac{1}{N-1}\sum_{i=1}^{N} \left(\omega_{z,i} - \bar{\omega}_z\right)^2 \\
+&amp;= \frac{\Delta^2 + 0 + \Delta^2}{3 - 1} = \Delta^2 \\
+&amp;= 1.235 \cdot 10^{-6}\ (\text{rad/s})^2
+\end{aligned}
+\]</div>
+<p><strong>The standard deviation</strong> <span class="arithmatex">\(s\)</span> is the square root of the variance:</p>
+<div class="arithmatex">\[
+s = \sqrt{s^2} = \Delta = 0.00111\ \text{rad/s}
+\]</div>
+<p>These are the three numbers of the row <code>z</code>: <code>+0.00111</code>, <code>1.235e-06</code> and <code>0.00111</code>. The last column of the row, <code>3</code>, counts the three different values.</p>
+<p>The divisor is <span class="arithmatex">\(N - 1\)</span> and not <span class="arithmatex">\(N\)</span>, because the deviations are measured from the readings' own mean. That mean lies closer to the readings than the true mean, which nobody knows, so the squared deviations come out a little too small. Dividing by <span class="arithmatex">\(N - 1\)</span> makes up for it (<a href="https://en.wikipedia.org/wiki/Bessel%27s_correction">Bessel's correction</a>). With <span class="arithmatex">\(N\)</span>, the example's variance would be two thirds of <span class="arithmatex">\(\Delta^2\)</span>.</p>
+<p>The excerpt shows the two functions of the tool that do this calculation, <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_bringup/scripts/imu_noise_at_rest.py#L577-L596">lines 577–596 of <code>imu_noise_at_rest.py</code></a>. <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_bringup/scripts/imu_noise_at_rest.py#L592-L596"><code>axis_statistics()</code></a> gets the readings of one axis as <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_bringup/scripts/imu_noise_at_rest.py#L592"><code>values</code></a>. It takes their mean from Python's <a href="https://docs.python.org/3.8/library/statistics.html#statistics.mean"><code>statistics.mean()</code></a> and their sample variance from <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_bringup/scripts/imu_noise_at_rest.py#L577-L589"><code>sample_variance()</code></a>. That function passes the readings to Python's <a href="https://docs.python.org/3.8/library/statistics.html#statistics.variance"><code>statistics.variance()</code></a>, which divides by <span class="arithmatex">\(N - 1\)</span>, as fractions. A fraction holds a floating-point number exactly, so the mean, the deviations and their squares aren't rounded on the way:</p>
+<div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">imu_noise_at_rest.py: the sample variance and the statistics of one axis</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sample_variance</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the sample variance of the values.</span>
+
+<span class="sd">    The squared deviations from the mean are added up and divided by the number of values minus</span>
+<span class="sd">    one, not by their number: the deviations are measured from the values' own mean, which lies</span>
+<span class="sd">    closer to them than the true mean. It needs at least two values.</span>
+
+<span class="sd">    statistics.variance() gets the values as fractions, which hold each float exactly, so the</span>
+<span class="sd">    mean, the deviations and their squares aren't rounded. With floats, Python 3.8 stops with</span>
+<span class="sd">    "negative sum of square deviations" on deviations so small that their squares are zero as</span>
+<span class="sd">    floats, such as one reading of 7e-304 next to readings of zero.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">([</span><span class="n">Fraction</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">axis_statistics</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AxisStatistics</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the mean, the sample variance and the number of distinct values of one axis."""</span>
+    <span class="k">return</span> <span class="n">AxisStatistics</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">),</span>
+                          <span class="n">variance</span><span class="o">=</span><span class="n">sample_variance</span><span class="p">(</span><span class="n">values</span><span class="p">),</span>
+                          <span class="n">distinct_value_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
+</code></pre></div></td></tr></tbody></table></div>
+<p>Two readings are enough to calculate a variance, and the tool asks for no more. A recording is longer for a reason: 180 s at 50 Hz give about 9,000 readings, which describe that run far better than three. Three limits remain:</p>
+<ul>
+<li><strong>Only this run:</strong> the numbers describe one pose on one day. A robot that stands tilted has other shares of gravity on its axes, so the acceleration's means differ from one pose to the next. A share that stays the same during a recording adds no spread to that recording. A tilt that changes during the recording, a table that shakes or a wheel that still turns adds to the variances like the sensor's own noise.</li>
+<li><strong>Readings that follow each other can depend on each other:</strong> a bias that drifts slowly, for example with the temperature, moves many readings in the same direction. Then 9,000 readings say less than 9,000 independent ones would.</li>
+<li><strong>At rest only:</strong> driving adds vibration from the motors and the floor, which a recording at rest doesn't contain.</li>
+</ul>
+<h3 id="from-the-report-to-the-ekf">From the report to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></h3>
+<p>One number of the report has a counterpart in the robot's configuration: the variance of the yaw rate. The figure follows the number from the recording to the filter:</p>
+<div class="mermaid">graph TB
+  RECORDING["Recording at rest"] --&gt;|the bag| TOOL["imu_noise_at_rest.py"]
+  TOOL --&gt;|"row z: variance 5.317 · 10⁻⁷ (rad/s)²"| BASELINE["Baseline at rest"]
+  BASELINE -.-&gt;|"compare by hand"| SETTING["Firmware setting&lt;br/&gt;angular_velocity_variance&lt;br/&gt;4 · 10⁻⁴ (rad/s)²"]
+  SETTING --&gt;|"written into every message"| COVARIANCE["angular_velocity_covariance&lt;br/&gt;indices 0, 4 and 8"]
+  COVARIANCE --&gt;|"index 8: the yaw rate"| FILTER["EKF"]</div>
+<ol>
+<li><strong>In the report:</strong> Remo's row <code>z</code> of <a href="#what-the-firmware-publishes"><code>angular_velocity</code></a> has the mean +0.00005 rad/s, the standard deviation 0.00073 rad/s and the variance 5.317 · 10⁻⁷ (rad/s)². The mean estimates the bias that remains. The standard deviation and the variance both describe the spread.</li>
+<li><strong>In the message:</strong> a <code>sensor_msgs/Imu</code> message carries the variances of its angular velocity in the field <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/imu/imu_publisher.h#L220-L224"><code>angular_velocity_covariance</code></a>, a 3 × 3 matrix stored as nine numbers. The yaw rate's variance is the last of them, index 8. <a href="../robot_localization/#the-variances">The variances</a> on the Localization page shows the matrix with the index of every element.</li>
+<li><strong>In the firmware:</strong> the firmware doesn't measure a variance. It writes one setting, <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/config/diffbot_base_config.h#L75"><code>angular_velocity_variance</code></a> = 4 · 10⁻⁴ (rad/s)², to the indices 0, 4 and 8 of every message (<a href="#what-the-firmware-publishes">What the firmware publishes</a>).</li>
+<li><strong>In the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>:</strong> of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s values, the filter fuses only the yaw rate, so index 8 is the one that it uses. It doesn't fuse the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s acceleration (<a href="../robot_localization/#what-the-filter-fuses">What the filter fuses</a>). The larger the variance, the less the filter trusts the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate compared with the wheel odometry's.</li>
+</ol>
+<p>So the measured 5.317 · 10⁻⁷ (rad/s)² is the baseline at rest for a setting that is 4 · 10⁻⁴ (rad/s)² today, about 750 times as large. Three things follow:</p>
+<ul>
+<li><strong>The tool changes nothing:</strong> it prints a report. A changed setting is an edit of <a href="https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/config/diffbot_base_config.h"><code>diffbot_base_config.h</code></a> and a new firmware on the Teensy.</li>
+<li><strong>The starting value stays for now:</strong> the recording at rest doesn't contain the vibration of driving. A check while driving has to show how much the vibration adds. That check has to tell real motion apart from noise, because the readings of a robot that turns or speeds up change for a reason.</li>
+<li><strong>The bias isn't part of the variance:</strong> the mean is in rad/s and the variance in (rad/s)². The bias doesn't go into <code>angular_velocity_variance</code>.</li>
+</ul>
+<h3 id="results-on-remo">Results on Remo</h3>
+<p>Remo was recorded twice for 180 s at rest: with a Teensy 3.2 on 2026-10-31 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204">the bench checks' results in diffbot#160</a>) and with Remo's own Teensy 4.0 on 2026-11-03 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">the Teensy 4.0 results in diffbot#169</a>). The linked comments summarize the bench checks. The table gives the values from the reports that the first version of the tool printed. The recordings weren't run through the tool again.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Teensy 3.2</th>
+<th style="text-align: left;">Teensy 4.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Messages and rate</td>
+<td style="text-align: left;">8,986 at 50.00 Hz</td>
+<td style="text-align: left;">8,990 at 50.00 Hz</td>
+</tr>
+<tr>
+<td style="text-align: left;">Intervals between the header stamps</td>
+<td style="text-align: left;">14 to 27 ms, none over 30 ms</td>
+<td style="text-align: left;">13 to 26 ms, none over 30 ms</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gyroscope bias x, y, z (rad/s)</td>
+<td style="text-align: left;">+0.00001, +0.00000, +0.00003</td>
+<td style="text-align: left;">−0.00003, −0.00001, +0.00005</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gyroscope std dev x, y, z (rad/s)</td>
+<td style="text-align: left;">0.00047, 0.00078, 0.00075</td>
+<td style="text-align: left;">0.00057, 0.00081, 0.00073</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gyroscope variance x, y, z (10⁻⁷ (rad/s)²)</td>
+<td style="text-align: left;">2.246, 6.054, 5.614</td>
+<td style="text-align: left;">3.194, 6.572, 5.317</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gyroscope distinct values x, y, z</td>
+<td style="text-align: left;">7, 8, 9</td>
+<td style="text-align: left;">10, 11, 9</td>
+</tr>
+<tr>
+<td style="text-align: left;">Acceleration std dev x, y, z (m/s²)</td>
+<td style="text-align: left;">0.020, 0.024, 0.028</td>
+<td style="text-align: left;">0.013, 0.026, 0.036</td>
+</tr>
+<tr>
+<td style="text-align: left;">Acceleration distinct values x, y, z</td>
+<td style="text-align: left;">11, 14, 17</td>
+<td style="text-align: left;">11, 19, 21</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gravity</td>
+<td style="text-align: left;">9.742 m/s²</td>
+<td style="text-align: left;">9.792 m/s²</td>
+</tr>
+</tbody>
+</table>
+<p>Both boards give the same picture, as expected: the Teensy only reads the sensor's registers. The gyroscope's bias stays below 0.0001 rad/s, less than a tenth of one output step. Its standard deviation is smaller than one step too, so each axis read only 7 to 11 different values in 180 s. Its variance, 2 to 7 · 10⁻⁷ (rad/s)², is about a thousand times smaller than the firmware's starting value of 4 · 10⁻⁴ (rad/s)².</p>
+<h3 id="how-the-tool-is-tested">How the tool is tested</h3>
+<p>The <a href="../noise-at-rest-tests/">tests of the noise tool</a> show how to run all 82 tests. They check statistics against known results and run the command on prepared inputs. No test needs a robot or a ROS master.</p>
+<h2 id="trying-the-breakout-on-its-own">Trying the breakout on its own</h2>
 <p>To try the breakout separately with an Arduino, see <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code">Adafruit's Arduino guide</a> for wiring, library installation and example programs.</p>
 <details class="info">
 <summary>Trying the breakout on the Raspberry Pi</summary>
-<p>To check a breakout on its own, it can also be connected to the Raspberry Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins (<a href="https://pinout.xyz/pinout/i2c">pinout</a>): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi">prepare the Pi for it</a> (<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> on, the Blinka library), then <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching">slow down the Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock</a>, which the BNO055 needs because it stretches the clock, and then run the <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">BNO055 example</a>.</p>
+<p>To check a breakout on its own, it can also be connected to the Raspberry Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pins (<a href="https://pinout.xyz/pinout/i2c">pinout</a>): VIN to 3.3 V, GND to GND, SDA to SDA, SCL to SCL. Adafruit's guide reads it with Python and its CircuitPython library: first <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi">prepare the Pi for it</a> (<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> on, the <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi">Blinka</a> library), then <a href="https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/i2c-clock-stretching">slow down the Pi's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> clock</a>, which the BNO055 needs because it stretches the clock, and then run the <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/python-circuitpython">BNO055 example</a>.</p>
 <p><a href="https://github.com/dheera/ros-imu-bno055">ros-imu-bno055</a> is a C++ driver for ROS 1 and ROS 2 that reads the BNO055 over <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. The project's README says the driver should work on a Raspberry Pi 5, or on an older Pi using software <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr>. The author has not tested the slower-clock workaround with this driver. DiffBot and Remo read the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> on the Teensy. ros-imu-bno055 has not been tested with either robot.</p>
 </details>
 <!-- Mechanical parts and tools -->
@@ -5492,13 +6731,13 @@
         
         
           
-          <a href="../../raspicam_node/" class="md-footer__link md-footer__link--next" aria-label="Next: Raspberry Pi Camera">
+          <a href="../noise-at-rest-tests/" class="md-footer__link md-footer__link--next" aria-label="Next: Tests of the Noise Tool">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Raspberry Pi Camera
+                Tests of the Noise Tool
               </div>
             </div>
             <div class="md-footer__button md-icon">

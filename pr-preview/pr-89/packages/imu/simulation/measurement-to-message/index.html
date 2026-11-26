@@ -1954,6 +1954,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU (BNO055)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU (BNO055)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../driver-bno055/" class="md-nav__link">
         
@@ -1971,6 +2029,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../noise-at-rest-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests of the Noise Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -6032,7 +6126,7 @@ n \sim \mathcal N(0, \sigma^2), \qquad
 <li><strong>The plugin</strong> adds noise when it fills the message. <code>gaussianNoise</code> is its only setting for that. All the noise that the robots' <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> models configure comes from the plugin.</li>
 </ul>
 <p><strong>One value for both quantities:</strong> <span class="arithmatex">\(\sigma\)</span> is 0.005 rad/s for the angular velocity and 0.005 m/s² for the specific force. This is a limit of the plugin, which has one parameter for all values, and not a model of a real sensor. A gyroscope's noise in rad/s and an accelerometer's noise in m/s² are different quantities with different sizes. The acceleration's noise doesn't matter to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> today, because the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> fuses only the yaw rate <span class="arithmatex">\(\omega_z\)</span>. The yaw rate's noise and variance do reach the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. They are simulation settings too. So the simulation doesn't show how the real sensor's noise affects the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>.</p>
-<p><strong>A simulation setting, not a measurement:</strong> 0.005 isn't the BNO055's noise. At rest on Remo, the real BNO055's gyroscope scatters with a standard deviation of 0.0005 to 0.0008 rad/s, and its accelerometer with about 0.02 to 0.03 m/s². The <a href="../../driver-bno055/#bench-checks">bench checks</a> on the BNO055 page have these measurements.</p>
+<p><strong>A simulation setting, not a measurement:</strong> 0.005 isn't the BNO055's noise. At rest on Remo, the real BNO055's gyroscope scatters with a standard deviation of 0.0005 to 0.0008 rad/s, and its accelerometer with about 0.01 to 0.04 m/s². <a href="../../driver-bno055/#bias-and-noise-at-rest">Bias and noise at rest</a> on the BNO055 page has these measurements.</p>
 <h3 id="filling-the-covariances">Filling the covariances</h3>
 <p>After the values, the same call writes the covariances. The excerpt shows these lines, from <a href="https://github.com/ros-mobile-robots/diffbot/blob/8c83f53a6dd8685417e1d2a660d1d7395bf23757/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L168-L178"><code>gazebo_ros_imu_sensor.cpp</code>, lines 168–178</a>:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><th colspan="2" class="filename"><span class="filename">gazebo_ros_imu_sensor.cpp: the covariances</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
