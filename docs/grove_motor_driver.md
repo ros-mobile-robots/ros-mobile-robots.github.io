@@ -64,7 +64,7 @@ The level shifter connects `A1` with `B1` and `A2` with `B2` itself. Don't conne
 
 Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and the logic supply of the motor driver, which Seeed gives as 5 V.
 The motor driver makes this supply from its batteries, with its own 5 V regulator.
-DiffBot's eight NiMH cells give the regulator enough input for its 5 V, as [DiffBot: eight NiMH cells and the Grove I2C Motor Driver](power-supply.md#diffbot-eight-nimh-cells-and-the-grove-i2c-motor-driver) on the Power Supply page explains.
+At a board input of 9.6 V, the regulator has enough voltage to supply the 5 V logic rail. The [Power Supply](power-supply.md#diffbot-eight-nimh-cells-and-the-grove-i2c-motor-driver) page shows the calculation.
 Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the I2C connector, and Seeed asks for the jumper when 5 V should be supplied to the I2C bus ([Seeed's hardware overview](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview)).
 Connect this VCC pin only to the level shifter's `HV`, never to the Raspberry Pi, which has its own supply.
 The GND pin of the I2C connector is connected to the board's ground, with or without the jumper.

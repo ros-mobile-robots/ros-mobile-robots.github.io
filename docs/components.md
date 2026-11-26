@@ -186,7 +186,7 @@ For the robot base you have at least two options to choose from: DiffBot, built 
 
 === "DiffBot"
 
-    DiffBot is built on the acrylic plate of the [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05). The kit includes two drive wheels, a caster wheel and a battery holder. The holder sits under the base plate and supplies the motors.
+    DiffBot is built on the acrylic plate of the [Robot Car Kit 2WD](https://joy-it.net/en/products/robot05) from Joy-IT (article no.: robot05). The kit includes two drive wheels and a caster wheel. DiffBot's motors run from eight NiMH AA cells in series.
 
     <figure>
         <a href="{{ asset_dir }}/components/car-kit05.jpg"><img src="{{ asset_dir }}/components/car-kit05.jpg"></a>

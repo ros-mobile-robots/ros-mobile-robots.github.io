@@ -11,7 +11,7 @@ The motors get their own supply because they need more current than a USB connec
 | Raspberry Pi | USB power bank | USB power bank |
 | Motor driver | [Grove I2C Motor Driver V1.3](grove_motor_driver.md), with an L298 | [Adafruit DC Motor + Stepper FeatherWing](https://www.adafruit.com/product/2927), with TB6612 driver chips |
 | Motor supply | Eight rechargeable NiMH AA cells | Eight rechargeable NiMH AA cells in the holder under the top plate |
-| When the motor supply runs low | [Recharge all eight cells](#charging-the-nimh-cells) | Recharge all eight cells |
+| After each use | [Recharge all eight cells](#charging-the-nimh-cells) | Recharge all eight cells |
 | Motors | Two [DG01D-E](DG01D-E-motor-with-encoder.md), rated 3 V to 9 V | The same |
 
 ## Raspberry Pi
@@ -29,7 +29,7 @@ If you see such warnings, use a power bank that delivers more current, or a bett
 
 The motor driver sits between the battery and the motors.
 For each motor, it has an H-bridge: four switches that let the current flow through the motor in either direction.
-To set the voltage at a motor, the driver switches the battery voltage on and off many times per second, with PWM.
+The driver uses pulse-width modulation (PWM) to change the fraction of each cycle for which it applies voltage to the motor.
 The duty cycle is the share of each period during which the switches are on.
 The higher the duty cycle, the higher the average voltage at the motor.
 
@@ -52,10 +52,10 @@ In series, the voltages of the cells add up:
 | | Per cell | Eight cells |
 | --- | --: | --: |
 | Nominal | 1.2 V | 9.6 V |
-| Fully charged | about 1.4 V | about 11.2 V |
+| At the start of the example discharge curves | about 1.4 V | about 11.2 V |
 | End of the datasheet's capacity test | 1.0 V | 8.0 V |
 
-The cell values come from Energizer's [NH15-1500 datasheet](https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf). It gives 1.2 V nominal for a NiMH AA cell, and its discharge curves start at 1.4 V. It rates the capacity of this 1500 mAh cell for a discharge with 300 mA at 21 °C, down to 1.0 V per cell. The table's 8.0 V is eight times this end value. The robots' cells, with 2000 mAh, can behave differently at the motors' unmeasured currents. So 8.0 V is a comparison with the datasheet, not a voltage to drive down to. [Recharge the cells](#when-to-recharge) after each use.
+The cell values come from Energizer's [NH15-1500 datasheet](https://energizer.com/canada-french/wp-content/uploads/sites/3/2024/09/nh15-1500.pdf). It gives 1.2 V nominal for a NiMH AA cell. Energizer's curves for the NH15-1500 start near 1.4 V per cell. Eight cells at that voltage would give about 11.2 V. The voltage of the robots' own packs under load has not been measured. The datasheet rates the capacity of this 1500 mAh cell for a discharge with 300 mA at 21 °C, down to 1.0 V per cell. The table's 8.0 V is eight times this end value. The robots' cells, with 2000 mAh, can behave differently at the motors' unmeasured currents. So 8.0 V is a comparison with the datasheet, not a voltage to drive down to. [Recharge the cells](#when-to-recharge) after each use.
 
 A NiMH cell stays near 1.2 V for most of its discharge and drops only at the end (see the curves in the datasheet).
 So the voltage that the motors can get stays nearly the same until the cells are nearly empty.
@@ -76,25 +76,25 @@ Two things speak against driving a robot until it stops. The first is shown on R
 
 DiffBot's eight NiMH AA cells are connected to the power terminal of the [Grove I2C Motor Driver V1.3](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/).
 
-- **Input range:** Seeed specifies 6 V to 15 V at this terminal. Eight NiMH cells stay inside this range, from about 11.2 V fully charged down to 8.0 V at the end value of the capacity test.
-- **Logic supply:** The board makes the supply for its own logic from this input. Behind a protection diode (D9 in Seeed's [schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), a 78M05 regulator supplies the board's microcontroller, the logic of the L298 and the VCC pin of the I2C connector. The [78M05 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/ST_78M05DataSheet.pdf) specifies its 5 V for inputs from 7 V to 20 V. The diode loses up to 1.1 V at 1 A (see below), so at the cells' nominal 9.6 V the regulator gets at least about 8.5 V.
+- **Input range:** Seeed specifies 6 V to 15 V at this terminal. Eight NiMH cells stay inside this range, from about 11.2 V at the start of the example discharge curves down to 8.0 V at the end value of the capacity test.
+- **Logic supply:** The board makes the supply for its own logic from this input. Behind a protection diode (D9 in Seeed's [schematic](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf)), a 78M05 regulator supplies the board's microcontroller, the logic of the L298 and the VCC pin of the I2C connector. The [78M05 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/ST_78M05DataSheet.pdf) specifies its 5 V for inputs from 7 V to 20 V. If the battery supplies 9.6 V at the board and D9 drops 1.1 V at 1 A, the regulator receives 8.5 V. Its specified input range starts at 7 V. With the same diode drop, an 8.0 V pack would give the regulator 6.9 V.
 - **Voltage drop:** On its way to a motor, the current passes the protection diode (D9, a 1N4007, in Seeed's schematic) and two transistors of the L298. The diode carries the current of the whole board: both motors and the board's logic. Each bridge of the L298 carries the current of its own motor. At 1 A, the [1N4007 datasheet](https://www.vishay.com/docs/88503/1n4001.pdf) gives up to 1.1 V for the diode. The [L298 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf) gives 1.8 V to 3.2 V for the two transistors together. Both drops are smaller at lower currents. Seeed limits the board to 0.5 A per channel ([Specifications](https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/)). On the bench, with the board on 10 V, a DG01D-E got 7.9 V at the highest command, a drop of 2.1 V ([Wheel Encoder Measurements](DG01D-E-motor-with-encoder.md#wheel-encoder-measurements)).
-- **What the motors get:** At the maximum duty cycle, a motor gets close to the battery voltage under load minus the drop. With the bench's 2.1 V, that is about 7.5 V at the cells' nominal 9.6 V and about 9.1 V when they are fully charged (11.2 V), slightly more than the motors' rated 9 V. DiffBot's own currents and motor voltages aren't measured.
+- **What the motors get:** At the maximum duty cycle, a motor gets close to the battery voltage under load minus the drop. On the bench, the motor received 2.1 V less than the board supply at speed 100. If that difference were the same on DiffBot, 9.6 V at the board would give about 7.5 V at the motor, and 11.2 V would give about 9.1 V. Neither motor voltage has been measured on DiffBot.
 
 ## Remo: eight NiMH cells and the Adafruit FeatherWing
 
 Remo's eight NiMH AA cells sit in the battery holder under the top plate ([assembly step 10](hardware_setup/assembly.md#step-10-battery-pack)).
 The holder's cable goes to the 2-pin power terminal of the [Adafruit DC Motor + Stepper FeatherWing](https://www.adafruit.com/product/2927).
 
-- **Input range:** Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its [guide](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts) asks for 5 V to 12 V. Eight NiMH cells stay inside both ranges, from about 11.2 V fully charged down to 8.0 V at the end value of the capacity test.
-- **Voltage drop:** The TB6612 switches with MOSFETs, transistors that lose much less voltage than the L298's. Its [datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=10660) gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together. These are the datasheet's values at its test currents. Remo's own motor currents aren't measured.
-- **What the motors get:** Remo's PID controller limits its output to `PWM_MAX`, 2⁸ − 1 = 255, the highest command ([`diffbot_base_config.h`](https://github.com/ros-mobile-robots/diffbot/blob/101f179a50afa92c625eb9f72dcd5443c9cc49e2/diffbot_firmware/lib/config/diffbot_base_config.h#L83)). At this command, a motor gets close to the pack's voltage under load minus the small drop: about 9.1 V to 9.5 V at the cells' nominal 9.6 V, and up to about 11 V with fully charged cells. That is more than the motors' rated 9 V. How often the controller reaches its highest command depends on the target speed and the load.
+- **Input range:** Adafruit's product page specifies motors on 4.5 V to 13.5 V, and its [guide](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts) asks for 5 V to 12 V. Eight NiMH cells stay inside both ranges, from about 11.2 V at the start of the example discharge curves down to 8.0 V at the end value of the capacity test.
+- **Voltage drop:** The TB6612 switches with MOSFETs, transistors that lose much less voltage than the L298's. Its [datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=10660) gives a drop of 0.5 V (typical, 0.7 V at most) at 1 A, and 0.15 V (typical) at 0.3 A, for the two switches of a bridge together, with both chip supplies at 5 V. These are the datasheet's values at its test currents. Remo's own motor currents aren't measured.
+- **What the motors get:** Remo's PID controller limits its output to `PWM_MAX`, 2⁸ − 1 = 255, the highest command ([`diffbot_base_config.h`](https://github.com/ros-mobile-robots/diffbot/blob/101f179a50afa92c625eb9f72dcd5443c9cc49e2/diffbot_firmware/lib/config/diffbot_base_config.h#L83)). At the highest command the driver applies power for 99.6 % of each cycle. For example, with 9.6 V at the driver's motor supply, the two typical chip drops above give about 9.1 V and 9.5 V across the motor during a drive pulse. With 11.2 V at the driver, the motor could see about 11 V. Remo's motors can therefore receive more than their 9 V rating. The actual voltage depends on the pack under load and the motor current. It has not been measured on Remo.
 
 ## Other AA-sized cells
 
-Both holders take any AA-sized cell, and two other kinds don't suit the robots:
+Use eight NiMH AA cells in each holder. Two other cells of similar size have different electrical characteristics:
 
-- **Alkaline AA batteries:** They can't be recharged. A fresh alkaline cell has about 1.6 V without load ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf)), so eight of them give about 12.8 V, and the motors get even more than with charged NiMH cells.
+- **Alkaline AA batteries:** They can't be recharged. A fresh alkaline cell has about 1.6 V without load ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf)). Eight fresh cells give about 12.8 V without load. This exceeds the FeatherWing guide's 12 V supply recommendation.
 - **14500 lithium-ion cells:** A 14500 cell with 3.6 V or 3.7 V nominal has 4.2 V when fully charged ([Nitecore's charger manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), section Default Settings). Eight of them give 33.6 V, far above the 15 V of the Grove I2C Motor Driver and the 13.5 V of the FeatherWing.
 
 ## Why the robots use NiMH cells
@@ -120,7 +120,7 @@ Read the manual's Precautions before the first charge.
 4. Check each slot on the display. A short press of the C button selects the next slot, and short presses of the V button step through the slot's values, among them Battery Health.
     - **`EE EE`:** The cell is inserted the wrong way round or has a short circuit. Take it out and check it. If it was only the wrong way round, insert it correctly, and the checks of this slot start again. If `EE EE` comes back, the cell is faulty.
     - **Battery Health `Poor`:** The cell's internal resistance is above 250 mΩ, and the manual says that the cell should be replaced (Automatic Battery Internal Resistance Detection).
-5. Wait until the display shows for each slot that its charge has ended. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. Check every slot before you take the cells out. A slot that shows `END` below `CHG. STATUS` has charged for 20 hours, and the charger stopped it to protect against a faulty cell (the manual's Overtime Charging Protection). This cell isn't charged.
+5. Wait until the display shows for each slot that its charge has ended. The charger ends the charge of each slot on its own, so one cell can still be charging when the others are full. Check every slot before you take the cells out. If charging in one slot exceeds 20 hours, the UMS4 stops that slot and shows `END` below `CHG. STATUS` (the manual's Overtime Charging Protection). Treat the cell's state of charge as unknown and leave it out of the pack.
 6. Take out the four cells and repeat steps 3 to 5 with the other four.
 7. Unplug the charger and take out the cells when the second round is done. Don't leave the charger unattended while it is connected (precautions 8 and 19 of the manual).
 8. Put the cells back into the robot's holder only if all of them have finished their charge and none is faulty or showed `Poor` or `END`. Keep the eight cells together as one set, and don't mix them with older cells or other types of batteries. Energizer warns that mixing can make cells rupture or leak ([Alkaline Handbook](https://data.energizer.com/pdfs/alkaline_appman.pdf), section Testing / Care / Warnings). So if a cell fails, replace the whole set, not only that cell.
@@ -141,4 +141,4 @@ For the robots' NiMH cells, the UMS4 does the following:
 - **Charging mode:** For NiMH cells, it selects the charging mode by itself ([manual](https://www.nitecore.com/storage/images/album/uploads/FLASHLIGHTS/download/ums4.pdf), the note under Default Settings).
 - **End of the charge:** Nitecore lists −dV/dt as one of the charger's modes ([specifications](https://www.nitecore.com/product/ums4)). This method ends a charge when the cell voltage starts to fall. A NiMH cell's voltage peaks when the cell is full and then falls slightly (Energizer's handbook above, page 10).
 - **Charging current:** With all four slots in use, each slot charges with up to 500 mA from a standard USB power adapter, or up to 1000 mA from a Quick Charge 2.0 adapter ([specifications](https://www.nitecore.com/product/ums4)). At 500 mA, an empty 2000 mAh cell takes more than four hours.
-- **USB port:** Nitecore's product page describes a USB-C port. The first units from 2018 have a micro-USB port ([review on zeroair.org](https://zeroair.org/2018/12/04/nitecore-ums2-and-ums4-charger-review/)), so check which cable your unit needs.
+- **USB port:** Check the charger's input connector and use the matching USB-C or micro-USB cable.
