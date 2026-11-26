@@ -14,7 +14,9 @@ import json
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Literal
 from typing import NamedTuple
+from typing import Tuple
 import unittest
 
 from local_site import chromium
@@ -32,8 +34,6 @@ FIGURE = 'figure[data-ix="motion-lab"]'
 # The figure starts within this time, also on a slow CI runner
 START_TIMEOUT_MS = 15000
 MILLISECONDS_PER_SECOND = 1000
-# A page whose script failed to load has settled after this time
-SETTLE_TIME_MS = 500
 # The tables show three decimals: a shown value lies within half of its last digit of the value,
 # plus floating-point slack
 SHOWN_ROUNDING = 0.5e-3 + 1e-9
@@ -41,11 +41,12 @@ SHOWN_ROUNDING = 0.5e-3 + 1e-9
 FAILS = 'fails'
 # Both drawings write coordinates to a tenth of a pixel, the live one sometimes unrounded
 DRAWN_ROUNDING = 0.1 + 1e-9
-# The shapes of a drawing's robots and the command's cross, in drawing order: the group's view,
-# the shape's kind, and its numbers (a polygon's points, a circle's center, the cross's path)
+# The shapes of a drawing's robots and the command's cross: the group's view, the shape's kind,
+# and its numbers (a polygon's points, a circle's center, the cross's path)
 SHAPES = """svg => [...svg.querySelectorAll(
     '.ix-robot polygon, .ix-robot circle, .ix-robot line, .ix-cross')].map((shape) => {
-  const view = shape.closest('.ix-robot').classList[1];
+  const views = ['ix-start', 'ix-model', 'ix-odometry', 'ix-command'];
+  const view = views.find((name) => shape.closest('.ix-robot').classList.contains(name));
   const numbers = {
     polygon: () => shape.getAttribute('points').split(/[ ,]/),
     circle: () => ['cx', 'cy', 'r'].map((name) => shape.getAttribute(name)),
@@ -58,9 +59,20 @@ SHAPES = """svg => [...svg.querySelectorAll(
 CUT_CELLS = """figure => [...document.querySelectorAll(
     `${figure} .ix-table td, ${figure} .ix-table th`)]
     .filter((cell) => cell.scrollWidth > cell.clientWidth + 1).map((cell) => cell.innerText)"""
+# The text of the element that describes the live drawing for screen readers
+DESCRIPTION = """figure => document.getElementById(document.querySelector(
+    `${figure} .ix-live-plot`).getAttribute('aria-describedby')).textContent"""
+# Whether the figure is in the enlarged view's dialog
+IN_DIALOG = 'figure => Boolean(figure.closest("dialog"))'
+# Whether the keyboard's place is inside the figure
+FOCUS_IN_FIGURE = 'figure => document.querySelector(figure).contains(document.activeElement)'
 PHONE = {'width': 390, 'height': 844, 'is_mobile': True, 'has_touch': True}
 SMALL_PHONE = {**PHONE, 'width': 320, 'height': 700}
 FULL_HD = {'width': 1920, 'height': 1080}
+# The media that emulate_media takes: the screen and paper
+Media = Literal['screen', 'print']
+PRINT: Media = 'print'
+BOTH_MEDIA: Tuple[Media, ...] = ('screen', PRINT)
 
 
 class MotionRow(NamedTuple):
@@ -128,6 +140,44 @@ def top_of(page: Page, selector: str) -> float:
     return top
 
 
+def shapes_by_kind(shapes: List[List[Any]]) -> Dict[Tuple[str, str], List[List[float]]]:
+    """Return a drawing's shapes grouped by their view and kind, each as its numbers."""
+    groups: Dict[Tuple[str, str], List[List[float]]] = {}
+    for view, kind, *numbers in shapes:
+        groups.setdefault((view, kind), []).append(numbers)
+    return groups
+
+
+def marker_centers(page: Page) -> Dict[str, float]:
+    """Return the x of the odometry's ring and of the true pose's dot in the live drawing."""
+    shapes = page.eval_on_selector(f'{FIGURE} .ix-live-plot', SHAPES)
+    circles = shapes_by_kind(shapes)
+    return {view: circles[(view, 'circle')][-1][0] for view in ('ix-odometry', 'ix-model')}
+
+
+def open_settings(page: Page) -> None:
+    """Open the block of values, as a reader who clicks its summary."""
+    page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
+
+
+def set_slider(page: Page, slider: figures.Slider, value: int) -> None:
+    """Set a slider to a value, as a reader who drags it there."""
+    page.fill(f'#{slider.element_id}', str(value))
+    page.dispatch_event(f'#{slider.element_id}', 'input')
+
+
+def set_time(page: Page, steps: int) -> None:
+    """Move the time slider to a step of its TIME_SLIDER_STEPS."""
+    page.fill(f'{FIGURE} .ix-scrub', str(steps))
+    page.dispatch_event(f'{FIGURE} .ix-scrub', 'input')
+
+
+def slider_for(setting: str) -> figures.Slider:
+    """Return the figure's slider of a setting."""
+    return next(slider for slider in figures.CONFIGURATION_SLIDERS + figures.WHAT_IF_SLIDERS
+                if slider.setting == setting)
+
+
 class TestMotionLabPage(unittest.TestCase):
     """The figure in the page: it starts, shows the script's numbers, and falls back."""
 
@@ -169,8 +219,12 @@ class TestMotionLabPage(unittest.TestCase):
     def assert_check_table_shows(
         self, page: Page, expected: Dict[str, Any], example: figures.Example
     ) -> None:
-        """Assert that the check table has the expected checks and shows which ones fail."""
-        self.assertEqual(len(check_rows(page)), expected['checks'], example.key)
+        """Assert the check table's allowed ranges and values, and which checks fail."""
+        rows = check_rows(page)
+        self.assertEqual([row.allowed for row in rows], expected['allowed'], example.key)
+        for row, value in zip(rows, expected['values']):
+            self.assertAlmostEqual(shown_number(row.value), value, delta=SHOWN_ROUNDING,
+                                   msg=f'{example.key}, {row.name}')
         self.assertEqual(failing_checks(page), expected['failing'], example.key)
 
     def test_figure_starts_without_page_errors(self) -> None:
@@ -185,8 +239,6 @@ class TestMotionLabPage(unittest.TestCase):
         page = self.open_live_figure().page
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-static'))
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-live-plot'))
-        self.assertEqual(page.inner_text(f'{FIGURE} .ix-step-count'),
-                         f'Example 1 of {len(figures.EXAMPLES)}')
 
     def test_live_drawing_at_the_static_width_matches_the_scripts_static_drawing(self) -> None:
         # The static drawing shows the first example's changed drive at its end. With reduced
@@ -206,14 +258,17 @@ class TestMotionLabPage(unittest.TestCase):
             '.viewBox.baseVal.width === width',
             arg=[FIGURE, width],
         )
-        static = page.eval_on_selector(f'{FIGURE} .ix-static', SHAPES)
-        live = page.eval_on_selector(f'{FIGURE} .ix-live-plot', SHAPES)
+        static = shapes_by_kind(page.eval_on_selector(f'{FIGURE} .ix-static', SHAPES))
+        live = shapes_by_kind(page.eval_on_selector(f'{FIGURE} .ix-live-plot', SHAPES))
         self.assertTrue(static, 'the static drawing has no robot')
-        self.assertEqual([shape[:2] for shape in live], [shape[:2] for shape in static])
-        for live_shape, static_shape in zip(live, static):
-            for live_value, static_value in zip(live_shape[2:], static_shape[2:]):
-                self.assertAlmostEqual(live_value, static_value, delta=DRAWN_ROUNDING,
-                                       msg=live_shape[:2])
+        self.assertEqual(sorted(live), sorted(static))
+        for kind, static_shapes in static.items():
+            self.assertEqual([len(shape) for shape in live[kind]],
+                             [len(shape) for shape in static_shapes], kind)
+            for live_shape, static_shape in zip(live[kind], static_shapes):
+                for live_value, static_value in zip(live_shape, static_shape):
+                    self.assertAlmostEqual(live_value, static_value, delta=DRAWN_ROUNDING,
+                                           msg=kind)
 
     def test_every_example_opens_at_the_start_of_its_drive_with_its_results_waiting(
         self,
@@ -222,6 +277,8 @@ class TestMotionLabPage(unittest.TestCase):
         for index, example in enumerate(figures.EXAMPLES):
             if index:
                 page.click(f'{FIGURE} .ix-next')
+            self.assertEqual(page.inner_text(f'{FIGURE} .ix-step-count'),
+                             f'Example {index + 1} of {len(figures.EXAMPLES)}')
             self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), '0', example.key)
             for waiting in ('.ix-shown-answer', '.ix-summary', '.ix-checks'):
                 self.assertFalse(page.is_visible(f'{FIGURE} {waiting}'),
@@ -231,18 +288,10 @@ class TestMotionLabPage(unittest.TestCase):
         # The first example's configured wheel radius is too big: the odometry and the true pose
         # start together, and halfway through the drive the odometry is ahead
         page = self.open_live_figure().page
-        scrub = f'{FIGURE} .ix-scrub'
-
-        def centers() -> Dict[str, float]:
-            shapes = page.eval_on_selector(f'{FIGURE} .ix-live-plot', SHAPES)
-            # The first circle of each robot: the odometry's ring, the true pose's dot
-            return {shape[0]: shape[2] for shape in reversed(shapes) if shape[1] == 'circle'}
-
-        at_start = centers()
+        at_start = marker_centers(page)
         self.assertAlmostEqual(at_start['ix-odometry'], at_start['ix-model'], delta=DRAWN_ROUNDING)
-        page.fill(scrub, str(figures.TIME_SLIDER_STEPS // 2))
-        page.dispatch_event(scrub, 'input')
-        halfway = centers()
+        set_time(page, figures.TIME_SLIDER_STEPS // 2)
+        halfway = marker_centers(page)
         self.assertGreater(halfway['ix-odometry'], halfway['ix-model'] + 1)
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
@@ -318,9 +367,10 @@ class TestMotionLabPage(unittest.TestCase):
         self.assertEqual(page.input_value(f'#{slider.element_id}'), default)
 
     def test_a_double_tap_sets_one_slider_back_to_the_robots_value(self) -> None:
-        slider = figures.CONFIGURATION_SLIDERS[0]
+        slider, other = figures.CONFIGURATION_SLIDERS
         page = self.open_live_figure(**PHONE).page
-        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
+        open_settings(page)
+        set_slider(page, other, other.lowest)
         page.locator(f'#{slider.element_id}').scroll_into_view_if_needed()
         box = page.locator(f'#{slider.element_id}').bounding_box()
         if box is None:
@@ -331,6 +381,29 @@ class TestMotionLabPage(unittest.TestCase):
         page.touchscreen.tap(x, y)
         self.assertEqual(page.input_value(f'#{slider.element_id}'),
                          str(getattr(figures.DEFAULT_SETTINGS, slider.setting)))
+        self.assertEqual(page.input_value(f'#{other.element_id}'), str(other.lowest))
+
+    def test_two_quick_drags_or_two_distant_taps_reset_no_slider(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure(**PHONE).page
+        open_settings(page)
+        set_slider(page, slider, slider.lowest)
+        # Two touches, each as the slider gets them: down, moves, up. 100 ms apart
+        touches = """([selector, presses]) => {
+            const input = document.querySelector(selector);
+            const box = input.getBoundingClientRect(), y = box.top + box.height / 2;
+            const send = (type, x, timeStamp) => input.dispatchEvent(new PointerEvent(type,
+                {pointerType: 'touch', isPrimary: true, bubbles: true, clientX: box.left + x,
+                 clientY: y}));
+            for (const [from, to] of presses) {
+                send('pointerdown', from); send('pointermove', to); send('pointerup', to);
+            }
+        }"""
+        # The two drags end close together, the two taps lie far apart
+        for name, presses in (('two drags', [[40, 120], [200, 125]]),
+                              ('two distant taps', [[40, 40], [200, 200]])):
+            page.evaluate(touches, [f'#{slider.element_id}', presses])
+            self.assertEqual(page.input_value(f'#{slider.element_id}'), str(slider.lowest), name)
 
     def test_enlarged_figure_shows_question_drawing_results_and_values_in_one_window(
         self,
@@ -342,8 +415,10 @@ class TestMotionLabPage(unittest.TestCase):
                  '.ix-summary', f'#{figures.CONFIGURATION_SLIDERS[0].element_id}',
                  '.ix-check-rows tr:last-child')
         outside = page.evaluate("""([figure, parts]) => parts.filter((part) => {
-            const box = document.querySelector(`${figure} ${part}`).getBoundingClientRect();
-            return box.top < 0 || box.left < 0
+            const element = document.querySelector(`${figure} ${part}`);
+            const box = element.getBoundingClientRect();
+            return box.width === 0 || box.height === 0 || !element.checkVisibility()
+                || box.top < 0 || box.left < 0
                 || box.bottom > innerHeight || box.right > innerWidth;
         })""", [FIGURE, list(parts)])
         self.assertEqual(outside, [])
@@ -355,14 +430,47 @@ class TestMotionLabPage(unittest.TestCase):
         page.click(f'{FIGURE} .ix-enlarge')
         self.assertEqual(page.evaluate(CUT_CELLS, FIGURE), [])
 
-    def test_escape_brings_the_enlarged_figure_back_to_the_page(self) -> None:
+    def test_escape_brings_the_enlarged_figure_back_to_its_place(self) -> None:
         page = self.open_live_figure(**FULL_HD).page
+        before = top_of(page, FIGURE)
         page.click(f'{FIGURE} .ix-enlarge')
+        self.assertTrue(page.eval_on_selector(FIGURE, IN_DIALOG))
         page.keyboard.press('Escape')
-        position = page.eval_on_selector(FIGURE, 'figure => getComputedStyle(figure).position')
-        self.assertNotEqual(position, 'fixed')
+        self.assertFalse(page.eval_on_selector(FIGURE, IN_DIALOG))
+        self.assertEqual(top_of(page, FIGURE), before)
         self.assertTrue(page.eval_on_selector(
             f'{FIGURE} .ix-enlarge', 'button => document.activeElement === button'))
+
+    def test_the_keyboard_stays_in_the_enlarged_figure(self) -> None:
+        page = self.open_live_figure(**FULL_HD).page
+        page.click(f'{FIGURE} .ix-enlarge')
+        for key in ('Tab', 'Shift+Tab'):
+            for press in range(40):
+                page.keyboard.press(key)
+                inside = page.evaluate(
+                    'figure => !document.activeElement || document.activeElement === document.body'
+                    ' || document.querySelector(figure).contains(document.activeElement)', FIGURE)
+                self.assertTrue(inside, f'{key} {press + 1}')
+
+    def test_a_narrower_window_brings_the_figure_back_with_its_values_closed(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure(**FULL_HD).page
+        page.click(f'{FIGURE} .ix-enlarge')
+        page.focus(f'#{slider.element_id}')
+        page.set_viewport_size({'width': 800, 'height': 900})
+        page.wait_for_function('figure => !document.querySelector(figure).closest("dialog")',
+                               arg=FIGURE)
+        self.assertFalse(
+            page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => details.open'))
+        focused = page.evaluate('() => document.activeElement.checkVisibility()'
+                                ' && document.activeElement.tagName')
+        self.assertEqual(focused, 'SUMMARY')
+
+    def test_printing_brings_an_enlarged_figure_back_to_the_page(self) -> None:
+        page = self.open_live_figure(**FULL_HD).page
+        page.click(f'{FIGURE} .ix-enlarge')
+        page.evaluate('() => dispatchEvent(new Event("beforeprint"))')
+        self.assertFalse(page.eval_on_selector(FIGURE, IN_DIALOG))
 
     def test_enlarge_is_hidden_on_a_phone(self) -> None:
         page = self.open_live_figure(**PHONE).page
@@ -401,18 +509,31 @@ class TestMotionLabPage(unittest.TestCase):
         self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), '0')
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-summary'))
 
-    def test_values_other_than_the_examples_are_named_next_to_show_what_happens(self) -> None:
+    def test_values_other_than_the_examples_show_whole_under_the_play_bar(self) -> None:
         example = figures.EXAMPLES[0]
-        slider = figures.CONFIGURATION_SLIDERS[0]
-        page = self.open_live_figure().page
-        changes = f'{FIGURE} .ix-current .ix-changes'
-        self.assertEqual(page.inner_text(changes), '')
-        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
-        page.fill(f'#{slider.element_id}', str(slider.lowest))
-        page.dispatch_event(f'#{slider.element_id}', 'input')
-        own = getattr(example.settings, slider.setting)
-        self.assertIn(f'{slider.lowest} {slider.unit} instead of {own} {slider.unit}',
-                      page.inner_text(changes))
+        radius = figures.CONFIGURATION_SLIDERS[0]
+        offset = slider_for('offset_mm')
+        changes = f'{FIGURE} .ix-changes'
+        for size in (SMALL_PHONE, PHONE):
+            with self.subTest(width=size['width']):
+                page = self.open_live_figure(**size).page
+                self.assertFalse(page.is_visible(changes))
+                open_settings(page)
+                set_slider(page, radius, 98)
+                set_slider(page, offset, offset.highest)
+                page.select_option(f'{FIGURE} .ix-robot-select', 'diffbot')
+                set_slider(page, radius, 98)
+                self.assertTrue(page.is_visible(changes))
+                text = page.inner_text(changes)
+                own = getattr(example.settings, radius.setting)
+                self.assertIn(f'98 {radius.unit} (the example: {own} {radius.unit})', text)
+                self.assertIn('DiffBot (the example: Remo)', text)
+                # The whole text shows: it wraps inside the figure, nothing is cut
+                cut = page.eval_on_selector(changes, 'line => line.scrollWidth > line.clientWidth'
+                                            ' || line.scrollHeight > line.clientHeight + 1')
+                self.assertFalse(cut)
+                self.assertEqual(page.inner_text(f'{FIGURE} .ix-current .ix-show'),
+                                 'Play the example')
 
     def test_show_what_happens_plays_the_changed_drive_then_shows_the_answer(self) -> None:
         page = self.open_live_figure().page
@@ -518,20 +639,26 @@ class TestMotionLabPage(unittest.TestCase):
         }})()""")
         self.assertEqual(outside, [])
 
-    def test_static_version_stays_without_javascript(self) -> None:
+    def test_static_version_stays_without_javascript_also_on_paper(self) -> None:
         page = self.open_simulation_test_page(javascript=False).page
-        self.assertTrue(page.is_visible(f'{FIGURE} .ix-static'))
         shown = 'parts => parts.filter(part => part.offsetParent).length'
-        self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer', shown),
-                         len(figures.EXAMPLES))
-        self.assertEqual(page.eval_on_selector_all(f'{FIGURE} [data-live]', shown), 0)
+        for media in BOTH_MEDIA:
+            with self.subTest(media=media):
+                page.emulate_media(media=media)
+                self.assertTrue(page.is_visible(f'{FIGURE} .ix-static'))
+                self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer', shown),
+                                 len(figures.EXAMPLES))
+                self.assertEqual(page.eval_on_selector_all(f'{FIGURE} [data-live]', shown), 0)
 
     def test_static_version_stays_when_a_script_fails_to_load(self) -> None:
         shown = 'parts => parts.filter(part => part.offsetParent).length'
         for missing in ('motion-lab.js', 'diffdrive.js'):
             with self.subTest(missing=missing):
-                page = self.open_simulation_test_page(blocked=(missing,)).page
-                page.wait_for_timeout(SETTLE_TIME_MS)
+                opened = self.open_simulation_test_page(blocked=(missing,))
+                page = opened.page
+                # The page has asked for the file, and its modules have settled
+                page.wait_for_load_state('networkidle')
+                self.assertTrue(any(path.endswith(missing) for path in opened.log.blocked))
                 self.assertTrue(page.is_visible(f'{FIGURE} .ix-static'))
                 self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer', shown),
                                  len(figures.EXAMPLES))
@@ -544,6 +671,168 @@ class TestMotionLabPage(unittest.TestCase):
         page.click(f'{FIGURE} .ix-play')
         self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
         self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Play')
+
+    def test_another_drives_end_never_answers_the_examples_question(self) -> None:
+        # Reach the end with other values, go back to the middle, set the example's values again:
+        # the results show, but the question waits for its own drive's end. On both drives
+        example = figures.EXAMPLES[0]
+        slider = slider_for(next(iter(figures.changed_settings(example.settings))))
+        own = getattr(example.settings, slider.setting)
+        for kind in (example.command, figures.other_command(example.command)):
+            with self.subTest(drive=kind.value):
+                page = self.open_live_figure().page
+                page.click(f'{FIGURE} [data-command="{kind.value}"]')
+                open_settings(page)
+                set_slider(page, slider, getattr(figures.DEFAULT_SETTINGS, slider.setting))
+                set_time(page, figures.TIME_SLIDER_STEPS)
+                self.assertTrue(page.is_visible(f'{FIGURE} .ix-summary'))
+                set_time(page, figures.TIME_SLIDER_STEPS // 2)
+                set_slider(page, slider, own)
+                self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+                self.assertTrue(page.is_visible(f'{FIGURE} .ix-hint'))
+                self.assertTrue(page.is_visible(f'{FIGURE} .ix-summary'))
+
+    def test_the_examples_own_drive_dragged_to_its_end_answers_and_the_answer_stays(self) -> None:
+        page = self.open_live_figure().page
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-hint'))
+        set_time(page, figures.TIME_SLIDER_STEPS)
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-hint'))
+        set_time(page, 0)
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+
+    def test_the_drawings_description_tells_what_it_shows_at_the_sliders_time(self) -> None:
+        # For a screen reader, the drawing describes the time that it shows: at the start, the
+        # end's numbers are not given away
+        example = figures.EXAMPLES[0]
+        end = figures.example_drive(example)
+        end_values = [f'{end.odometry.forward:.3f}', f'{end.model.forward:.3f}']
+        page = self.open_live_figure().page
+        at_start = page.evaluate(DESCRIPTION, FIGURE)
+        self.assertIn('At 0.0 s', at_start)
+        for value in end_values:
+            self.assertNotIn(value, at_start)
+        set_time(page, figures.TIME_SLIDER_STEPS // 2)
+        self.assertIn('At 1.5 s', page.evaluate(DESCRIPTION, FIGURE))
+        set_time(page, figures.TIME_SLIDER_STEPS)
+        at_end = page.evaluate(DESCRIPTION, FIGURE)
+        for value in end_values:
+            self.assertIn(value, at_end)
+
+    def test_pressing_the_shown_command_keeps_the_time(self) -> None:
+        example = figures.EXAMPLES[0]
+        page = self.open_live_figure().page
+        set_time(page, figures.TIME_SLIDER_STEPS // 2)
+        page.click(f'{FIGURE} [data-command="{example.command.value}"]')
+        self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'),
+                         str(figures.TIME_SLIDER_STEPS // 2))
+
+    def test_a_changed_value_mid_drive_redraws_the_same_time(self) -> None:
+        # Halfway through the first example's drive, the right radius puts the odometry back on
+        # the true pose, at the same time and with the answer still waiting
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure().page
+        set_time(page, figures.TIME_SLIDER_STEPS // 2)
+        open_settings(page)
+        set_slider(page, slider, getattr(figures.DEFAULT_SETTINGS, slider.setting))
+        self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'),
+                         str(figures.TIME_SLIDER_STEPS // 2))
+        centers = marker_centers(page)
+        self.assertAlmostEqual(centers['ix-odometry'], centers['ix-model'], delta=DRAWN_ROUNDING)
+        self.assertIn('1.5 s', page.inner_text(f'{FIGURE} .ix-time'))
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+
+    def test_pause_holds_the_time_and_play_goes_on_from_there(self) -> None:
+        page = self.open_live_figure().page
+        scrub = f'{FIGURE} .ix-scrub'
+        page.click(f'{FIGURE} .ix-play')
+        page.wait_for_function('scrub => document.querySelector(scrub).value > 100', arg=scrub)
+        page.click(f'{FIGURE} .ix-play')
+        paused = int(page.input_value(scrub))
+        page.wait_for_timeout(300)
+        self.assertEqual(int(page.input_value(scrub)), paused)
+        page.click(f'{FIGURE} .ix-play')
+        page.wait_for_function(
+            '([scrub, paused]) => document.querySelector(scrub).value > paused',
+            arg=[scrub, paused])
+        self.assertGreater(int(page.input_value(scrub)), paused)
+
+    def test_another_robot_and_both_resets_keep_the_time(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        default = str(getattr(figures.DEFAULT_SETTINGS, slider.setting))
+        half = str(figures.TIME_SLIDER_STEPS // 2)
+        for change in ('robot', '.ix-stepper .ix-reset', '.ix-settings .ix-reset'):
+            with self.subTest(change=change):
+                page = self.open_live_figure().page
+                open_settings(page)
+                set_time(page, int(half))
+                if change == 'robot':
+                    page.select_option(f'{FIGURE} .ix-robot-select', 'diffbot')
+                else:
+                    page.click(f'{FIGURE} {change}')
+                self.assertEqual(page.input_value(f'#{slider.element_id}'), default)
+                self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), half)
+
+    def test_an_answered_example_opens_at_its_end_with_its_answer(self) -> None:
+        page = self.open_live_figure(reduced_motion='reduce').page
+        page.click(f'{FIGURE} [data-example="{figures.EXAMPLES[0].key}"]')
+        page.click(f'{FIGURE} .ix-next')
+        page.click(f'{FIGURE} .ix-previous')
+        self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), str(figures.TIME_SLIDER_STEPS))
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+
+    def test_show_what_happens_moves_the_keyboard_to_pause_or_to_the_answer(self) -> None:
+        example = figures.EXAMPLES[0]
+        for motion, focused in ((None, '.ix-play'), ('reduce', '.ix-shown-answer')):
+            with self.subTest(reduced_motion=motion):
+                page = self.open_live_figure(reduced_motion=motion).page
+                page.focus(f'{FIGURE} [data-example="{example.key}"]')
+                page.keyboard.press('Enter')
+                self.assertTrue(page.eval_on_selector(
+                    f'{FIGURE} {focused}', 'element => document.activeElement === element'))
+
+    def test_the_keyboard_stays_on_the_stepper_at_the_last_example(self) -> None:
+        page = self.open_live_figure().page
+        page.focus(f'{FIGURE} .ix-next')
+        for _ in range(len(figures.EXAMPLES) - 1):
+            page.keyboard.press('Enter')
+        self.assertTrue(page.is_disabled(f'{FIGURE} .ix-next'))
+        self.assertTrue(page.eval_on_selector(
+            f'{FIGURE} .ix-previous', 'button => document.activeElement === button'))
+
+    def test_the_keyboard_opens_the_values_and_moves_a_slider(self) -> None:
+        slider = figures.CONFIGURATION_SLIDERS[0]
+        page = self.open_live_figure().page
+        page.focus(f'{FIGURE} .ix-settings > summary')
+        page.keyboard.press('Enter')
+        self.assertTrue(page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => details.open'))
+        before = int(page.input_value(f'#{slider.element_id}'))
+        output = f'{FIGURE} output[for="{slider.element_id}"]'
+        shown = page.inner_text(output)
+        page.focus(f'#{slider.element_id}')
+        page.keyboard.press('ArrowRight')
+        self.assertEqual(int(page.input_value(f'#{slider.element_id}')), before + slider.step)
+        self.assertNotEqual(page.inner_text(output), shown)
+        self.assertTrue(page.evaluate(FOCUS_IN_FIGURE, FIGURE))
+
+    def test_paper_shows_the_static_drawing_with_its_own_notes(self) -> None:
+        # Printed after the reader moved on to an example whose drive draws the axle's midpoint
+        drawing = figures.static_drawing(figures.EXAMPLES[0])
+        page = self.open_live_figure().page
+        offset = next(index for index, example in enumerate(figures.EXAMPLES)
+                      if example.settings.offset_mm)
+        for _ in range(offset):
+            page.click(f'{FIGURE} .ix-next')
+        page.emulate_media(media=PRINT)
+        self.assertTrue(page.is_visible(f'{FIGURE} .ix-static'))
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-live-plot'))
+        notes = page.inner_text(f'{FIGURE} .ix-plotnote')
+        for note in (drawing.grid_note, drawing.time_note, drawing.example_note):
+            self.assertIn(note, notes)
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-legend [data-view="axle"]'))
+        shown = 'parts => parts.filter(part => part.checkVisibility()).length'
+        self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer:not([data-live])', shown),
+                         len(figures.EXAMPLES))
 
 
 if __name__ == '__main__':

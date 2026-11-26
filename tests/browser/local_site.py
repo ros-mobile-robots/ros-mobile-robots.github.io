@@ -76,11 +76,12 @@ def chromium() -> Iterator[Browser]:
 
 
 class PageLog:
-    """What a page did while a test used it: its errors and the other hosts it asked for."""
+    """What a page did while a test used it: its errors, the other hosts and the blocked files."""
 
     def __init__(self) -> None:
         self.errors: List[str] = []
         self.other_hosts: List[str] = []
+        self.blocked: List[str] = []
 
     def add_page_error(self, error: Error) -> None:
         """Note an error that the page's scripts threw."""
@@ -121,13 +122,16 @@ def open_page(
         **context_options,
     )
     log = PageLog()
+    site = urlparse(base)
 
     def handle_request(route: Route) -> None:
-        url = route.request.url
-        if not url.startswith(base):
-            log.other_hosts.append(urlparse(url).netloc)
+        url = urlparse(route.request.url)
+        # The served site only: the same scheme, host and port, not an address that starts alike
+        if (url.scheme, url.hostname, url.port) != (site.scheme, site.hostname, site.port):
+            log.other_hosts.append(url.netloc)
             route.abort()
-        elif any(part in url for part in blocked):
+        elif any(part in url.path for part in blocked):
+            log.blocked.append(url.path)
             route.abort()
         else:
             route.continue_()

@@ -27,6 +27,7 @@ import json
 import math
 from pathlib import Path
 from typing import Dict
+from typing import FrozenSet
 from typing import List
 from typing import NamedTuple
 from typing import Optional
@@ -651,6 +652,15 @@ EXAMPLES = (
     ),
 )
 NUMBER_WORDS = {3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven'}
+# The example's button, and its text while other values are set: it sets the example's values back
+SHOW_TEXT = 'Show what happens'
+REPLAY_TEXT = 'Play the example'
+# Under the play bar before the answer, and while other values are set
+HINT_TEXT = (
+    'The answer shows once the drive has reached its end: press Play or move the time slider.'
+)
+CHANGES_LEAD = 'Your values:'
+CHANGES_END = f'"{REPLAY_TEXT}" sets the example\'s values back.'
 
 
 def changed_settings(settings: Settings) -> Dict[str, int]:
@@ -803,10 +813,17 @@ class DrawingScale(NamedTuple):
 
 
 class StaticDrawing(NamedTuple):
-    """The static drawing as SVG, and its grid's spacing as the note under it says it."""
+    """The static drawing as SVG, and what the note under it and the legend say about it.
+
+    grid_note is the grid's spacing, time_note the drive's time, example_note what the drawing
+    shows, views the legend's views that it draws.
+    """
 
     svg: str
     grid_note: str
+    time_note: str
+    example_note: str
+    views: FrozenSet[str]
 
 
 def reach(inputs: ModelInputs) -> float:
@@ -1018,7 +1035,27 @@ def static_drawing(example: Example) -> StaticDrawing:
     svg = svg_element(
         'motion-lab', 'ix-static', (scale.width_px, scale.height_px), DRAWING_TITLE, elements
     )
-    return StaticDrawing(svg, f'Grid: {round(step * 100)} cm')
+    views = {'command', 'odometry', 'model'} | ({'axle'} if inputs.frame_offset > 0 else set())
+    changes = ', '.join(
+        setting_text(name, value) for name, value in changed_settings(example.settings).items()
+    )
+    return StaticDrawing(
+        svg,
+        grid_note=f'Grid: {round(step * 100)} cm',
+        time_note=f't = {COMMANDS[example.command].duration:.1f} s, the end',
+        example_note=f"The first example at its drive's end: {robot.name}, {changes}",
+        views=frozenset(views),
+    )
+
+
+def setting_text(name: str, value: int) -> str:
+    """Return a setting with its value as the figure names it: 'wheel speed reached 80 %'."""
+    slider = next(s for s in CONFIGURATION_SLIDERS + WHAT_IF_SLIDERS if s.setting == name)
+    # A label that starts with a code name keeps its case
+    label = slider.label
+    if not label.startswith('<'):
+        label = label[0].lower() + label[1:]
+    return f'{label} {value} {slider.unit}'
 
 
 # --- The include -----------------------------------------------------------------------------
@@ -1027,7 +1064,7 @@ class LegendEntry(NamedTuple):
     """An entry of the legend: its view, its text, its sample of line and symbol (SVG elements).
 
     The entry of the axle's midpoint starts hidden: the script shows it while base_footprint
-    lies behind the axle.
+    lies behind the axle, and on paper it shows if the static drawing has that line.
     """
 
     view: str
@@ -1068,7 +1105,8 @@ LEGEND = (
 class Slider(NamedTuple):
     """A slider of the figure: the setting it changes, its range and step, its texts.
 
-    help_text is HTML with the placeholders {lowest}, {highest} and {default}.
+    help_text is HTML with the placeholders {lowest}, {highest} and {default}. key is the short
+    form of it that the enlarged figure shows, with the same placeholders.
     """
 
     setting: str
@@ -1077,6 +1115,7 @@ class Slider(NamedTuple):
     step: int
     label: str
     help_text: str
+    key: str
 
     @property
     def element_id(self) -> str:
@@ -1094,11 +1133,13 @@ CONFIGURATION_SLIDERS = (
         'radius_percent', 80, 120, 1, 'Configured wheel radius',
         "<code>wheel_radius</code> in <code>geometry.yaml</code>, as a share of the robot's wheel"
         ' radius',
+        "100 %: the robot's own radius",
     ),
     Slider(
         'separation_percent', 80, 120, 1, 'Configured wheel separation',
         '<code>wheel_separation</code> in <code>geometry.yaml</code>, as a share of the distance'
         " between the robot's wheels",
+        "100 %: the robot's own separation",
     ),
 )
 WHAT_IF_SLIDERS = (
@@ -1106,17 +1147,20 @@ WHAT_IF_SLIDERS = (
         'offset_mm', 0, 60, 1, '<code>base_footprint</code> behind the axle',
         "On DiffBot and Remo this is {default} mm: <code>base_footprint</code> lies at the axle's"
         ' midpoint.',
+        "{default} mm: at the axle's midpoint, as on DiffBot and Remo",
     ),
     Slider(
         'contact_percent', 0, 100, 5, 'Where the wheels push on the ground',
         "{lowest} %: in the middle of each wheel. {highest} %: at the wheels' outer edges. An"
         ' assumption that only changes how far apart the wheels push when the robot turns. No'
         ' contact forces are computed.',
+        "{lowest} %: the wheels' middle · {highest} %: their outer edges",
     ),
     Slider(
         'tracking_percent', 70, 110, 1, 'Wheel speed reached',
         'The share of its commanded speed that each wheel reaches, the same for both wheels. A'
         ' fixed share, not a PID controller.',
+        '100 %: the commanded speed',
     ),
 )
 
@@ -1184,6 +1228,10 @@ def figure_data() -> Dict[str, object]:
         'viewNames': {entry.view: entry.text for entry in LEGEND if entry.view != 'axle'},
         'drawing': {camel_case(name): value for name, value in DRAWING._asdict().items()},
         'default': {'robot': EXAMPLE_ROBOT, 'command': first.command.value},
+        'texts': {
+            'show': SHOW_TEXT, 'replay': REPLAY_TEXT, 'changesLead': CHANGES_LEAD,
+            'changesEnd': CHANGES_END,
+        },
         'examples': [
             {
                 'key': example.key,
@@ -1200,10 +1248,11 @@ def glyph(entry: LegendEntry) -> str:
     return f'<svg class="ix-glyph" viewBox="0 0 28 12" aria-hidden="true">{entry.glyph}</svg>'
 
 
-def legend_html() -> str:
-    """Return the legend: a sample of line and symbol per view."""
+def legend_html(drawing: StaticDrawing) -> str:
+    """Return the legend: a sample of line and symbol per view, marked if the drawing has none."""
     entries = ''.join(
-        f'<li data-view="{entry.view}"{" hidden" if entry.starts_hidden else ""}>'
+        f'<li data-view="{entry.view}"{" hidden" if entry.starts_hidden else ""}'
+        f'{"" if entry.view in drawing.views else " data-static-unused"}>'
         f'{glyph(entry)}{entry.text}</li>'
         for entry in LEGEND
     )
@@ -1213,14 +1262,17 @@ def legend_html() -> str:
 def example_expected(example: Example, kind: CommandKind) -> Dict[str, object]:
     """Return an example's expected results on the drive of kind, for the browser tests.
 
-    The odometry's and the true pose's motion, the failing checks and the number of checks.
+    The odometry's and the true pose's motion, the failing checks, and each check's allowed
+    range and value.
     """
     drive = example_drive(example, kind)
+    rows = check_rows(kind)
     return {
         'odometry': list(drive.odometry),
         'model': list(drive.model),
         'failing': failing_checks(kind, drive),
-        'checks': len(check_rows(kind)),
+        'allowed': [row.allowed for row in rows],
+        'values': [row_value(row, drive) for row in rows],
     }
 
 
@@ -1228,8 +1280,7 @@ def example_item_html(example: Example) -> str:
     """Return an example's list item: its questions, its button and its answers, one per drive.
 
     The question and the answer of the drive that the example opens with show without
-    JavaScript, the other drive's only in the live figure. Next to the button, the live figure
-    names the values that differ from the example's. The item carries each drive's expected
+    JavaScript, the other drive's only in the live figure. The item carries each drive's expected
     results for the browser tests.
     """
     kinds = (example.command, other_command(example.command))
@@ -1246,9 +1297,9 @@ def example_item_html(example: Example) -> str:
     return (
         f'<li data-example-item="{example.key}"'
         f' data-expected="{html.escape(json.dumps(expected))}"><span'
-        f' class="ix-prompts">{"".join(questions)}</span> <span class="ix-actions" data-live'
-        f' hidden><button type="button" class="ix-show" data-example="{example.key}">Show what'
-        f' happens</button><span class="ix-changes"></span></span>{"".join(answers)}</li>'
+        f' class="ix-prompts">{"".join(questions)}</span> <button type="button" class="ix-show"'
+        f' data-example="{example.key}" data-live hidden>{SHOW_TEXT}</button>'
+        f'{"".join(answers)}</li>'
     )
 
 
@@ -1261,8 +1312,8 @@ def steps_html() -> str:
         f' of {robot}. Make a prediction, then press Play or move the time slider to see how'
         ' the three views compare.</p>',
         '<div class="ix-stepper" data-live hidden><button type="button"'
-        ' class="ix-previous">Previous</button><span class="ix-step-count"'
-        ' aria-live="polite"></span><button type="button" class="ix-next">Next</button><button'
+        ' class="ix-previous">Previous</button><span class="ix-step-count"></span><button'
+        ' type="button" class="ix-next">Next</button><button'
         ' type="button" class="ix-reset" title="Back to the robot\'s own values">Reset'
         ' values</button><button type="button" class="ix-enlarge">Enlarge</button></div>',
         f'<ol class="ix-examples">{"".join(example_item_html(e) for e in EXAMPLES)}</ol>',
@@ -1270,7 +1321,7 @@ def steps_html() -> str:
     ])
 
 
-def toolbar_html() -> str:
+def toolbar_html(drawing: StaticDrawing) -> str:
     """Return the row above the drawing: the command's buttons and the legend."""
     first = EXAMPLES[0].command
     buttons = ''.join(
@@ -1281,19 +1332,24 @@ def toolbar_html() -> str:
     )
     return (
         '<div class="ix-toolbar"><div class="ix-choice" role="group" aria-label="Command"'
-        f' data-live hidden><span>Command</span>{buttons}</div>{legend_html()}</div>'
+        f' data-live hidden><span>Command</span>{buttons}</div>{legend_html(drawing)}</div>'
     )
 
 
 def plot_html(drawing: StaticDrawing) -> str:
-    """Return the drawing, the note under it and the play bar."""
-    duration = COMMANDS[EXAMPLES[0].command].duration
-    robot = ROBOTS[EXAMPLE_ROBOT].name
+    """Return the drawing, the notes under it and the play bar.
+
+    The static notes describe the static drawing, for the page without the script and on paper.
+    The live ones, the grid and the time, the script fills. So does the drawing's description for
+    screen readers: what the drawing shows at the play bar's time.
+    """
     return '\n'.join([
         f'<div class="ix-plot" style="aspect-ratio: 1 / {DRAWING.aspect}">{drawing.svg}</div>',
-        f'<p class="ix-plotnote"><span class="ix-gridnote">{drawing.grid_note}</span><span'
-        f' class="ix-static-note">The first example, with {robot}\'s values</span><span'
-        f' class="ix-time">t = {duration:.1f} s, the end</span></p>',
+        '<p class="ix-now ix-sr" id="motion-lab-now" data-live hidden></p>',
+        f'<p class="ix-plotnote"><span class="ix-static-only">{drawing.grid_note}</span><span'
+        f' class="ix-static-only">{drawing.example_note}</span><span'
+        f' class="ix-static-only">{drawing.time_note}</span><span class="ix-gridnote" data-live'
+        ' hidden></span><span class="ix-time" data-live hidden></span></p>',
         '<div class="ix-playbar" data-live hidden><button type="button"'
         ' class="ix-play">Play</button><input type="range" class="ix-scrub" min="0"'
         f' max="{TIME_SLIDER_STEPS}" value="{TIME_SLIDER_STEPS}" aria-label="Time in the'
@@ -1302,10 +1358,18 @@ def plot_html(drawing: StaticDrawing) -> str:
 
 
 def results_html() -> str:
-    """Return the places of the answer and the summary, filled by the script."""
+    """Return the places of the answer and the summary, filled by the script.
+
+    The answer, the hint before it and the values that differ from the example's share one place
+    under the play bar, as high as the highest of them: changing a value moves nothing below.
+    """
     return ''.join([
         '<div class="ix-results" data-live hidden>',
+        '<div class="ix-answer-area">',
         '<p class="ix-shown-answer" tabindex="-1"></p>',
+        f'<p class="ix-hint">{HINT_TEXT}</p>',
+        '<p class="ix-changes"></p>',
+        '</div>',
         '<p class="ix-summary" id="motion-lab-summary"></p>',
         '</div>',
     ])
@@ -1330,16 +1394,16 @@ def tables_html() -> str:
 def slider_html(slider: Slider) -> str:
     """Return one labelled slider with its value and help text."""
     default = getattr(DEFAULT_SETTINGS, slider.setting)
-    help_text = slider.help_text.format(
-        lowest=slider.lowest, highest=slider.highest, default=default
-    )
+    values = {'lowest': slider.lowest, 'highest': slider.highest, 'default': default}
+    # The key repeats the help text in short: screen readers hear the help text only
     return (
         f'<div class="ix-control"><label for="{slider.element_id}">{slider.label}</label><output'
         f' for="{slider.element_id}"></output><input type="range" id="{slider.element_id}"'
         f' data-setting="{slider.setting}" data-unit="{slider.unit}" min="{slider.lowest}"'
         f' max="{slider.highest}"'
         f' step="{slider.step}" value="{default}" aria-describedby="{slider.element_id}-help">'
-        f'<small id="{slider.element_id}-help">{help_text}</small></div>'
+        f'<small id="{slider.element_id}-help">{slider.help_text.format(**values)}</small>'
+        f'<small class="ix-key" aria-hidden="true">{slider.key.format(**values)}</small></div>'
     )
 
 
@@ -1387,6 +1451,7 @@ def caption_html() -> str:
 def build() -> str:
     """Return the include's HTML."""
     data = json.dumps(figure_data(), separators=(',', ':'))
+    drawing = static_drawing(EXAMPLES[0])
     lines = [
         '<!-- Written by scripts/figures/motion_lab_figures.py -->',
         '<figure class="ix ix-motion" data-ix="motion-lab">',
@@ -1394,8 +1459,8 @@ def build() -> str:
         # Enlarged, the figure shows the stage and the side next to each other
         '<div class="ix-stage">',
         steps_html(),
-        toolbar_html(),
-        plot_html(static_drawing(EXAMPLES[0])),
+        toolbar_html(drawing),
+        plot_html(drawing),
         results_html(),
         '</div>',
         '<div class="ix-side">',

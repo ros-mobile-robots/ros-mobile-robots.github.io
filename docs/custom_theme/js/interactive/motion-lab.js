@@ -11,8 +11,11 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
 // Screen readers hear the result once a change is complete: this long after the last change
 const ANNOUNCE_DELAY_MS = 400;
-// Two taps on a slider within this time reset it: touch screens send no double click
+// Two taps on a slider within this time reset it: touch screens send no double click. A tap
+// moves less than TAP_SLOP_PX while pressed, and the second one lands that close to the first.
 const DOUBLE_TAP_MS = 350;
+const TAP_SLOP_PX = 10;
+const DOUBLE_TAP_DISTANCE_PX = 30;
 // The Enlarge button shows from this window width on, as in interactive.css
 const WIDE_MIN_EM = 60;
 
@@ -230,7 +233,7 @@ function mount(root) {
     const shownSamples = samples.slice(0, shownIndex + 1), shownSample = samples[shownIndex];
     const next = svgElement('svg', {
       class: 'ix-live-plot', viewBox: `0 0 ${scale.width} ${scale.height}`, role: 'img',
-      'aria-label': find('.ix-static title').textContent, 'aria-describedby': find('.ix-summary').id,
+      'aria-label': find('.ix-static title').textContent, 'aria-describedby': find('.ix-now').id,
     });
     next.append(drawGrid(scale, step));
     const paths = [['frame', 'ix-model'], ['odometry', 'ix-odometry'], ['command', 'ix-command']];
@@ -253,6 +256,23 @@ function mount(root) {
     liveDrawing = next;
     find('.ix-gridnote').textContent = `Grid: ${Math.round(step * 100)} cm`;
     updateTimeLabel(shownSample.t, inputs.command.duration);
+    describeNow(shownSample);
+  }
+
+  // For screen readers, the drawing's description: what it shows at the play bar's time, so the
+  // drive's end stays unknown until the drive gets there
+  function describeNow(shownSample) {
+    const { samples, inputs, kind } = drive, start = samples[0];
+    const command = relativePose(start.command, shownSample.command);
+    const odometry = relativePose(start.odometry, shownSample.odometry);
+    const model = relativePose(start.frame, shownSample.frame);
+    const at = `At ${shownSample.t.toFixed(1)} s of ${inputs.command.duration.toFixed(1)} s, `;
+    find('.ix-now').textContent = kind === 'forward'
+      ? `${at}the command has driven ${fixed(command.forward)} m, the odometry reports ${fixed(odometry.forward)} m,`
+        + ` and the true pose has driven ${fixed(model.forward)} m.`
+      : `${at}the command has turned ${fixed(command.turned)} rad, the odometry reports ${fixed(odometry.turned)} rad,`
+        + ` and the true pose has turned ${fixed(model.turned)} rad, with base_footprint`
+        + ` ${fixed(Math.hypot(model.forward, model.left))} m from its start.`;
   }
 
   // --- The numbers next to the drawing -------------------------------------------------------
@@ -367,45 +387,60 @@ function mount(root) {
     return state.robot === data.default.robot
       && Object.entries(sliders).every(([name, input]) => Number(input.value) === Number(own[name]));
   }
-  // Next to "Show what happens": the values that differ from the example's, in one line
-  function renderChanges() {
-    const own = exampleValues(), robots = data.robots;
+  // While other values are set: the values that differ from the example's, with the example's
+  function renderChanges(own) {
+    const line = find('.ix-changes');
+    line.textContent = '';
+    if (own) return;
+    const values = exampleValues(), robots = data.robots;
     const lowerFirst = (text) => text.charAt(0).toLowerCase() + text.slice(1);
-    const changes = Object.entries(sliders).filter(([name, input]) => Number(input.value) !== Number(own[name]))
+    const changes = Object.entries(sliders).filter(([name, input]) => Number(input.value) !== Number(values[name]))
       .map(([name, input]) => {
         const label = lowerFirst(input.closest('.ix-control').querySelector('label').textContent);
-        return `${label} ${input.value} ${input.dataset.unit} instead of ${own[name]} ${input.dataset.unit}`;
+        return `${label} ${input.value} ${input.dataset.unit} (the example: ${values[name]} ${input.dataset.unit})`;
       });
-    if (state.robot !== data.default.robot) changes.unshift(`${robots[state.robot].name} instead of ${robots[data.default.robot].name}`);
-    const line = find('.ix-current .ix-changes');
-    line.textContent = changes.length ? `Your values: ${changes.join(', ')}.` : '';
-    line.title = line.textContent;
+    if (state.robot !== data.default.robot) {
+      changes.unshift(`${robots[state.robot].name} (the example: ${robots[data.default.robot].name})`);
+    }
+    const lead = document.createElement('b');
+    lead.textContent = data.texts.changesLead;
+    line.append(lead, ` ${changes.join(', ')}. ${data.texts.changesEnd}`);
   }
   // The summary and the tables show the drive's end: they wait until a drive has reached its end
-  // since the example opened, then follow every change. The example's answer shows under the
-  // drawing while the controls hold the example's own drive and that drive has reached its end.
+  // since the example opened, then follow every change. A question is answered the first time the
+  // controls hold the example's own drive at its end: another drive's end shows its results but
+  // answers nothing. The answer then shows while the example's own values are set.
+  // Under the play bar, one place holds the answer, the hint before it, or the values that differ
+  // from the example's. It is as high as the highest of them, so nothing below moves.
   // Returns what has just appeared: 'answer', 'results' or null.
   function showResults() {
-    const key = questionKey(), answer = find('.ix-shown-answer');
+    const key = questionKey();
     const resultsAppear = !reachedEnd && state.time >= 1;
     if (resultsAppear) reachedEnd = true;
     const own = isExampleDrive();
-    const answerAppears = own && reachedEnd && !answered.has(key);
+    const answerAppears = own && state.time >= 1 && !answered.has(key);
     if (answerAppears) answered.add(key);
-    // A shown answer keeps its place while other values are set, so nothing below it moves
-    answer.hidden = !answered.has(key);
-    answer.classList.toggle('ix-off', !own);
-    // While the answer shows, the button keeps its place, invisible, so the questions' height
-    // stays. With other values it shows again: it brings back the example's own drive.
-    find('.ix-current').classList.toggle('ix-revealed', own && answered.has(key));
+    const showAnswer = own && answered.has(key);
+    find('.ix-shown-answer').classList.toggle('ix-off', !showAnswer);
+    find('.ix-hint').classList.toggle('ix-off', !own || showAnswer);
+    find('.ix-changes').classList.toggle('ix-off', own);
+    renderChanges(own);
+    // While the answer shows, the example's button keeps its place, invisible, so the questions'
+    // height stays. With other values it shows again and sets the example's values back.
+    const item = find('.ix-current');
+    item.classList.toggle('ix-revealed', showAnswer);
+    item.querySelector('.ix-show').textContent = own ? data.texts.show : data.texts.replay;
     root.classList.toggle('ix-waiting', !reachedEnd);
-    renderChanges();
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
   }
-  // Screen readers hear what has just appeared at the drive's end
+  // Screen readers hear what has just appeared at the drive's end: the answer replaces a summary
+  // that waits to be heard
   function announceAppeared(appeared) {
-    if (appeared === 'answer') find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
+    if (appeared === 'answer') {
+      clearTimeout(announceTimer);
+      find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
+    }
     if (appeared === 'results') announce();
   }
   function startPlaying() {
@@ -444,18 +479,38 @@ function mount(root) {
     update();
     showResults();
   }
-  // A double click, or on a touch screen a double tap, sets one slider back to the robot's value
-  let lastTap = { input: null, time: 0 };
+  // A double click, or on a touch screen a double tap, sets one slider back to the robot's value.
+  // A tap is a short touch that hardly moves: two quick drags are no double tap, and any other
+  // press in between starts over. Mice and pens use the browser's double click only.
+  let press = null, lastTap = null, lastTouchReset = -Infinity;
+  const isTouch = (event) => event.pointerType === 'touch' && event.isPrimary;
+  document.addEventListener('pointerdown', (event) => {
+    if (lastTap && event.target !== lastTap.input) lastTap = null;
+  }, true);
   for (const [name, input] of Object.entries(sliders)) {
     const resetOne = () => { input.value = defaults()[name]; redraw(); announce(); };
     input.addEventListener('input', redraw);
     input.addEventListener('change', announce);
-    input.addEventListener('dblclick', resetOne);
+    // A browser that sends a double click after a double tap too resets the slider once
+    input.addEventListener('dblclick', (event) => {
+      if (event.timeStamp - lastTouchReset > DOUBLE_TAP_MS) resetOne();
+    });
+    input.addEventListener('pointerdown', (event) => {
+      press = isTouch(event) ? { input, x: event.clientX, y: event.clientY, moved: false } : null;
+      if (!press) lastTap = null;
+    });
+    input.addEventListener('pointermove', (event) => {
+      if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > TAP_SLOP_PX) press.moved = true;
+    });
+    input.addEventListener('pointercancel', () => { press = null; lastTap = null; });
     input.addEventListener('pointerup', (event) => {
-      if (event.pointerType === 'mouse') return;
-      const second = lastTap.input === input && event.timeStamp - lastTap.time < DOUBLE_TAP_MS;
-      lastTap = second ? { input: null, time: 0 } : { input, time: event.timeStamp };
-      if (second) resetOne();
+      const tap = press && press.input === input && !press.moved && isTouch(event)
+        ? { input, x: event.clientX, y: event.clientY, time: event.timeStamp } : null;
+      press = null;
+      const second = Boolean(tap && lastTap && lastTap.input === input && tap.time - lastTap.time < DOUBLE_TAP_MS
+        && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) < DOUBLE_TAP_DISTANCE_PX);
+      lastTap = second ? null : tap;
+      if (second) { lastTouchReset = event.timeStamp; resetOne(); }
     });
   }
   find('.ix-robot-select').addEventListener('change', (event) => {
@@ -465,6 +520,8 @@ function mount(root) {
   // end once answered. The values stay as they are.
   for (const button of findAll('[data-command]')) {
     button.addEventListener('click', () => {
+      // The command that shows already: nothing changes, not even the time
+      if (button.dataset.command === state.command) return;
       stopPlaying();
       selectCommand(button.dataset.command);
       showQuestion();
@@ -479,27 +536,60 @@ function mount(root) {
     button.addEventListener('click', () => { resetSliders(); redraw(); announce(); });
   }
 
-  // Enlarge: the figure over the whole window, with the drawing and the values next to each
-  // other. The button, Esc or a window that gets too narrow brings it back to the page.
-  const enlarge = find('.ix-enlarge'), settings = find('.ix-settings');
+  // Enlarge: the figure over the whole window in a modal dialog, with the drawing and the values
+  // next to each other. The rest of the page is out of the keyboard's and the screen reader's
+  // reach meanwhile. The button, Esc, printing or a window that gets too narrow bring the figure
+  // back to its place on the page.
+  const enlarge = find('.ix-enlarge'), settings = find('.ix-settings'), caption = find('figcaption');
+  const stage = find('.ix-stage'), side = find('.ix-side');
   const wideEnough = matchMedia(`(min-width: ${WIDE_MIN_EM}em)`);
-  let settingsWereOpen = false;
-  const isEnlarged = () => root.classList.contains('ix-wide');
-  function setEnlarged(enlarged) {
-    if (enlarged === isEnlarged()) return;
-    // Enlarged, the values always show; back on the page, their block is as the reader left it
-    if (enlarged) { settingsWereOpen = settings.open; settings.open = true; } else settings.open = settingsWereOpen;
-    root.classList.toggle('ix-wide', enlarged);
-    document.documentElement.classList.toggle('ix-wide-open', enlarged);
-    enlarge.textContent = enlarged ? 'Back to the page' : 'Enlarge';
+  const placeholder = document.createComment('The enlarged figure returns here');
+  let dialog = null, settingsWereOpen = false;
+  function enlargeFigure() {
+    if (dialog) return;
+    // Enlarged, the values show first in the right-hand column, and the caption ends the left one
+    settingsWereOpen = settings.open;
+    settings.open = true;
+    side.prepend(settings);
+    stage.append(caption);
+    dialog = document.createElement('dialog');
+    dialog.className = 'md-typeset ix-dialog';
+    dialog.setAttribute('aria-label', `Enlarged figure: ${find('.ix-static title').textContent}`);
+    dialog.addEventListener('cancel', (event) => { event.preventDefault(); returnToPage(); });
+    root.before(placeholder);
+    document.body.append(dialog);
+    dialog.append(root);
+    root.classList.add('ix-wide');
+    document.documentElement.classList.add('ix-wide-open');
+    enlarge.textContent = 'Back to the page';
+    dialog.showModal();
+    enlarge.focus();
   }
-  enlarge.addEventListener('click', () => setEnlarged(!isEnlarged()));
-  document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || !isEnlarged()) return;
-    setEnlarged(false);
-    enlarge.focus({ preventScroll: true });
-  });
-  wideEnough.addEventListener('change', () => { if (!wideEnough.matches) setEnlarged(false); });
+  function returnToPage() {
+    if (!dialog) return;
+    const focused = root.contains(document.activeElement) ? document.activeElement : null;
+    dialog.close();
+    placeholder.replaceWith(root);
+    dialog.remove();
+    dialog = null;
+    side.append(settings);
+    root.append(caption);
+    settings.open = settingsWereOpen;
+    root.classList.remove('ix-wide');
+    document.documentElement.classList.remove('ix-wide-open');
+    enlarge.textContent = 'Enlarge';
+    // The keyboard's place: where it was if it can still be there, else the summary of the closed
+    // values, the Enlarge button, or Play. A control in a closed block or a hidden button can't
+    // take the focus, so the first one that takes it keeps it.
+    const inClosedSettings = focused && !settings.open && settings.contains(focused);
+    for (const element of [focused, inClosedSettings ? settings.querySelector('summary') : null, enlarge, find('.ix-play')]) {
+      element?.focus();
+      if (element && document.activeElement === element) break;
+    }
+  }
+  enlarge.addEventListener('click', () => (dialog ? returnToPage() : enlargeFigure()));
+  wideEnough.addEventListener('change', () => { if (!wideEnough.matches) returnToPage(); });
+  addEventListener('beforeprint', returnToPage);
 
   // The guided examples, one at a time. An example opens with its question and its own drive,
   // with its one value changed, at the drive's start: the time slider and Play show the drive, and
@@ -523,7 +613,6 @@ function mount(root) {
       item.classList.toggle('ix-current', item.dataset.exampleItem === example.key);
       item.classList.remove('ix-revealed');
       for (const answer of item.querySelectorAll('.ix-answer')) answer.hidden = true;
-      item.querySelector('.ix-changes').textContent = '';
     }
     find('.ix-step-count').textContent = `Example ${index + 1} of ${data.examples.length}`;
     find('.ix-previous').disabled = index === 0;
@@ -542,10 +631,19 @@ function mount(root) {
   for (const button of findAll('[data-example]')) {
     button.addEventListener('click', () => {
       showStep(state.step, state.command, 0);
-      play();
-      // The button is gone now: the keyboard's place moves to the answer under the drawing, or
-      // to Pause while the drive plays
-      find(reducedMotion() ? '.ix-shown-answer' : '.ix-play').focus({ preventScroll: true });
+      if (reducedMotion()) {
+        // The answer shows at once and takes the keyboard's place: screen readers read it there
+        stopPlaying();
+        setTime(1);
+        draw();
+        showResults();
+        find('.ix-shown-answer').focus();
+        return;
+      }
+      // The keyboard's place moves to Pause while the drive plays, and stays where the reader
+      // leaves it when the drive ends
+      startPlaying();
+      find('.ix-play').focus({ preventScroll: true });
     });
   }
   // Screen readers hear the new example's question
@@ -554,8 +652,16 @@ function mount(root) {
     const question = find('.ix-current .ix-question.ix-drive').textContent;
     find('.ix-announce').textContent = `${find('.ix-step-count').textContent}. ${question}`;
   }
-  find('.ix-previous').addEventListener('click', () => { showStep(state.step - 1); announceQuestion(); });
-  find('.ix-next').addEventListener('click', () => { showStep(state.step + 1); announceQuestion(); });
+  // At the first and the last example, the button just pressed is disabled: the keyboard's place
+  // moves to the other one
+  function stepTo(index, pressed, other) {
+    showStep(index);
+    announceQuestion();
+    if (pressed.disabled && document.activeElement !== other) other.focus();
+  }
+  const previousButton = find('.ix-previous'), nextButton = find('.ix-next');
+  previousButton.addEventListener('click', () => stepTo(state.step - 1, previousButton, nextButton));
+  nextButton.addEventListener('click', () => stepTo(state.step + 1, nextButton, previousButton));
 
   new ResizeObserver(() => { if (drive) draw(); }).observe(plot);
 
