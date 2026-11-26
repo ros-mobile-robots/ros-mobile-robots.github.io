@@ -121,7 +121,7 @@ class TestSyntheticTrace(unittest.TestCase):
     to be the same in every run.
     """
 
-    def test_synthetic_trace_has_the_expected_number_of_readings(self) -> None:
+    def test_synthetic_trace_has_180_s_of_readings_at_50_hz(self) -> None:
         figures = load_script()
         trace = figures.synthetic_trace()
         self.assertEqual(len(trace.readings), EXPECTED_DURATION_SECONDS * EXPECTED_SAMPLE_RATE_HZ)
@@ -162,7 +162,8 @@ class TestTexts(unittest.TestCase):
         self.assertEqual([figures.steps_in_words(steps) for steps in (0, 1, 2)],
                          ['zero', 'one output step', 'two output steps'])
 
-    def test_stamp_title_describes_the_repeat_the_step_back_and_the_last_stamp(self) -> None:
+    def test_stamps_back_title_describes_the_repeat_the_step_back_and_the_last_stamp(
+            self) -> None:
         figures = load_script()
         self.assertEqual(
             figures.stamps_back_title(figures.STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK),
@@ -185,6 +186,20 @@ class TestTraceLayouts(unittest.TestCase):
                 if element.tag == 'text' and (element.text or '').startswith('mean:'))
             self.assertEqual(elements[mean_label_index - 1].get('class'), 'mean-line',
                              layout.name)
+
+    def test_each_trace_layout_draws_the_solid_mean_line_between_the_dashed_spread_lines(
+            self) -> None:
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        for layout in figures.TRACE_LAYOUTS:
+            # The plot's lines start at its left edge. The legend's marks start elsewhere
+            lines = re.findall(
+                rf'<path class="(mean-line|spread-line)" d="M{figures.TRACE_PLOT_LEFT},([\d.]+) ',
+                figures.trace_figure(trace, layout).svg())
+            self.assertEqual([css_class for css_class, _ in lines],
+                             ['spread-line', 'mean-line', 'spread-line'], layout.name)
+            self.assertAlmostEqual(float(lines[1][1]), figures.trace_y(trace.mean),
+                                   delta=SVG_COORDINATE_TOLERANCE)
 
     def test_each_trace_layout_draws_the_first_seconds_readings_and_the_legends_dot(
             self) -> None:
@@ -269,6 +284,19 @@ class TestPlotLayouts(unittest.TestCase):
         for drawing in (figures.intervals_figure, figures.stamps_back_figure):
             self.assertEqual(drawing(wide).width, figures.WIDE_WIDTH, drawing.__name__)
 
+    def test_stamp_figures_number_their_marks_from_one_in_both_layouts(self) -> None:
+        figures = load_script()
+        for drawing, stamps in (
+                (figures.intervals_figure, figures.STAMPS_WITH_ONE_LONG_INTERVAL),
+                (figures.stamps_back_figure, figures.STAMPS_WITH_A_REPEAT_AND_A_STEP_BACK)):
+            for layout in figures.PLOT_LAYOUTS:
+                numbers = re.findall(
+                    r'<circle class="pass-mark"[^>]*/>\n<text class="letter"[^>]*>(\d+)</text>',
+                    drawing(layout).svg())
+                self.assertEqual(numbers,
+                                 [str(number) for number in range(1, len(stamps) + 1)],
+                                 f'{drawing.__name__} {layout.css_class}')
+
     def test_repeated_stamp_label_keeps_its_horizontal_offset_in_both_layouts(self) -> None:
         figures = load_script()
         distances = []
@@ -304,11 +332,14 @@ class TestFlowFigure(unittest.TestCase):
         figures = load_script()
         left, right = figures.WIDE_FLOW_MARGIN, figures.WIDE_WIDTH - figures.WIDE_FLOW_MARGIN
         left_card_width, right_card_width = 150, 170
-        inside_center, inside_card_width = 270, 100
         self.assertEqual(figures.middle_inside_margins(left, left_card_width),
                          left + left_card_width / 2)
         self.assertEqual(figures.middle_inside_margins(right, right_card_width),
                          right - right_card_width / 2)
+
+    def test_middle_inside_margins_keeps_the_middle_of_a_card_inside_the_margins(self) -> None:
+        figures = load_script()
+        inside_center, inside_card_width = 270, 100
         self.assertEqual(figures.middle_inside_margins(inside_center, inside_card_width),
                          inside_center)
 

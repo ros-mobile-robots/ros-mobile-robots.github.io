@@ -324,9 +324,14 @@ def synthetic_trace() -> Trace:
                  len(set(readings)))
 
 
+def signed_value_with_decimals(value: float, decimals: int) -> str:
+    """Return a value with a fixed number of decimals, its sign and a typographic minus."""
+    return f'{value:+.{decimals}f}'.replace('-', '−')
+
+
 def signed_yaw_rate(value: float) -> str:
     """Return a value in rad/s with five decimals, its sign and a typographic minus."""
-    return f'{value:+.5f}'.replace('-', '−')
+    return signed_value_with_decimals(value, 5)
 
 
 def trace_y(yaw_rate: float) -> float:
@@ -406,7 +411,7 @@ def trace_figure(trace: Trace, layout: TraceLayout) -> Figure:
     for level in TRACE_LEVELS:
         y = trace_y(level * GYROSCOPE_STEP)
         figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{plot_right}', 'level')
-        label = '0' if level == 0 else f'{level * GYROSCOPE_STEP:+.4f}'.replace('-', '−')
+        label = '0' if level == 0 else signed_value_with_decimals(level * GYROSCOPE_STEP, 4)
         figure.text(TRACE_PLOT_LEFT - 5, y + 4, label, 'note', 'end')
     upper, lower = (trace_y(trace.mean + sign * trace.standard_deviation) for sign in (1, -1))
     figure.rect(TRACE_PLOT_LEFT, upper, plot_right - TRACE_PLOT_LEFT, lower - upper,
@@ -424,7 +429,7 @@ def trace_figure(trace: Trace, layout: TraceLayout) -> Figure:
         figure.path(f'M{TRACE_PLOT_LEFT},{y:.1f} H{plot_right}', line.kind.value)
         text_class = 'strong' if line.kind is TraceLineKind.MEAN else ''
         figure.text(plot_right + 5, y + 4, line.label, text_class)
-        figure.text(layout.width - 2, y + 4, f'{line.yaw_rate:+.4f}'.replace('-', '−'),
+        figure.text(layout.width - 2, y + 4, signed_value_with_decimals(line.yaw_rate, 4),
                     text_class, 'end')
     figure.text(plot_right + 5, trace_y(0) + 4, 'zero')
     figure.text(layout.width - 2, trace_y(0) + 4, '0', '', 'end')
@@ -446,10 +451,11 @@ def write_trace() -> None:
     """Write the trace figure in both layouts, with the recording's statistics in its caption."""
     trace = synthetic_trace()
     shown_count = TRACE_SHOWN_DURATION * SAMPLE_RATE
+    shown_time = 'second' if TRACE_SHOWN_DURATION == 1 else f'{TRACE_SHOWN_DURATION} seconds'
     caption = (
         '<strong>A synthetic example, not a recording of a robot.</strong> A gyroscope at rest '
         f'that reads in steps of {GYROSCOPE_STEP_TEXT}, like the BNO055. '
-        f'The dots are the {shown_count} readings in the first {TRACE_SHOWN_DURATION} s. '
+        f'The dots are the {shown_count} readings of the first {shown_time}. '
         'The lines come from all '
         f'{len(trace.readings):,} readings of {TRACE_DURATION} s: '
         f'the mean {signed_yaw_rate(trace.mean)} rad/s is the bias, '
@@ -547,7 +553,7 @@ def interval_x(milliseconds: float, pixels_per_ms: float) -> float:
 
 
 def numbered_mark(figure: Figure, x: float, y: float, number: int, css_class: str) -> None:
-    """Draw a numbered stamp or step at the given position, with the shared numbered disc."""
+    """Add a stamp's or a step's number in the shared numbered disc around x, y."""
     disc = Drawing()
     disc.number_disc(x, y, number, css_class, 'letter')
     figure.elements.extend(disc.elements)
@@ -557,9 +563,10 @@ def intervals_figure(layout: PlotLayout) -> Figure:
     """Return a layout of the five header stamps on a time axis, with the intervals between."""
     stamps = STAMPS_WITH_ONE_LONG_INTERVAL
     pairs = list(zip(stamps, stamps[1:]))
-    regular = {later - earlier for earlier, later in pairs if later - earlier <= LONG_INTERVAL}
+    regular_lengths = {later - earlier for earlier, later in pairs
+                       if later - earlier <= LONG_INTERVAL}
     long_pairs = [(earlier, later) for earlier, later in pairs if later - earlier > LONG_INTERVAL]
-    if len(regular) != 1 or len(long_pairs) != 1:
+    if len(regular_lengths) != 1 or len(long_pairs) != 1:
         raise ValueError('the figure explains equal regular intervals and one long interval')
     regular_count = len(pairs) - 1
     (long_start, long_end), = long_pairs
@@ -567,7 +574,8 @@ def intervals_figure(layout: PlotLayout) -> Figure:
                     f'{NUMBER_WORDS[len(stamps)].capitalize()} header '
                     f'stamps on a time axis, at {listed([str(stamp) for stamp in stamps])} ms. '
                     f'{NUMBER_WORDS[regular_count].capitalize()} intervals are '
-                    f'{regular.pop()} ms long. The interval from {long_start} to {long_end} ms is '
+                    f'{regular_lengths.pop()} ms long. The interval from {long_start} to '
+                    f'{long_end} ms is '
                     f'{long_end - long_start} ms long, more than {LONG_INTERVAL} ms', 104,
                     round(DRAWING_WIDTH * layout.stretch), layout.css_class, layout.stretch)
     axis_y, pixels_per_ms = 60, 2.5
@@ -852,9 +860,9 @@ def flow_caption(steps: Sequence[ToolStep]) -> str:
     at_steps = listed([f'{sum(test_class.test_count for test_class in step.test_classes)} tests '
                        f'at {step.label}' for step in steps])
     return (f"The test classes in a step's card call that step's functions: {at_steps}. "
-            f'<code>{COMMAND_TEST_CLASS}</code> runs the script as a command, most of its tests '
+            f'<code>{COMMAND_TEST_CLASS}</code> {FLOW_COMMAND_LABEL}, most of its tests '
             f'on a small bag that the test writes. {COMMAND_TESTS_WITH_A_REPORT} of its tests '
-            f'compare the report and status 0, and {COMMAND_TESTS_WITH_ONE_LINE} compare the one '
+            f'check the report and status 0, and {COMMAND_TESTS_WITH_ONE_LINE} check the one '
             'line and status 1.')
 
 
