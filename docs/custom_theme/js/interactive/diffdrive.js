@@ -49,7 +49,7 @@ export function poseAfter(v, w, t, straightAngularVelocity) {
  * The end pose relative to the start pose, in the robot's frame at the start: forward and left
  * (m) and the angle turned (rad, wrapped), as relative_pose() in diffbot's test_drive.py.
  */
-export function relativePose(start, end) {
+export function relativeMotion(start, end) {
   const dx = end.x - start.x, dy = end.y - start.y;
   const cos = Math.cos(start.theta), sin = Math.sin(start.theta);
   return { forward: cos * dx + sin * dy, left: -sin * dx + cos * dy, turned: wrap(end.theta - start.theta) };
@@ -69,7 +69,7 @@ export function relativePose(start, end) {
  *
  * Returns the wheel speeds, the three velocities and posesAt(t), the poses at a time.
  */
-export function threeViews({ v, w, radius, separation, configuredRadius, configuredSeparation,
+export function computeDriveViews({ v, w, radius, separation, configuredRadius, configuredSeparation,
   contactSeparation = separation, frameOffset = 0, tracking = 1, straightAngularVelocity }) {
   const commanded = wheelSpeedsForCommand(v, w, configuredRadius, configuredSeparation);
   const left = tracking * commanded.left, right = tracking * commanded.right;
@@ -98,12 +98,12 @@ export function threeViews({ v, w, radius, separation, configuredRadius, configu
  * Whether a value lies within expected +- tolerance, as assertAlmostEqual(..., delta=tolerance),
  * with the figures' rounding allowance on top of the tolerance.
  */
-export function within(value, expected, tolerance, roundingAllowance) {
+export function withinCheckTolerance(value, expected, tolerance, roundingAllowance) {
   return Math.abs(value - expected) <= tolerance + roundingAllowance;
 }
 
 /** The value of a quantity ('forward', 'left', 'turned' or 'distance' from the start) in a motion. */
-export function measured(quantity, motion) {
+export function motionQuantityValue(quantity, motion) {
   return quantity === 'distance' ? Math.hypot(motion.forward, motion.left) : motion[quantity];
 }
 
@@ -118,8 +118,8 @@ export function predictChecks(rows, odometry, model, roundingAllowance) {
   const motions = { odometry, model };
   return rows.map((row) => {
     const value = row.view === 'agreement'
-      ? Math.abs(measured(row.quantity, odometry) - measured(row.quantity, model))
-      : measured(row.quantity, motions[row.view]);
-    return { ...row, value, passes: within(value, row.expected, row.tolerance, roundingAllowance) };
+      ? Math.abs(motionQuantityValue(row.quantity, odometry) - motionQuantityValue(row.quantity, model))
+      : motionQuantityValue(row.quantity, motions[row.view]);
+    return { ...row, value, passes: withinCheckTolerance(value, row.expected, row.tolerance, roundingAllowance) };
   });
 }

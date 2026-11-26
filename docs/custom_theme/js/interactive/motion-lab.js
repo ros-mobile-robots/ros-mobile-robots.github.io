@@ -3,9 +3,9 @@
 // model's limits, the examples and the drawing's sizes) come from includes/motion-lab.html, which
 // scripts/figures/motion_lab_figures.py writes. This file adds the behavior. The figure shows its
 // static version until the first drawing here has succeeded. The drawing's functions follow the
-// script's functions that draw the static version: scaleFor() is drawing_scale(), drawGrid() is
-// grid_lines(), drawRobotOutline() is robot_outline(), and so on.
-import { threeViews, relativePose, predictChecks } from './diffdrive.js';
+// script's functions that draw the static version: drawingScale() is drawing_scale(), gridGroup() is
+// grid_lines(), robotOutlineGroup() is robot_outline(), and so on.
+import { computeDriveViews, relativeMotion, predictChecks } from './diffdrive.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
@@ -21,10 +21,10 @@ const DOUBLE_TAP_DISTANCE_PX = 30;
 // The Enlarge button shows from this window width on, as in interactive.css
 const WIDE_MIN_EM = 60;
 
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** A value with `digits` decimals and a true minus sign. A value that rounds to 0 shows as 0. */
-function fixed(value, digits = 3) {
+function formatDecimal(value, digits = 3) {
   const rounded = Math.abs(value) < 0.5 * 10 ** -digits ? 0 : value;
   return rounded.toFixed(digits).replace('-', '−');
 }
@@ -42,7 +42,7 @@ function svgElement(name, attributes = {}, text) {
 // lengths on the ground in m, on the screen in px.
 
 /** The point (m) on the ground of a point given in the frame of a robot at a pose. */
-function onRobot(pose, forward, left) {
+function robotPointOnGround(pose, forward, left) {
   const cos = Math.cos(pose.theta), sin = Math.sin(pose.theta);
   return { x: pose.x + forward * cos - left * sin, y: pose.y + forward * sin + left * cos };
 }
@@ -52,7 +52,7 @@ function onRobot(pose, forward, left) {
  * outlines, the robot's arrow, the command's line and base_footprint behind the axle, with the
  * margin.
  */
-function reachAround(inputs, sizes) {
+function outlineReachMetres(inputs, sizes) {
   const outerEdge = Math.max(...[inputs.wheels, inputs.configured].map(
     (wheels) => wheels.separation / 2 + wheels.wheelWidth / 2));
   const front = Math.max(inputs.wheels.radius, sizes.nose + sizes.headLength, sizes.commandHeading,
@@ -64,7 +64,7 @@ function reachAround(inputs, sizes) {
  * The scale that fits every pose of the samples into a drawing of this width, with the reach.
  * The ground's x axis (the robot's forward at the start) points to the right, its y axis up.
  */
-function scaleFor(width, samples, reach, sizes) {
+function drawingScale(width, samples, reach, sizes) {
   const poses = samples.flatMap((sample) => [sample.command, sample.odometry, sample.axle, sample.frame]);
   const xs = poses.map((pose) => pose.x), ys = poses.map((pose) => pose.y);
   const left = Math.min(...xs) - reach, right = Math.max(...xs) + reach;
@@ -88,7 +88,7 @@ function gridStep(scale, sizes) {
 }
 
 /** The grid: lines at the multiples of the step across the whole drawing. */
-function drawGrid(scale, step) {
+function gridGroup(scale, step) {
   const grid = svgElement('g', { class: 'ix-grid' });
   const halfWidth = scale.width / 2 / scale.pixelsPerMetre, halfHeight = scale.height / 2 / scale.pixelsPerMetre;
   for (let index = Math.ceil((scale.centerX - halfWidth) / step); index * step < scale.centerX + halfWidth; index++) {
@@ -106,34 +106,40 @@ function drawGrid(scale, step) {
 const pointsAttribute = (points) => points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ');
 
 /** A view's path through its poses, or null before the path has two poses. */
-function drawPath(scale, poses, cssClass) {
+function pathPolyline(scale, poses, cssClass) {
   if (poses.length < 2) return null;
   return svgElement('polyline', { class: `ix-path ${cssClass}`, points: pointsAttribute(poses.map(scale.toPixels)) });
 }
 
 /** A robot from above at a pose of its axle's midpoint: two wheels, the axle and an arrow to its front. */
-function drawRobotOutline(scale, pose, wheels, cssClass, title, sizes) {
-  const at = (forward, left) => scale.toPixels(onRobot(pose, forward, left));
+function robotOutlineGroup(scale, pose, wheels, cssClass, title, sizes) {
+  // Map robot-frame metres to drawing pixels
+  const robotPointInPixels = (forward, left) => scale.toPixels(robotPointOnGround(pose, forward, left));
   const group = svgElement('g', { class: `ix-robot ${cssClass}` });
   group.append(svgElement('title', {}, title));
   for (const side of [1, -1]) {
     const middle = side * wheels.separation / 2, halfWidth = wheels.wheelWidth / 2;
-    const corners = [at(wheels.radius, middle + halfWidth), at(wheels.radius, middle - halfWidth),
-      at(-wheels.radius, middle - halfWidth), at(-wheels.radius, middle + halfWidth)];
+    const corners = [
+      robotPointInPixels(wheels.radius, middle + halfWidth), robotPointInPixels(wheels.radius, middle - halfWidth),
+      robotPointInPixels(-wheels.radius, middle - halfWidth), robotPointInPixels(-wheels.radius, middle + halfWidth),
+    ];
     group.append(svgElement('polygon', { class: 'ix-wheel', points: pointsAttribute(corners) }));
   }
-  const leftEnd = at(0, wheels.separation / 2), rightEnd = at(0, -wheels.separation / 2);
+  const leftEnd = robotPointInPixels(0, wheels.separation / 2), rightEnd = robotPointInPixels(0, -wheels.separation / 2);
   group.append(svgElement('line', { x1: leftEnd.x, y1: leftEnd.y, x2: rightEnd.x, y2: rightEnd.y }));
-  const middle = at(0, 0), nose = at(sizes.nose, 0);
+  const middle = robotPointInPixels(0, 0), nose = robotPointInPixels(sizes.nose, 0);
   group.append(svgElement('line', { x1: middle.x, y1: middle.y, x2: nose.x, y2: nose.y }));
-  const head = [at(sizes.nose + sizes.headLength, 0), at(sizes.nose, sizes.headHalfWidth), at(sizes.nose, -sizes.headHalfWidth)];
+  const head = [
+    robotPointInPixels(sizes.nose + sizes.headLength, 0),
+    robotPointInPixels(sizes.nose, sizes.headHalfWidth), robotPointInPixels(sizes.nose, -sizes.headHalfWidth),
+  ];
   group.append(svgElement('polygon', { class: 'ix-head', points: pointsAttribute(head) }));
   return group;
 }
 
 /** The model's markers: a dot at base_footprint, and with an offset the axle's midpoint joined to it. */
-function drawTruePoseMarkers(group, scale, axle, frameOffset, sizes) {
-  const frame = scale.toPixels(onRobot(axle, -frameOffset, 0));
+function appendTruePoseMarkers(group, scale, axle, frameOffset, sizes) {
+  const frame = scale.toPixels(robotPointOnGround(axle, -frameOffset, 0));
   if (frameOffset > 0) {
     const middle = scale.toPixels(axle);
     group.append(svgElement('line', { class: 'ix-link', x1: middle.x, y1: middle.y, x2: frame.x, y2: frame.y }));
@@ -147,15 +153,15 @@ function drawTruePoseMarkers(group, scale, axle, frameOffset, sizes) {
 }
 
 /** The odometry's marker: a ring at its base_footprint. */
-function drawOdometryMarker(group, scale, pose, sizes) {
+function appendOdometryMarker(group, scale, pose, sizes) {
   const ring = scale.toPixels(pose);
   group.append(svgElement('circle', { class: 'ix-ring', cx: ring.x, cy: ring.y, r: sizes.ringRadiusPx }));
 }
 
 /** The command's end: a cross where the command alone puts the robot, with a line in its heading. */
-function drawCommandMarker(scale, pose, sizes) {
+function commandMarkerGroup(scale, pose, sizes) {
   const cross = scale.toPixels(pose);
-  const heading = scale.toPixels(onRobot(pose, sizes.commandHeading, 0));
+  const heading = scale.toPixels(robotPointOnGround(pose, sizes.commandHeading, 0));
   const half = sizes.crossHalfPx;
   const group = svgElement('g', { class: 'ix-robot ix-command' });
   group.append(svgElement('title', {}, 'Command'));
@@ -168,46 +174,47 @@ function drawCommandMarker(scale, pose, sizes) {
 
 // --- The figure ------------------------------------------------------------------------------
 
-function mount(root) {
+/** Start one figure: read its data, bind its controls and draw its first example. */
+function mountMotionLab(root) {
   const data = JSON.parse(root.querySelector('.ix-data').textContent);
   const sizes = data.drawing;
   const find = (selector) => root.querySelector(selector);
   const findAll = (selector) => [...root.querySelectorAll(selector)];
   const plot = find('.ix-plot'), scrub = find('.ix-scrub');
   const sliders = Object.fromEntries(findAll('input[data-setting]').map((input) => [input.dataset.setting, input]));
-  const state = { robot: data.default.robot, command: data.default.command, time: 0, step: 0 };
+  const state = { robot: data.default.robot, command: data.default.command, playbackFraction: 0, step: 0 };
   // The questions, one per example and drive ("radius:forward"), whose drive has reached its end
   // with the example's own values: their answer shows while those values are set
   const answered = new Set();
   const questionKey = (command = state.command) => `${data.examples[state.step].key}:${command}`;
   // A drive has reached its end since the example opened: the results show
   let reachedEnd = false;
-  let animationRequest = null, lastTickTime = 0, announceTimer = null, drive = null, liveDrawing = null;
+  let animationRequest = null, lastFrameTimestamp = 0, announceTimer = null, drive = null, liveDrawing = null;
 
   // --- The model's inputs, from the controls -------------------------------------------------
-  const setting = (name) => Number(sliders[name].value);
+  const sliderNumber = (name) => Number(sliders[name].value);
   /** The model's inputs in SI units, as model_inputs() in the script computes them. */
-  function readInputs() {
+  function readModelInputs() {
     const robot = data.robots[state.robot];
     return {
       robot,
       command: data.commands[state.command],
       wheels: { radius: robot.radius, separation: robot.separation, wheelWidth: robot.wheelWidth },
       configured: {
-        radius: robot.radius * setting('radius_percent') / 100,
-        separation: robot.separation * setting('separation_percent') / 100,
+        radius: robot.radius * sliderNumber('radius_percent') / 100,
+        separation: robot.separation * sliderNumber('separation_percent') / 100,
         wheelWidth: robot.wheelWidth,
       },
-      contactSeparation: robot.separation + robot.wheelWidth * setting('contact_percent') / 100,
-      frameOffset: setting('offset_mm') / 1000,
-      tracking: setting('tracking_percent') / 100,
+      contactSeparation: robot.separation + robot.wheelWidth * sliderNumber('contact_percent') / 100,
+      frameOffset: sliderNumber('offset_mm') / 1000,
+      tracking: sliderNumber('tracking_percent') / 100,
     };
   }
 
   /** The drive of the current controls: its inputs, its poses over time, its motions and checks. */
   function computeDrive() {
-    const inputs = readInputs(), command = inputs.command;
-    const views = threeViews({
+    const inputs = readModelInputs(), command = inputs.command;
+    const { posesAt } = computeDriveViews({
       v: command.linearVelocity, w: command.angularVelocity,
       radius: inputs.wheels.radius, separation: inputs.wheels.separation,
       configuredRadius: inputs.configured.radius, configuredSeparation: inputs.configured.separation,
@@ -215,88 +222,89 @@ function mount(root) {
       straightAngularVelocity: data.modelLimits.straightAngularVelocity,
     });
     const samples = [];
-    for (let index = 0; index <= sizes.samples; index++) samples.push(views.posesAt(command.duration * index / sizes.samples));
+    for (let index = 0; index <= sizes.samples; index++) samples.push(posesAt(command.duration * index / sizes.samples));
     const start = samples[0], end = samples[sizes.samples];
     const motion = {
-      command: relativePose(start.command, end.command),
-      odometry: relativePose(start.odometry, end.odometry),
-      model: relativePose(start.frame, end.frame),
+      command: relativeMotion(start.command, end.command),
+      odometry: relativeMotion(start.odometry, end.odometry),
+      model: relativeMotion(start.frame, end.frame),
     };
     const checks = predictChecks(data.checks[state.command], motion.odometry, motion.model,
       data.modelLimits.roundingAllowance);
-    return { kind: state.command, inputs, samples, motion, checks, reach: reachAround(inputs, sizes) };
+    return { kind: state.command, inputs, samples, motion, checks, reach: outlineReachMetres(inputs, sizes) };
   }
 
   // --- The drawing, at the time that the play bar shows ---------------------------------------
-  function updateTimeLabel(time, duration) {
-    find('.ix-time').textContent = state.time >= 1
-      ? `t = ${duration.toFixed(1)} s, the end` : `t = ${time.toFixed(1)} s of ${duration.toFixed(1)} s`;
-    scrub.setAttribute('aria-valuetext', `${time.toFixed(1)} of ${duration.toFixed(1)} seconds`);
+  function updateTimeLabel(elapsedSeconds, durationSeconds) {
+    const elapsed = elapsedSeconds.toFixed(1), duration = durationSeconds.toFixed(1);
+    find('.ix-time').textContent = state.playbackFraction >= 1
+      ? `t = ${duration} s, the end` : `t = ${elapsed} s of ${duration} s`;
+    scrub.setAttribute('aria-valuetext', `${elapsed} of ${duration} seconds`);
   }
 
-  function draw() {
+  function renderDriveAtCurrentTime() {
     const { inputs, samples } = drive;
-    const scale = scaleFor(Math.max(sizes.minimumWidthPx, Math.round(plot.clientWidth)), samples, drive.reach, sizes);
+    const scale = drawingScale(Math.max(sizes.minimumWidthPx, Math.round(plot.clientWidth)), samples, drive.reach, sizes);
     const step = gridStep(scale, sizes);
-    const shownIndex = Math.round(state.time * sizes.samples);
+    const shownIndex = Math.round(state.playbackFraction * sizes.samples);
     const shownSamples = samples.slice(0, shownIndex + 1), shownSample = samples[shownIndex];
     const next = svgElement('svg', {
       class: 'ix-live-plot', viewBox: `0 0 ${scale.width} ${scale.height}`, role: 'img',
       'aria-label': find('.ix-static title').textContent, 'aria-describedby': find('.ix-now').id,
     });
-    next.append(drawGrid(scale, step));
+    next.append(gridGroup(scale, step));
     const paths = [['frame', 'ix-model'], ['odometry', 'ix-odometry'], ['command', 'ix-command']];
     if (inputs.frameOffset > 0) paths.unshift(['axle', 'ix-axle']);
     for (const [view, cssClass] of paths) {
-      const path = drawPath(scale, shownSamples.map((sample) => sample[view]), cssClass);
+      const path = pathPolyline(scale, shownSamples.map((sample) => sample[view]), cssClass);
       if (path) next.append(path);
     }
-    next.append(drawRobotOutline(scale, samples[0].axle, inputs.wheels, 'ix-start', 'The robot at the start', sizes));
-    const truePose = drawRobotOutline(scale, shownSample.axle, inputs.wheels, 'ix-model',
+    next.append(robotOutlineGroup(scale, samples[0].axle, inputs.wheels, 'ix-start', 'The robot at the start', sizes));
+    const truePose = robotOutlineGroup(scale, shownSample.axle, inputs.wheels, 'ix-model',
       'True pose, in this figure’s model', sizes);
-    drawTruePoseMarkers(truePose, scale, shownSample.axle, inputs.frameOffset, sizes);
+    appendTruePoseMarkers(truePose, scale, shownSample.axle, inputs.frameOffset, sizes);
     next.append(truePose);
-    const odometry = drawRobotOutline(scale, shownSample.odometry, inputs.configured, 'ix-odometry',
+    const odometry = robotOutlineGroup(scale, shownSample.odometry, inputs.configured, 'ix-odometry',
       'Odometry: the controller’s geometry at the pose that it computes', sizes);
-    drawOdometryMarker(odometry, scale, shownSample.odometry, sizes);
+    appendOdometryMarker(odometry, scale, shownSample.odometry, sizes);
     next.append(odometry);
-    next.append(drawCommandMarker(scale, shownSample.command, sizes));
+    next.append(commandMarkerGroup(scale, shownSample.command, sizes));
     if (liveDrawing) liveDrawing.replaceWith(next); else plot.append(next);
     liveDrawing = next;
     find('.ix-gridnote').textContent = `Grid: ${Math.round(step * 100)} cm`;
     updateTimeLabel(shownSample.t, inputs.command.duration);
-    describeNow(shownSample);
+    updateDrawingDescription(shownSample);
   }
 
   // For screen readers, the drawing's description: what it shows at the play bar's time, so the
   // drive's end stays unknown until the drive gets there
-  function describeNow(shownSample) {
+  function updateDrawingDescription(shownSample) {
     const { samples, inputs, kind } = drive, start = samples[0];
-    const command = relativePose(start.command, shownSample.command);
-    const odometry = relativePose(start.odometry, shownSample.odometry);
-    const model = relativePose(start.frame, shownSample.frame);
-    const at = `At ${shownSample.t.toFixed(1)} s of ${inputs.command.duration.toFixed(1)} s, `;
+    const command = relativeMotion(start.command, shownSample.command);
+    const odometry = relativeMotion(start.odometry, shownSample.odometry);
+    const model = relativeMotion(start.frame, shownSample.frame);
+    const timePrefix = `At ${shownSample.t.toFixed(1)} s of ${inputs.command.duration.toFixed(1)} s, `;
     find('.ix-now').textContent = kind === 'forward'
-      ? `${at}the commanded distance is ${fixed(command.forward)} m. The odometry reports`
-        + ` ${fixed(odometry.forward)} m and the robot in the model has travelled ${fixed(model.forward)} m.`
-      : `${at}the commanded angle is ${fixed(command.turned)} rad. The odometry reports ${fixed(odometry.turned)} rad`
-        + ` and the robot in the model has turned ${fixed(model.turned)} rad. Its base_footprint is`
-        + ` ${fixed(Math.hypot(model.forward, model.left))} m from its starting point.`;
+      ? `${timePrefix}the commanded distance is ${formatDecimal(command.forward)} m. The odometry reports`
+        + ` ${formatDecimal(odometry.forward)} m and the robot in the model has travelled ${formatDecimal(model.forward)} m.`
+      : `${timePrefix}the commanded angle is ${formatDecimal(command.turned)} rad. The odometry reports ${formatDecimal(odometry.turned)} rad`
+        + ` and the robot in the model has turned ${formatDecimal(model.turned)} rad. Its base_footprint is`
+        + ` ${formatDecimal(Math.hypot(model.forward, model.left))} m from its starting point.`;
   }
 
   // --- The numbers next to the drawing -------------------------------------------------------
   function renderMotionTable({ motion }) {
-    const glyph = (view) => find(`.ix-legend [data-view="${view}"] svg`).outerHTML;
+    const legendGlyphSvg = (view) => find(`.ix-legend [data-view="${view}"] svg`).outerHTML;
     find('.ix-motion-rows').innerHTML = Object.entries(data.viewNames).map(([view, name]) => {
       const { forward, left, turned } = motion[view];
-      return `<tr><th scope="row">${glyph(view)}${name}</th><td>${fixed(forward)} m</td><td>${fixed(left)} m</td><td>${fixed(turned)} rad</td></tr>`;
+      return `<tr><th scope="row">${legendGlyphSvg(view)}${name}</th><td>${formatDecimal(forward)} m</td><td>${formatDecimal(left)} m</td><td>${formatDecimal(turned)} rad</td></tr>`;
     }).join('');
   }
 
   function renderCheckTable({ checks }) {
     find('.ix-check-rows').innerHTML = checks.map((check) => {
       const result = check.passes ? '<span class="ix-pass">✔ passes</span>' : '<span class="ix-fail">✖ fails</span>';
-      return `<tr><th scope="row">${check.name}</th><td data-label="Allowed">${check.allowed}</td><td data-label="This drive">${fixed(check.value)} ${check.unit}</td><td>${result}</td></tr>`;
+      return `<tr><th scope="row">${check.name}</th><td data-label="Allowed">${check.allowed}</td><td data-label="This drive">${formatDecimal(check.value)} ${check.unit}</td><td>${result}</td></tr>`;
     }).join('');
   }
 
@@ -304,10 +312,10 @@ function mount(root) {
     const { odometry, model } = motion;
     let text = `${inputs.robot.name}, ${inputs.command.text}. `;
     if (kind === 'forward') {
-      text += `The odometry reports ${fixed(odometry.forward)} m. In the model, the robot drives ${fixed(model.forward)} m. `;
+      text += `The odometry reports ${formatDecimal(odometry.forward)} m. In the model, the robot drives ${formatDecimal(model.forward)} m. `;
     } else {
-      text += `The odometry reports a turn of ${fixed(odometry.turned)} rad. In the model, the robot turns ${fixed(model.turned)} rad`
-        + ` and base_footprint ends ${fixed(Math.hypot(model.forward, model.left))} m from its start. `;
+      text += `The odometry reports a turn of ${formatDecimal(odometry.turned)} rad. In the model, the robot turns ${formatDecimal(model.turned)} rad`
+        + ` and base_footprint ends ${formatDecimal(Math.hypot(model.forward, model.left))} m from its start. `;
     }
     const failing = checks.filter((check) => !check.passes).map((check) => check.nameInSentence);
     text += `${checks.length - failing.length} of ${checks.length} checks pass.`;
@@ -324,20 +332,20 @@ function mount(root) {
   }
 
   function renderSliderValues(inputs) {
-    const show = (name, shown, spoken) => {
+    const setSliderOutput = (name, shown, spoken) => {
       sliders[name].closest('.ix-control').querySelector('output').textContent = shown;
       sliders[name].setAttribute('aria-valuetext', spoken);
     };
-    const millimetres = (metres, digits) => (metres * 1000).toFixed(digits);
-    const radius = millimetres(inputs.configured.radius, 1), separation = millimetres(inputs.configured.separation, 1);
-    const contact = millimetres(inputs.contactSeparation, 0);
-    show('radius_percent', `${setting('radius_percent')} % · ${radius} mm`, `${setting('radius_percent')} percent, ${radius} millimeters`);
-    show('separation_percent', `${setting('separation_percent')} % · ${separation} mm`,
-      `${setting('separation_percent')} percent, ${separation} millimeters`);
-    show('offset_mm', `${setting('offset_mm')} mm`, `${setting('offset_mm')} millimeters behind the axle`);
-    show('contact_percent', `${setting('contact_percent')} % · ${contact} mm apart`,
-      `${setting('contact_percent')} percent, ${contact} millimeters apart`);
-    show('tracking_percent', `${setting('tracking_percent')} %`, `${setting('tracking_percent')} percent of the commanded speed`);
+    const formatMillimetres = (metres, digits) => (metres * 1000).toFixed(digits);
+    const radius = formatMillimetres(inputs.configured.radius, 1), separation = formatMillimetres(inputs.configured.separation, 1);
+    const contact = formatMillimetres(inputs.contactSeparation, 0);
+    setSliderOutput('radius_percent', `${sliderNumber('radius_percent')} % · ${radius} mm`, `${sliderNumber('radius_percent')} percent, ${radius} millimeters`);
+    setSliderOutput('separation_percent', `${sliderNumber('separation_percent')} % · ${separation} mm`,
+      `${sliderNumber('separation_percent')} percent, ${separation} millimeters`);
+    setSliderOutput('offset_mm', `${sliderNumber('offset_mm')} mm`, `${sliderNumber('offset_mm')} millimeters behind the axle`);
+    setSliderOutput('contact_percent', `${sliderNumber('contact_percent')} % · ${contact} mm apart`,
+      `${sliderNumber('contact_percent')} percent, ${contact} millimeters apart`);
+    setSliderOutput('tracking_percent', `${sliderNumber('tracking_percent')} %`, `${sliderNumber('tracking_percent')} percent of the commanded speed`);
     // The axle's entry keeps its place while unused, so the legend keeps its lines
     for (const entry of findAll('.ix-legend [data-view="axle"]')) {
       entry.hidden = false;
@@ -345,18 +353,18 @@ function mount(root) {
     }
   }
 
-  function update() {
+  function recomputeAndRenderDrive() {
     drive = computeDrive();
     renderSliderValues(drive.inputs);
     renderMotionTable(drive);
     renderCheckTable(drive);
     renderSummary(drive);
-    draw();
+    renderDriveAtCurrentTime();
   }
 
   // Screen readers hear the result once a change is complete, not while a slider moves, and only
   // while the results show
-  function announce() {
+  function scheduleSummaryAnnouncement() {
     clearTimeout(announceTimer);
     announceTimer = setTimeout(() => {
       if (reachedEnd) find('.ix-announce').textContent = find('.ix-summary').textContent;
@@ -366,9 +374,9 @@ function mount(root) {
   // --- Controls ------------------------------------------------------------------------------
   // The figure shows one drive: the robot, the command and the values that the controls hold, at
   // the time of the play bar. Only Play, the time slider and an example's opening move the time.
-  const defaults = () => Object.fromEntries(Object.entries(sliders).map(([name, input]) => [name, input.defaultValue]));
+  const defaultSliderValues = () => Object.fromEntries(Object.entries(sliders).map(([name, input]) => [name, input.defaultValue]));
   function resetSliders() {
-    for (const [name, value] of Object.entries(defaults())) sliders[name].value = value;
+    for (const [name, value] of Object.entries(defaultSliderValues())) sliders[name].value = value;
   }
   function selectCommand(command) {
     state.command = command;
@@ -383,16 +391,16 @@ function mount(root) {
     animationRequest = null;
     find('.ix-play').textContent = 'Play';
   }
-  // The time is a share of the drive: 0 at the start, 1 at the end
-  function setTime(time) {
-    state.time = time;
-    scrub.value = Math.round(time * Number(scrub.max));
+  // The playback fraction is the share of the drive that has played: 0 at the start, 1 at the end
+  function setPlaybackFraction(fraction) {
+    state.playbackFraction = fraction;
+    scrub.value = Math.round(fraction * Number(scrub.max));
   }
   /** The example's own values: the example robot's, with the example's one value changed. */
-  const exampleValues = () => ({ ...defaults(), ...data.examples[state.step].settings });
+  const exampleSliderValues = () => ({ ...defaultSliderValues(), ...data.examples[state.step].settings });
   /** The controls hold the current example's own values, on either drive. */
-  function isExampleDrive() {
-    const own = exampleValues();
+  function matchesExampleSettings() {
+    const own = exampleSliderValues();
     return state.robot === data.default.robot
       && Object.entries(sliders).every(([name, input]) => Number(input.value) === Number(own[name]));
   }
@@ -403,11 +411,11 @@ function mount(root) {
     line.textContent = '';
     line.hidden = own;
     if (own) return;
-    const values = exampleValues(), robots = data.robots;
-    const lowerFirst = (text) => text.charAt(0).toLowerCase() + text.slice(1);
+    const values = exampleSliderValues(), robots = data.robots;
+    const lowercaseFirstLetter = (text) => text.charAt(0).toLowerCase() + text.slice(1);
     const changes = Object.entries(sliders).filter(([name, input]) => Number(input.value) !== Number(values[name]))
       .map(([name, input]) => {
-        const label = lowerFirst(input.closest('.ix-control').querySelector('label').textContent);
+        const label = lowercaseFirstLetter(input.closest('.ix-control').querySelector('label').textContent);
         return `${label} ${input.value} ${input.dataset.unit} (the example: ${values[name]} ${input.dataset.unit})`;
       });
     if (state.robot !== data.default.robot) {
@@ -426,10 +434,10 @@ function mount(root) {
   // Returns what has just appeared: 'answer', 'results' or null.
   function showResults() {
     const key = questionKey();
-    const resultsAppear = !reachedEnd && state.time >= 1;
+    const resultsAppear = !reachedEnd && state.playbackFraction >= 1;
     if (resultsAppear) reachedEnd = true;
-    const own = isExampleDrive();
-    const answerAppears = own && state.time >= 1 && !answered.has(key);
+    const own = matchesExampleSettings();
+    const answerAppears = own && state.playbackFraction >= 1 && !answered.has(key);
     if (answerAppears) answered.add(key);
     const showAnswer = own && answered.has(key);
     find('.ix-shown-answer').classList.toggle('ix-off', !showAnswer);
@@ -447,37 +455,37 @@ function mount(root) {
   }
   // Screen readers hear what has just appeared at the drive's end: the answer replaces a summary
   // that waits to be heard
-  function announceAppeared(appeared) {
+  function announceNewResult(appeared) {
     if (appeared === 'answer') {
       clearTimeout(announceTimer);
       find('.ix-announce').textContent = find('.ix-shown-answer').textContent;
     }
-    if (appeared === 'results') announce();
+    if (appeared === 'results') scheduleSummaryAnnouncement();
   }
   function startPlaying() {
-    if (state.time >= 1) setTime(0);
-    lastTickTime = performance.now();
+    if (state.playbackFraction >= 1) setPlaybackFraction(0);
+    lastFrameTimestamp = performance.now();
     find('.ix-play').textContent = 'Pause';
-    const tick = (timestamp) => {
+    const advancePlaybackFrame = (timestamp) => {
       // Model time: the drive's own seconds, whatever the drawing rate is
-      const duration = data.commands[state.command].duration * MILLISECONDS_PER_SECOND;
-      setTime(Math.min(1, state.time + (timestamp - lastTickTime) / duration));
-      lastTickTime = timestamp;
-      draw();
-      if (state.time < 1) { animationRequest = requestAnimationFrame(tick); return; }
+      const durationMs = data.commands[state.command].duration * MILLISECONDS_PER_SECOND;
+      setPlaybackFraction(Math.min(1, state.playbackFraction + (timestamp - lastFrameTimestamp) / durationMs));
+      lastFrameTimestamp = timestamp;
+      renderDriveAtCurrentTime();
+      if (state.playbackFraction < 1) { animationRequest = requestAnimationFrame(advancePlaybackFrame); return; }
       stopPlaying();
-      announceAppeared(showResults());
+      announceNewResult(showResults());
     };
-    animationRequest = requestAnimationFrame(tick);
+    animationRequest = requestAnimationFrame(advancePlaybackFrame);
   }
   // With reduced motion, Play shows the drive's end at once. At the end already, as an example
   // that was played opens, Play shows the start instead, and the next Play the end again
   function play() {
-    if (reducedMotion()) {
+    if (prefersReducedMotion()) {
       stopPlaying();
-      setTime(state.time >= 1 ? 0 : 1);
-      draw();
-      announceAppeared(showResults());
+      setPlaybackFraction(state.playbackFraction >= 1 ? 0 : 1);
+      renderDriveAtCurrentTime();
+      announceNewResult(showResults());
       return;
     }
     startPlaying();
@@ -487,34 +495,41 @@ function mount(root) {
     play();
   });
   scrub.addEventListener('input', () => {
-    stopPlaying(); state.time = Number(scrub.value) / Number(scrub.max); draw(); announceAppeared(showResults());
+    stopPlaying();
+    setPlaybackFraction(Number(scrub.value) / Number(scrub.max));
+    renderDriveAtCurrentTime();
+    announceNewResult(showResults());
   });
   // A hidden tab or a closed block draws nothing: stop instead of jumping ahead later
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlaying(); });
 
   // A changed value, robot or command redraws the drive at the same time
-  function redraw() {
-    update();
+  function refreshAfterControlChange() {
+    recomputeAndRenderDrive();
     showResults();
   }
   // A double click, or on a touch screen a double tap, sets one slider back to the robot's value.
   // A tap is a short touch that hardly moves: two quick drags are no double tap, and any other
   // press in between starts over. Mice and pens use the browser's double click only.
   let press = null, lastTap = null, lastTouchReset = -Infinity;
-  const isTouch = (event) => event.pointerType === 'touch' && event.isPrimary;
+  const isPrimaryTouch = (event) => event.pointerType === 'touch' && event.isPrimary;
   document.addEventListener('pointerdown', (event) => {
     if (lastTap && event.target !== lastTap.input) lastTap = null;
   }, true);
   for (const [name, input] of Object.entries(sliders)) {
-    const resetOne = () => { input.value = defaults()[name]; redraw(); announce(); };
-    input.addEventListener('input', redraw);
-    input.addEventListener('change', announce);
+    const resetSliderToDefault = () => {
+      input.value = defaultSliderValues()[name];
+      refreshAfterControlChange();
+      scheduleSummaryAnnouncement();
+    };
+    input.addEventListener('input', refreshAfterControlChange);
+    input.addEventListener('change', scheduleSummaryAnnouncement);
     // A browser that sends a double click after a double tap too resets the slider once
     input.addEventListener('dblclick', (event) => {
-      if (event.timeStamp - lastTouchReset > DOUBLE_TAP_MS) resetOne();
+      if (event.timeStamp - lastTouchReset > DOUBLE_TAP_MS) resetSliderToDefault();
     });
     input.addEventListener('pointerdown', (event) => {
-      press = isTouch(event)
+      press = isPrimaryTouch(event)
         ? { input, id: event.pointerId, x: event.clientX, y: event.clientY, time: event.timeStamp, moved: false } : null;
       if (!press) lastTap = null;
     });
@@ -525,17 +540,17 @@ function mount(root) {
     input.addEventListener('pointerup', (event) => {
       const short = press && event.timeStamp - press.time < TAP_MAX_MS
         && Math.hypot(event.clientX - press.x, event.clientY - press.y) <= TAP_SLOP_PX;
-      const tap = short && press.input === input && press.id === event.pointerId && !press.moved && isTouch(event)
+      const tap = short && press.input === input && press.id === event.pointerId && !press.moved && isPrimaryTouch(event)
         ? { input, x: event.clientX, y: event.clientY, time: event.timeStamp } : null;
       press = null;
       const second = Boolean(tap && lastTap && lastTap.input === input && tap.time - lastTap.time < DOUBLE_TAP_MS
         && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) < DOUBLE_TAP_DISTANCE_PX);
       lastTap = second ? null : tap;
-      if (second) { lastTouchReset = event.timeStamp; resetOne(); }
+      if (second) { lastTouchReset = event.timeStamp; resetSliderToDefault(); }
     });
   }
   find('.ix-robot-select').addEventListener('change', (event) => {
-    selectRobot(event.target.value); resetSliders(); redraw(); announce();
+    selectRobot(event.target.value); resetSliders(); refreshAfterControlChange(); scheduleSummaryAnnouncement();
   });
   // The other drive is the example's other question: it starts at its drive's start, or at its
   // end once answered. The values stay as they are.
@@ -545,16 +560,16 @@ function mount(root) {
       if (button.dataset.command === state.command) return;
       stopPlaying();
       selectCommand(button.dataset.command);
-      showQuestion();
+      renderQuestionAndAnswer();
       reachedEnd = false;
-      setTime(answered.has(questionKey()) ? 1 : 0);
-      redraw();
+      setPlaybackFraction(answered.has(questionKey()) ? 1 : 0);
+      refreshAfterControlChange();
       announceQuestion();
     });
   }
   // Reset: next to the examples and in the block of values
   for (const button of findAll('.ix-reset')) {
-    button.addEventListener('click', () => { resetSliders(); redraw(); announce(); });
+    button.addEventListener('click', () => { resetSliders(); refreshAfterControlChange(); scheduleSummaryAnnouncement(); });
   }
 
   // Enlarge: the figure over the whole window in a modal dialog, with the drawing and the values
@@ -619,7 +634,7 @@ function mount(root) {
   // The examples' questions share one place above the drawing, as high as the longest of them,
   // so the drawing stays where it is from one example to the next.
   // The current example's question and answer for the current drive
-  function showQuestion() {
+  function renderQuestionAndAnswer() {
     const item = find('.ix-current');
     for (const question of item.querySelectorAll('.ix-question')) {
       question.classList.toggle('ix-drive', question.dataset.drive === state.command);
@@ -627,7 +642,7 @@ function mount(root) {
     const answer = item.querySelector(`.ix-answer[data-drive="${state.command}"]`);
     find('.ix-shown-answer').innerHTML = `<b>What happens:</b> ${answer.innerHTML}`;
   }
-  function showStep(index, command = data.examples[index].command, time) {
+  function openExample(index, command = data.examples[index].command, playbackFraction) {
     state.step = index;
     const example = data.examples[index];
     for (const item of findAll('[data-example-item]')) {
@@ -643,22 +658,22 @@ function mount(root) {
     resetSliders();
     for (const [name, value] of Object.entries(example.settings)) sliders[name].value = value;
     selectCommand(command);
-    showQuestion();
+    renderQuestionAndAnswer();
     reachedEnd = false;
-    setTime(time ?? (answered.has(questionKey()) ? 1 : 0));
-    update();
+    setPlaybackFraction(playbackFraction ?? (answered.has(questionKey()) ? 1 : 0));
+    recomputeAndRenderDrive();
     showResults();
   }
   for (const button of findAll('[data-example]')) {
     button.addEventListener('click', () => {
       // A summary that waits to be heard belongs to the values before the replay
       clearTimeout(announceTimer);
-      showStep(state.step, state.command, 0);
-      if (reducedMotion()) {
+      openExample(state.step, state.command, 0);
+      if (prefersReducedMotion()) {
         // The answer shows at once and takes the keyboard's place: screen readers read it there
         stopPlaying();
-        setTime(1);
-        draw();
+        setPlaybackFraction(1);
+        renderDriveAtCurrentTime();
         showResults();
         find('.ix-shown-answer').focus();
         return;
@@ -677,26 +692,26 @@ function mount(root) {
   }
   // At the first and the last example, the button just pressed is disabled: the keyboard's place
   // moves to the other one
-  function stepTo(index, pressed, other) {
-    showStep(index);
+  function navigateToExample(index, pressed, other) {
+    openExample(index);
     announceQuestion();
     if (pressed.disabled && document.activeElement !== other) other.focus();
   }
   const previousButton = find('.ix-previous'), nextButton = find('.ix-next');
-  previousButton.addEventListener('click', () => stepTo(state.step - 1, previousButton, nextButton));
-  nextButton.addEventListener('click', () => stepTo(state.step + 1, nextButton, previousButton));
+  previousButton.addEventListener('click', () => navigateToExample(state.step - 1, previousButton, nextButton));
+  nextButton.addEventListener('click', () => navigateToExample(state.step + 1, nextButton, previousButton));
 
-  new ResizeObserver(() => { if (drive) draw(); }).observe(plot);
+  new ResizeObserver(() => { if (drive) renderDriveAtCurrentTime(); }).observe(plot);
 
   // First drawing: the first example's question and its own drive at the start. Only when it has
   // succeeded does the figure switch from the static version to the controls.
   for (const element of findAll('[data-live]')) element.hidden = false;
-  showStep(0);
+  openExample(0);
   root.classList.add('ix-is-live');
 }
 
 // Back to the static version: the drawing and the answers that the page came with
-function showStatic(root) {
+function restoreStaticFigure(root) {
   root.classList.remove('ix-is-live');
   for (const element of root.querySelectorAll('[data-live]')) element.hidden = true;
   for (const answer of root.querySelectorAll('.ix-answer:not([data-live])')) answer.hidden = false;
@@ -704,16 +719,16 @@ function showStatic(root) {
   for (const drawing of root.querySelectorAll('.ix-live-plot')) drawing.remove();
 }
 
-function mountAll() {
+function mountMotionLabs() {
   for (const root of document.querySelectorAll('[data-ix="motion-lab"]:not(.ix-is-live)')) {
     try {
-      mount(root);
+      mountMotionLab(root);
     } catch (error) {
-      showStatic(root);
+      restoreStaticFigure(root);
       console.error('The interactive figure could not start:', error);
     }
   }
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountAll);
-else mountAll();
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountMotionLabs);
+else mountMotionLabs();

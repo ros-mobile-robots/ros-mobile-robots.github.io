@@ -983,11 +983,11 @@ class TestDiffDriveModule(SimulationTestPageCase):
     SPEED = 1.0
     DURATION = 1.0
 
-    def within(self, value: float) -> bool:
+    def passes_in_page(self, value: float) -> bool:
         """Return whether a value is within the tolerance, with the script's rounding allowance."""
         page = self.open_simulation_test_page().page
-        result: bool = call_model(page, 'within', value, self.EXPECTED, self.TOLERANCE,
-                                  figures.ROUNDING_ALLOWANCE)
+        result: bool = call_model(page, 'withinCheckTolerance', value, self.EXPECTED,
+                                  self.TOLERANCE, figures.ROUNDING_ALLOWANCE)
         return result
 
     def pose_after(self, angular_velocity: float) -> Dict[str, float]:
@@ -998,13 +998,13 @@ class TestDiffDriveModule(SimulationTestPageCase):
         return pose
 
     def test_a_value_on_the_tolerance_boundary_passes(self) -> None:
-        self.assertIs(self.within(self.BOUNDARY), True)
+        self.assertIs(self.passes_in_page(self.BOUNDARY), True)
 
     def test_a_value_beyond_the_boundary_by_less_than_the_allowance_passes(self) -> None:
-        self.assertIs(self.within(self.BOUNDARY + figures.ROUNDING_ALLOWANCE / 2), True)
+        self.assertIs(self.passes_in_page(self.BOUNDARY + figures.ROUNDING_ALLOWANCE / 2), True)
 
     def test_a_value_beyond_the_boundary_by_more_than_the_allowance_fails(self) -> None:
-        self.assertIs(self.within(self.BOUNDARY + 2 * figures.ROUNDING_ALLOWANCE), False)
+        self.assertIs(self.passes_in_page(self.BOUNDARY + 2 * figures.ROUNDING_ALLOWANCE), False)
 
     def test_an_angular_velocity_below_the_straight_limit_drives_straight(self) -> None:
         pose = self.pose_after(figures.STRAIGHT_ANGULAR_VELOCITY / 2)
