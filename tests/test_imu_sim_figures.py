@@ -6,6 +6,7 @@ the pages' includes.
 Run from the repository root: python -m unittest discover -s tests
 """
 
+from html.parser import HTMLParser
 import math
 import os
 from pathlib import Path
@@ -16,6 +17,7 @@ import tempfile
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Protocol
 from typing import Sequence
 from typing import Tuple
@@ -50,6 +52,95 @@ def run_with_an_ascii_locale(script_name: str) -> Dict[str, bytes]:
         if run.returncode != 0:
             raise RuntimeError(f'{script_name} failed: {run.stderr.strip()}')
         return {include.name: include.read_bytes() for include in includes.iterdir()}
+
+
+class RadioInput(NamedTuple):
+    """A radio input of a tab set: its ID, its group and whether it is selected."""
+
+    element_id: str
+    group: str
+    checked: bool
+
+
+class TabLabel(NamedTuple):
+    """A label of a tab set: the ID of the input that it switches, and its text."""
+
+    target_id: str
+    text: str
+
+
+class ExpectedTab(NamedTuple):
+    """What a tab has to show: its label and the title IDs of the drawings in its block."""
+
+    label: str
+    drawing_title_ids: List[str]
+
+
+class TabSetParser(HTMLParser):
+    """Collect the radio inputs, the labels and the drawings per block of an include's tab set."""
+
+    def __init__(self) -> None:
+        """Initialize the parser with nothing collected."""
+        super().__init__(convert_charrefs=True)
+        self.radio_inputs: List[RadioInput] = []
+        self.labels: List[TabLabel] = []
+        self.title_ids_by_block: List[List[str]] = []
+        self.division_depth = 0
+        self.block_depth: Optional[int] = None
+        self.label_target: Optional[str] = None
+
+    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
+        """Record an input, a label, a block or a drawing's title."""
+        attributes = dict(attrs)
+        if tag == 'input' and attributes.get('type') == 'radio':
+            self.radio_inputs.append(RadioInput(attributes.get('id') or '',
+                                                attributes.get('name') or '',
+                                                'checked' in attributes))
+        elif tag == 'label':
+            self.label_target = attributes.get('for') or ''
+        elif tag == 'div':
+            self.division_depth += 1
+            if 'tabbed-block' in (attributes.get('class') or '').split():
+                self.block_depth = self.division_depth
+                self.title_ids_by_block.append([])
+        elif tag == 'title' and self.block_depth is not None:
+            self.title_ids_by_block[-1].append(attributes.get('id') or '')
+
+    def handle_data(self, data: str) -> None:
+        """Record the text of the label that is open."""
+        if self.label_target is not None:
+            self.labels.append(TabLabel(self.label_target, data))
+
+    def handle_endtag(self, tag: str) -> None:
+        """Close a label, or a block when its own div ends."""
+        if tag == 'label':
+            self.label_target = None
+        elif tag == 'div':
+            if self.division_depth == self.block_depth:
+                self.block_depth = None
+            self.division_depth -= 1
+
+
+def assert_figure_tabs(test: unittest.TestCase, include_name: str,
+                       expected_tabs: Sequence[ExpectedTab]) -> None:
+    """Assert that an include's tabs switch, select the first tab and show their drawings.
+
+    Each label has to switch a radio input of its own in one group, in the labels' order, only
+    the first input may be selected, and the block at each label's position has to hold exactly
+    the expected drawings.
+    """
+    parser = TabSetParser()
+    parser.feed((ROOT / 'includes' / include_name).read_text(encoding='utf-8'))
+    radio_ids = [radio.element_id for radio in parser.radio_inputs]
+    test.assertEqual(len(radio_ids), len(expected_tabs), include_name)
+    test.assertEqual(len(set(radio_ids)), len(radio_ids), radio_ids)
+    test.assertEqual(len({radio.group for radio in parser.radio_inputs}), 1, include_name)
+    test.assertEqual([radio.checked for radio in parser.radio_inputs],
+                     [True] + [False] * (len(expected_tabs) - 1), include_name)
+    test.assertEqual([label.target_id for label in parser.labels], radio_ids)
+    test.assertEqual([label.text for label in parser.labels],
+                     [tab.label for tab in expected_tabs])
+    test.assertEqual(parser.title_ids_by_block, [tab.drawing_title_ids for tab in expected_tabs])
 
 
 class TestIncludes(unittest.TestCase):
@@ -122,15 +213,55 @@ class TestFrameAxes(unittest.TestCase):
             for direction in imu_sim_robot_figures.IMU_AXES]
         self.assertEqual(along_the_line_of_sight, [False, False, True])
 
-    def test_draw_frame_adds_a_ring_for_the_axis_toward_the_viewer(self) -> None:
-        view = imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN)
+    def frame_drawn(self, view: imu_sim_robot_figures.View) -> ElementTree.Element:
+        """Return the SVG of chassis_link's three axes at the frame's origin, seen in a view."""
         drawing = imu_sim_robot_figures.Figure('frame', self.DRAWING_WIDTH, self.DRAWING_HEIGHT,
                                                'title', 'description')
         imu_sim_robot_figures.draw_frame(drawing, view, self.FRAME_ORIGIN,
                                          imu_sim_robot_figures.CHASSIS_AXES, self.AXIS_LENGTH)
-        rings = [element for element in drawing.elements if 'class="ring ' in element]
-        self.assertEqual(len(rings), 1, rings)
-        self.assertIn('class="ring z"', rings[0])
+        return svg_root(drawing)
+
+    def test_draw_frame_rings_the_upward_axis_at_the_frames_origin_from_above(self) -> None:
+        frame = self.frame_drawn(imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN))
+        rings = elements_with_class(frame, 'circle', 'ring')
+        self.assertEqual([ring.attrib['class'] for ring in rings], ['ring z'])
+        self.assertEqual(circle_center(rings[0]), self.ORIGIN)
+
+    def test_draw_frame_puts_a_dot_in_the_ring_of_an_axis_toward_the_viewer(self) -> None:
+        frame = self.frame_drawn(imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN))
+        dots = elements_with_class(frame, 'circle', 'head')
+        self.assertEqual([dot.attrib['class'] for dot in dots], ['head z'])
+        self.assertEqual(circle_center(dots[0]), self.ORIGIN)
+        self.assertEqual(elements_with_class(frame, 'polyline', 'thin'), [])
+
+    def test_draw_frame_draws_the_axes_along_the_drawing_as_shafts_from_the_origin(self) -> None:
+        frame = self.frame_drawn(imu_sim_robot_figures.view_from_above(self.SCALE, self.ORIGIN))
+        shafts = {shaft.attrib['class']: polyline_points(shaft)
+                  for shaft in elements_with_class(frame, 'polyline', 'shaft')}
+        self.assertEqual(sorted(shafts), ['shaft x', 'shaft y'])
+        # From above, x points forward, up on the drawing, and y to the left
+        self.assertEqual(shafts['shaft x'][0], self.ORIGIN)
+        self.assertEqual(shafts['shaft x'][-1].x, self.ORIGIN.x)
+        self.assertLess(shafts['shaft x'][-1].y, self.ORIGIN.y)
+        self.assertEqual(shafts['shaft y'][0], self.ORIGIN)
+        self.assertEqual(shafts['shaft y'][-1].y, self.ORIGIN.y)
+        self.assertLess(shafts['shaft y'][-1].x, self.ORIGIN.x)
+
+    def test_draw_frame_puts_a_cross_in_the_ring_of_an_axis_away_from_the_viewer(self) -> None:
+        # From the right side, chassis_link's y axis points to the left, away from the viewer
+        frame = self.frame_drawn(
+            imu_sim_robot_figures.view_from_the_side(self.SCALE, self.ORIGIN))
+        rings = elements_with_class(frame, 'circle', 'ring')
+        self.assertEqual([ring.attrib['class'] for ring in rings], ['ring y'])
+        self.assertEqual(circle_center(rings[0]), self.ORIGIN)
+        self.assertEqual(elements_with_class(frame, 'circle', 'head'), [])
+        strokes = [polyline_points(stroke)
+                   for stroke in elements_with_class(frame, 'polyline', 'thin')]
+        self.assertEqual(len(strokes), 2, strokes)
+        for first_end, second_end in strokes:
+            middle = board_drawings.Point((first_end.x + second_end.x) / 2,
+                                          (first_end.y + second_end.y) / 2)
+            self.assertEqual(middle, self.ORIGIN)
 
 
 class TestTextsFromValues(unittest.TestCase):
@@ -145,10 +276,12 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertEqual(imu_sim_robot_figures.format_degrees(math.pi), '180°')
 
     def test_message_values_in_a_sentence_are_along_imu_links_axes(self) -> None:
-        # On Remo, imu_link's y axis points forward: a reading forward is the message's y
-        forward_and_up = imu_sim_robot_figures.Vector3(0.5, 0.0, 9.8)
-        self.assertEqual(imu_sim_robot_figures.message_values_in_a_sentence(forward_and_up),
-                         '0, +0.5 and +9.8')
+        # On Remo, imu_link's y axis points forward and its x axis to the right. So a reading
+        # forward is the message's y, and a reading to the left is a negative x
+        forward_left_and_up = imu_sim_robot_figures.Vector3(0.5, 0.2, 9.8)
+        self.assertEqual(
+            imu_sim_robot_figures.message_values_in_a_sentence(forward_left_and_up),
+            '-0.2, +0.5 and +9.8')
 
     def test_frames_from_above_figure_names_the_distances_of_another_imu_position(self) -> None:
         # In m, in chassis_link's axes
@@ -255,10 +388,21 @@ def vertical_path_positions(path: ElementTree.Element) -> List[float]:
     return [float(after_move or after_vertical) for after_move, after_vertical in positions]
 
 
-def sample_markers(drawing: imu_sim_test_figures.Figure) -> List[Tuple[float, float]]:
-    """Return the positions of the dots that a reset panel draws on the IMU's samples."""
-    return [(float(x), float(y)) for x, y in re.findall(
-        r'<circle class="imu-dot" cx="([0-9.]+)" cy="([0-9.]+)"', drawing.svg())]
+def circle_center(circle: ElementTree.Element) -> board_drawings.Point:
+    """Return the center of a circle element."""
+    return board_drawings.Point(attribute_number(circle, 'cx'), attribute_number(circle, 'cy'))
+
+
+def polyline_points(polyline: ElementTree.Element) -> List[board_drawings.Point]:
+    """Return the points of a polyline element."""
+    return [board_drawings.Point(*(float(number) for number in pair.split(',')))
+            for pair in polyline.attrib['points'].split()]
+
+
+def sample_markers(drawing: imu_sim_test_figures.Figure) -> List[board_drawings.Point]:
+    """Return the centers of the dots that a reset panel draws on the IMU's samples."""
+    return [circle_center(circle)
+            for circle in elements_with_class(svg_root(drawing), 'circle', 'imu-dot')]
 
 
 class TestDriveTimelineScales(unittest.TestCase):
@@ -361,94 +505,218 @@ class TestDriveTimelineScales(unittest.TestCase):
 
 
 class TestResetPanels(unittest.TestCase):
-    """The reset panels keep their marks inside the plot, also for another reset time."""
+    """The reset panels mark their samples and number their axis, also for another reset time.
 
-    OTHER_RUN_BEFORE_RESET = 4.0  # s, later than the test's 3 s
+    The plot lies between x = 34 and 292 and between y = 190, at stamp 0, and 60. The expected
+    positions below are worked out from these edges, not with the script's scales.
+    """
 
-    def assert_inside_the_plot(self, position: Tuple[float, float]) -> None:
-        x, y = position
-        self.assertGreaterEqual(x, imu_sim_test_figures.RESET_PLOT_LEFT)
-        self.assertLessEqual(x, imu_sim_test_figures.RESET_PLOT_RIGHT)
-        self.assertGreaterEqual(y, imu_sim_test_figures.RESET_PLOT_TOP)
-        self.assertLessEqual(y, imu_sim_test_figures.RESET_PLOT_BOTTOM)
+    LATER_RESET = 4.0  # s, a second later than the test's reset
+    # With a reset at 4 s, the panels follow the simulation for 4.8 s more: 8.8 s on the
+    # horizontal axis and stamps up to 4.8 s on the vertical one. A plugin that keeps the old
+    # time publishes again after 8.02 s, with the stamp 4.02 s
+    NEXT_SAMPLE_WITH_THE_OLD_TIME = board_drawings.Point(269.1, 81.1)
+    # The numbers 0, 4 and 8 below that axis
+    RUN_AXIS_NUMBERS_FOR_THE_LATER_RESET = [('0', 34.0), ('4', 151.3), ('8', 268.5)]
+    RUN_AXIS_NUMBERS_Y = 204.0  # 14 below the axis at y = 190
+    # With the test's reset at 3 s, the axes show 6.6 s and stamps up to 3.6 s. The tenth sample
+    # of the copy arrives 3.2 s after the start, with the stamp 0.2 s
+    PASSING_SAMPLE_WITH_THE_COPY = board_drawings.Point(159.1, 182.8)
 
-    def test_old_time_panel_marks_the_next_sample_inside_the_plot_for_a_later_reset(self) -> None:
-        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET',
-                               self.OTHER_RUN_BEFORE_RESET):
+    def assert_inside_the_plot(self, position: board_drawings.Point) -> None:
+        """Assert that the point lies within all four plot edges."""
+        self.assertGreaterEqual(position.x, imu_sim_test_figures.RESET_PLOT_LEFT)
+        self.assertLessEqual(position.x, imu_sim_test_figures.RESET_PLOT_RIGHT)
+        self.assertGreaterEqual(position.y, imu_sim_test_figures.RESET_PLOT_TOP)
+        self.assertLessEqual(position.y, imu_sim_test_figures.RESET_PLOT_BOTTOM)
+
+    def test_old_time_panel_marks_only_the_next_sample_for_a_later_reset(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', self.LATER_RESET):
             markers = sample_markers(imu_sim_test_figures.reset_with_the_old_time_figure())
-        self.assertEqual(len(markers), 1, markers)
+        self.assertEqual(markers, [self.NEXT_SAMPLE_WITH_THE_OLD_TIME])
         self.assert_inside_the_plot(markers[0])
 
-    def test_run_axis_numbers_no_time_beyond_the_plot_for_a_later_reset(self) -> None:
-        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET',
-                               self.OTHER_RUN_BEFORE_RESET):
-            run = imu_sim_test_figures.reset_run_scale()
-            last_tick = imu_sim_test_figures.run_axis_ticks()[-1]
-            first_sample_with_the_old_time = (
-                2 * self.OTHER_RUN_BEFORE_RESET + imu_sim_test_figures.IMU_PERIOD)
-        self.assertEqual(last_tick, 2 * self.OTHER_RUN_BEFORE_RESET)
-        self.assertLessEqual(run.position(last_tick), imu_sim_test_figures.RESET_PLOT_RIGHT)
-        self.assertLess(first_sample_with_the_old_time, run.last_value)
+    def test_run_axis_numbers_the_start_the_reset_and_twice_it_for_a_later_reset(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', self.LATER_RESET):
+            drawing = imu_sim_test_figures.reset_with_the_old_time_figure()
+        numbers = [(text.text, attribute_number(text, 'x'))
+                   for text in svg_root(drawing).iter('text')
+                   if attribute_number(text, 'y') == self.RUN_AXIS_NUMBERS_Y]
+        self.assertEqual(numbers, self.RUN_AXIS_NUMBERS_FOR_THE_LATER_RESET)
+        self.assertLessEqual(numbers[-1][1], imu_sim_test_figures.RESET_PLOT_RIGHT)
 
-    def test_copy_panel_marks_the_sample_with_which_the_test_passes(self) -> None:
+    def test_copy_panel_marks_only_the_sample_with_which_the_test_passes(self) -> None:
         markers = sample_markers(imu_sim_test_figures.reset_with_the_copy_figure())
-        passing_stamp = (imu_sim_test_figures.FRESH_SAMPLE_COUNT
-                         * imu_sim_test_figures.IMU_PERIOD)  # s after the reset
-        expected = (
-            imu_sim_test_figures.reset_run_scale().position(
-                imu_sim_test_figures.RUN_BEFORE_RESET + passing_stamp),
-            imu_sim_test_figures.reset_stamp_scale().position(passing_stamp))
-        self.assertEqual(markers, [expected])
+        self.assertEqual(markers, [self.PASSING_SAMPLE_WITH_THE_COPY])
 
 
 class TestThreadDrawings(unittest.TestCase):
     """The two thread drawings stand in tabs at one place, so what they share must not move."""
 
-    def test_both_drawings_have_the_same_size(self) -> None:
-        original = imu_sim_figures.threads_with_the_original_figure()
-        copy = imu_sim_figures.threads_with_the_copy_figure()
-        self.assertEqual(original.height, copy.height)
+    VIEW_BOX = [0.0, 0.0, 360.0, 380.0]
+    # The box of the update() that has to take the change: on the physics thread's lane
+    UPDATE_BOX = Edges(left=22.0, top=286.0, right=22.0 + 152.0, bottom=286.0 + 38.0)
 
-    def test_both_drawings_put_the_awaited_update_at_the_same_place(self) -> None:
-        # The box of the update() that has to take the change: its upper left corner
-        box = (f'x="{imu_sim_figures.PHYSICS_LANE.left + 4}" '
-               f'y="{imu_sim_figures.UPDATE_BOX_Y}"')
-        drawings = [imu_sim_figures.threads_with_the_original_figure(),
-                    imu_sim_figures.threads_with_the_copy_figure()]
-        boxes_at_that_place = [drawing.svg().count(f'<rect class="stuck" {box}')
-                               + drawing.svg().count(f'<rect class="callback" {box}')
-                               for drawing in drawings]
-        self.assertEqual(boxes_at_that_place, [1, 1])
+    def boxes_at_the_awaited_update(self, drawing: imu_sim_figures.Figure) -> List[str]:
+        """Return the classes of the rectangles that have exactly the update box's edges."""
+        return [rectangle.attrib['class'] for rectangle in svg_root(drawing).iter('rect')
+                if Edges(left=attribute_number(rectangle, 'x'),
+                         top=attribute_number(rectangle, 'y'),
+                         right=(attribute_number(rectangle, 'x')
+                                + attribute_number(rectangle, 'width')),
+                         bottom=(attribute_number(rectangle, 'y')
+                                 + attribute_number(rectangle, 'height'))) == self.UPDATE_BOX]
 
-    def test_include_has_one_tab_per_drawing_with_the_pages_labels(self) -> None:
-        include = (ROOT / 'includes' / 'imu-sim-threads.html').read_text(encoding='utf-8')
-        labels = re.findall(r'<label for="__tabbed_th_\d">([^<]*)</label>', include)
-        tab_labels = [imu_sim_figures.ORIGINAL_TAB_LABEL, imu_sim_figures.COPY_TAB_LABEL]
-        self.assertEqual(labels, tab_labels)
+    def texts_in_the_awaited_update(self, drawing: imu_sim_figures.Figure) -> List[Optional[str]]:
+        """Return the text lines whose anchor lies inside the update box, from the top.
+
+        The step's number sits on the box's corner, so it is not inside.
+        """
+        box = self.UPDATE_BOX
+        return [text.text for text in svg_root(drawing).iter('text')
+                if 'x' in text.attrib
+                and box.left < attribute_number(text, 'x') < box.right
+                and box.top < attribute_number(text, 'y') < box.bottom]
+
+    def test_both_drawings_have_the_same_view_box(self) -> None:
+        view_boxes = [[float(number) for number in svg_root(drawing).attrib['viewBox'].split()]
+                      for drawing in (imu_sim_figures.threads_with_the_original_figure(),
+                                      imu_sim_figures.threads_with_the_copy_figure())]
+        self.assertEqual(view_boxes, [self.VIEW_BOX, self.VIEW_BOX])
+
+    def test_original_draws_the_awaited_update_as_stuck_at_its_place(self) -> None:
+        drawing = imu_sim_figures.threads_with_the_original_figure()
+        self.assertEqual(self.boxes_at_the_awaited_update(drawing), ['stuck'])
+        self.assertEqual(self.texts_in_the_awaited_update(drawing),
+                         ['update()', 'never runs: its thread waits'])
+
+    def test_copy_draws_the_awaited_update_as_running_at_the_same_place(self) -> None:
+        drawing = imu_sim_figures.threads_with_the_copy_figure()
+        self.assertEqual(self.boxes_at_the_awaited_update(drawing), ['callback'])
+        self.assertEqual(self.texts_in_the_awaited_update(drawing),
+                         ['update()', 'takes the change'])
+
+    def test_every_arrow_points_to_a_marker_of_its_own_drawing(self) -> None:
+        for drawing in (imu_sim_figures.threads_with_the_original_figure(),
+                        imu_sim_figures.threads_with_the_copy_figure()):
+            root = svg_root(drawing)
+            marker_ids = [marker.attrib['id'] for marker in root.iter('marker')]
+            self.assertEqual(marker_ids, [f'{drawing.name}-flow', f'{drawing.name}-request'])
+            arrows = [path.attrib['marker-end'] for path in root.iter('path')
+                      if 'marker-end' in path.attrib]
+            self.assertGreater(len(arrows), 0)
+            for marker_end in arrows:
+                self.assertIn(marker_end, [f'url(#{marker_id})' for marker_id in marker_ids])
+
+    def test_include_has_a_working_tab_per_drawing_under_its_label(self) -> None:
+        assert_figure_tabs(self, 'imu-sim-threads.html', [
+            ExpectedTab(imu_sim_figures.ORIGINAL_TAB_LABEL, ['th-original-title']),
+            ExpectedTab(imu_sim_figures.COPY_TAB_LABEL, ['th-copy-title'])])
+
+    def test_page_has_a_tab_with_each_label_of_the_include(self) -> None:
         page = (ROOT / 'docs' / 'packages' / 'imu' / 'simulation' / 'plugin.md').read_text(
             encoding='utf-8')
         page_tabs = re.findall(r'^=== "([^"]*)"$', page, re.MULTILINE)
-        self.assertEqual(page_tabs, tab_labels)
+        self.assertEqual(page_tabs, [imu_sim_figures.ORIGINAL_TAB_LABEL,
+                                     imu_sim_figures.COPY_TAB_LABEL])
 
 
 class TestFrameTabs(unittest.TestCase):
     """The frames' include has one tab per robot, with the labels of the page's tabs."""
 
-    def test_include_and_page_use_the_same_robot_labels(self) -> None:
-        include = (ROOT / 'includes' / 'imu-sim-frames.html').read_text(encoding='utf-8')
-        labels = re.findall(r'<label for="__tabbed_imuframes_\d">([^<]*)</label>', include)
-        tab_labels = [imu_sim_robot_figures.REMO_TAB_LABEL,
-                      imu_sim_robot_figures.DIFFBOT_TAB_LABEL]
-        self.assertEqual(labels, tab_labels)
+    def test_include_has_a_working_tab_per_robot_under_its_label(self) -> None:
+        assert_figure_tabs(self, 'imu-sim-frames.html', [
+            ExpectedTab(imu_sim_robot_figures.REMO_TAB_LABEL,
+                        ['imu-frames-above-title', 'imu-frames-side-title']),
+            ExpectedTab(imu_sim_robot_figures.DIFFBOT_TAB_LABEL, ['imu-frames-diffbot-title'])])
+
+    def test_page_has_a_tab_with_each_label_of_the_include(self) -> None:
         page = (ROOT / 'docs' / 'packages' / 'imu' / 'simulation'
                 / 'position-and-axes.md').read_text(encoding='utf-8')
         page_tabs = re.findall(r'^=== "([^"]*)"$', page, re.MULTILINE)
-        self.assertEqual(page_tabs, tab_labels)
+        self.assertEqual(page_tabs, [imu_sim_robot_figures.REMO_TAB_LABEL,
+                                     imu_sim_robot_figures.DIFFBOT_TAB_LABEL])
 
-    def test_diffbot_drawing_puts_imu_link_above_chassis_link_by_the_models_height(self) -> None:
+
+class TestDiffbotMounting(unittest.TestCase):
+    """DiffBot's drawing puts imu_link straight above chassis_link, by the model's height."""
+
+    PLACEHOLDER_HEIGHT_M = 0.01  # imu_link above chassis_link in DiffBot's URDF model
+    # The magnified box draws 1 m as 1500 units, four times larger: 0.01 m rises by 60 units
+    EXPECTED_INSET_RISE = 60.0
+    OTHER_HEIGHT_M = 0.015
+    EXPECTED_OTHER_RISE = 90.0
+
+    def joint_in_the_magnified_box(
+            self, drawing: imu_sim_robot_figures.Figure) -> List[board_drawings.Point]:
+        """Return the two ends of the one dashed line that the drawing has for imu_joint."""
+        joints = elements_with_class(svg_root(drawing), 'polyline', 'joint')
+        self.assertEqual(len(joints), 1, joints)
+        return polyline_points(joints[0])
+
+    def test_diffbot_drawing_draws_imu_joint_straight_up_by_the_models_height(self) -> None:
+        self.assertEqual(imu_sim_robot_figures.DIFFBOT_IMU_POSITION.z, self.PLACEHOLDER_HEIGHT_M)
+        chassis, imu = self.joint_in_the_magnified_box(
+            imu_sim_robot_figures.frames_on_diffbot_figure())
+        self.assertEqual(imu.x - chassis.x, 0.0)
+        self.assertAlmostEqual(chassis.y - imu.y, self.EXPECTED_INSET_RISE, places=2)
+
+    def test_diffbot_drawing_draws_imu_joint_as_long_as_another_height(self) -> None:
+        other_position = imu_sim_robot_figures.Vector3(0.0, 0.0, self.OTHER_HEIGHT_M)
+        with mock.patch.object(imu_sim_robot_figures, 'DIFFBOT_IMU_POSITION', other_position):
+            chassis, imu = self.joint_in_the_magnified_box(
+                imu_sim_robot_figures.frames_on_diffbot_figure())
+        self.assertEqual(imu.x - chassis.x, 0.0)
+        self.assertAlmostEqual(chassis.y - imu.y, self.EXPECTED_OTHER_RISE, places=2)
+
+    def test_diffbot_drawing_names_the_models_height(self) -> None:
         drawing = imu_sim_robot_figures.frames_on_diffbot_figure()
         self.assertIn('>1 cm up, not turned</text>', drawing.svg())
+
+    def test_diffbot_description_says_that_the_mounting_is_not_measured(self) -> None:
+        drawing = imu_sim_robot_figures.frames_on_diffbot_figure()
         self.assertIn('It is not measured on the robot.', drawing.description)
+
+
+class TestTurnReading(unittest.TestCase):
+    """In a left turn on the spot, the IMU's acceleration points to the middle of the axle."""
+
+    # Remo's IMU lies 0.0761 m behind the axle and 0.0234 m to its left. At 0.5 rad/s, the
+    # acceleration is 0.25 1/s² times that offset, toward the axle: forward and to the right
+    EXPECTED_ACCELERATION = imu_sim_robot_figures.Vector3(0.019025, -0.00585, 0.0)  # m/s²
+    # imu_link's x axis points to the robot's right and its y axis forward
+    EXPECTED_MESSAGE = '(+0.01, +0.02, +9.8)'
+    # On the drawing, 900 units per m around (108, 142), front at the top: the IMU and the
+    # middle of the axle
+    SENSOR = board_drawings.Point(86.94, 178.09)
+    AXLE_MIDDLE = board_drawings.Point(108.0, 109.6)
+
+    def test_turn_acceleration_points_from_the_imu_to_the_middle_of_the_axle(self) -> None:
+        acceleration = imu_sim_robot_figures.turn_acceleration()
+        for component, expected in zip(acceleration, self.EXPECTED_ACCELERATION):
+            self.assertAlmostEqual(component, expected, places=6)
+
+    def test_centripetal_acceleration_is_the_turn_accelerations_length(self) -> None:
+        self.assertAlmostEqual(imu_sim_robot_figures.centripetal_acceleration(),
+                               math.hypot(self.EXPECTED_ACCELERATION.x,
+                                          self.EXPECTED_ACCELERATION.y), places=6)
+
+    def test_left_turn_reading_points_toward_the_axle_in_remos_imu_axes(self) -> None:
+        root = svg_root(imu_sim_robot_figures.specific_force_in_a_turn_figure())
+        readings = [text.text for text in elements_with_class(root, 'text', 'reading')]
+        self.assertIn(self.EXPECTED_MESSAGE, readings)
+
+    def test_left_turn_draws_the_acceleration_from_the_imu_toward_the_axle(self) -> None:
+        root = svg_root(imu_sim_robot_figures.specific_force_in_a_turn_figure())
+        shafts = [polyline_points(shaft)
+                  for shaft in elements_with_class(root, 'polyline', 'acceleration')]
+        self.assertEqual(len(shafts), 1, shafts)
+        start, end = shafts[0]
+        self.assertEqual(start, self.SENSOR)
+        to_the_axle = math.atan2(self.AXLE_MIDDLE.y - self.SENSOR.y,
+                                 self.AXLE_MIDDLE.x - self.SENSOR.x)
+        self.assertAlmostEqual(math.atan2(end.y - start.y, end.x - start.x), to_the_axle,
+                               places=2)
 
 
 if __name__ == '__main__':
