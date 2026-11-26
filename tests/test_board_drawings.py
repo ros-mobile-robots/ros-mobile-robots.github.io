@@ -85,12 +85,13 @@ class TestSvgElement(unittest.TestCase):
 
 
 class TestSvgElementWithADescription(unittest.TestCase):
-    """svg_element() adds a description to the accessible name and takes the drawing's markers."""
+    """svg_element() describes the SVG with its description and takes the drawing's markers."""
 
-    def test_svg_element_names_its_title_and_its_description(self) -> None:
+    def test_svg_element_is_named_by_its_title_and_described_by_its_description(self) -> None:
         svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A & B', [],
                                          description='C < D')
-        self.assertIn('aria-labelledby="some-layout-title some-layout-description">'
+        self.assertIn('aria-labelledby="some-layout-title" '
+                      'aria-describedby="some-layout-description">'
                       '<title id="some-layout-title">A &amp; B</title>'
                       '<desc id="some-layout-description">C &lt; D</desc><defs>', svg)
 

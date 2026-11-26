@@ -75,21 +75,23 @@ def svg_element(name: str, css_classes: str, size: Tuple[float, float], title: s
     """Return an SVG element of size (width, height) with the elements, named title.
 
     name starts the element's IDs: name-title for its accessible name and, with a description,
-    name-description for the text that a screen reader reads after the name. markers are the
+    name-description for its accessible description, the longer text that a screen reader offers
+    after the name. markers are the
     marker elements that the drawing's lines point to. Without them, the element has one
     arrowhead marker, name-head. An empty sequence gives an element without markers.
     """
     width, height = size
-    labelled_by = f'{name}-title'
+    described_by = ''
     described = ''
     if description is not None:
-        labelled_by += f' {name}-description'
+        described_by = f' aria-describedby="{name}-description"'
         described = f'<desc id="{name}-description">{escape(description)}</desc>'
     if markers is None:
         markers = (arrowhead_marker(f'{name}-head'),)
     definitions = f'<defs>{"".join(markers)}</defs>' if markers else ''
     return (f'<svg class="{css_classes}" viewBox="0 0 {width:g} {height:g}" role="img" '
-            f'aria-labelledby="{labelled_by}"><title id="{name}-title">{escape(title)}</title>'
+            f'aria-labelledby="{name}-title"{described_by}>'
+            f'<title id="{name}-title">{escape(title)}</title>'
             f'{described}{definitions}\n'
             + '\n'.join(elements) + '\n</svg>')
 
