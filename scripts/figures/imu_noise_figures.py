@@ -1031,7 +1031,7 @@ def write_flow() -> None:
 REPORT_TO_EKF_RULES = (
     ('.lv-noise .lv-fig .measured-interval', 'fill:var(--lv-imu);stroke:var(--lv-imu);'
                                              'stroke-width:1'),
-    ('.lv-noise .lv-fig .setting-interval', f'fill:{FG_LIGHT};fill-opacity:.5;stroke:{FG};'
+    ('.lv-noise .lv-fig .setting-interval', f'fill:{FG_LIGHT};fill-opacity:.85;stroke:{FG};'
                                             'stroke-width:.8;stroke-dasharray:3 2'),
     ('.lv-noise .lv-fig .zero-guide', f'fill:none;stroke:{FG_LIGHT};stroke-width:1'),
     ('.lv-noise .lv-fig .compared-line', f'fill:none;stroke:{FG};stroke-width:1.4;'

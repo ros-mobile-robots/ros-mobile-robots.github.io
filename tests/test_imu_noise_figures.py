@@ -286,37 +286,41 @@ def report_to_ekf_caption() -> str:
     return ''.join(caption.itertext())
 
 
-def drawing_ancestors(include_text: str) -> List[Set[str]]:
-    """Return the classes of each element around the parts of an include's first drawing.
+def drawing_ancestors(include_text: str) -> List[List[Set[str]]]:
+    """Return, for each drawing of an include, the classes of the elements around its parts.
 
     From the outside in: the page's text column, the block around a figure with two layouts
     if the include has one, the figure, and the drawing itself.
     """
     root = ElementTree.fromstring(f'<root>{include_text}</root>')
     block, figure = root.find('./div'), root.find('.//figure')
-    drawing = figure.find('svg') if figure is not None else None
-    if figure is None or drawing is None:
+    drawings = figure.findall('svg') if figure is not None else []
+    if figure is None or not drawings:
         raise ReadError('the include has no figure with a drawing')
-    return [{PAGE_TEXT_CLASS}] + [set((element.get('class') or '').split())
-                                  for element in (block, figure, drawing) if element is not None]
+    return [[{PAGE_TEXT_CLASS}] + [set((element.get('class') or '').split())
+                                   for element in (block, figure, drawing) if element is not None]
+            for drawing in drawings]
 
 
 def selector_applies(selector: str, css_class: str, ancestors: Sequence[Set[str]]) -> bool:
-    """Return whether a selector matches a part that has only css_class, below the ancestors.
+    """Return whether a selector matches every part with only css_class below the ancestors.
 
-    The selector's last part has to name the class and no other one. Each part before it has
-    to name classes of one of the ancestors, in their order from the outside in. A selector
-    with an attribute, a pseudo-class or a combinator other than a space doesn't count: the
-    includes use those for the dark scheme and for other figures.
+    Only a selector of classes counts, such as ".lv-noise .lv-fig .compared-line". Its last
+    part has to name the class and no other one. Each part before it has to name classes of
+    one of the ancestors, in their order from the outside in. A selector with an element's
+    name, an attribute, a pseudo-class or another combinator than a space doesn't count: it
+    could leave out a part of the class, such as a path, and the includes use those for the
+    dark scheme and for other figures.
     """
-    if re.search(r'[\[:>+~]', selector):
+    parts = selector.split()
+    if not all(re.fullmatch(r'(?:\.[\w-]+)+', part) for part in parts):
         return False
-    *outer_parts, last_part = (set(re.findall(r'\.([\w-]+)', part)) for part in selector.split())
+    *outer_parts, last_part = (set(part.strip('.').split('.')) for part in parts)
     if last_part != {css_class}:
         return False
     remaining = list(ancestors)
     for part in outer_parts:
-        while remaining and not (part and part <= remaining[0]):
+        while remaining and not part <= remaining[0]:
             remaining.pop(0)
         if not remaining:
             return False
@@ -324,13 +328,14 @@ def selector_applies(selector: str, css_class: str, ancestors: Sequence[Set[str]
     return True
 
 
-def css_declarations(include_text: str, css_class: str) -> Dict[str, str]:
-    """Return the CSS properties that an include's rules give a class of its drawing's parts.
+def css_declarations(include_text: str, css_class: str,
+                     ancestors: Sequence[Set[str]]) -> Dict[str, str]:
+    """Return the CSS properties that an include's rules give a class of one drawing's parts.
 
-    A rule counts when one of its selectors applies to such a part inside the include's own
-    figure (selector_applies). A later rule's value replaces an earlier one's.
+    ancestors are the classes around the drawing's parts, one entry of drawing_ancestors().
+    A rule counts when one of its selectors applies there (selector_applies). A later rule's
+    value replaces an earlier one's.
     """
-    ancestors = drawing_ancestors(include_text)
     declarations: Dict[str, str] = {}
     for rule in re.finditer(r'^(?P<selectors>[^@{\n][^{\n]*)\{(?P<declarations>[^}]*)\}$',
                             include_text, re.MULTILINE):
@@ -342,12 +347,23 @@ def css_declarations(include_text: str, css_class: str) -> Dict[str, str]:
     return declarations
 
 
-def line_is_dashed(css_class: str) -> bool:
-    """Return whether the include from the report to the EKF draws a class's stroke dashed."""
+def layout_declarations(css_class: str, layout: str) -> Dict[str, str]:
+    """Return the CSS properties of a class in one layout of the figure from the report to the EKF.
+
+    layout is the class of the layout's drawing, a key of LAYOUT_WIDTHS.
+    """
     text = (ROOT / 'includes' / REPORT_TO_EKF_INCLUDE).read_text(encoding='utf-8')
-    declarations = css_declarations(text, css_class)
-    if 'stroke' not in declarations:
-        raise ReadError(f'no rule of the include gives .{css_class} a stroke')
+    of_the_layout = [ancestors for ancestors in drawing_ancestors(text) if layout in ancestors[-1]]
+    if len(of_the_layout) != 1:
+        raise ReadError(f'the include has {len(of_the_layout)} drawings of the layout {layout}')
+    return css_declarations(text, css_class, of_the_layout[0])
+
+
+def line_is_dashed(css_class: str, layout: str) -> bool:
+    """Return whether a layout draws the stroke of a class dashed. The stroke has to show."""
+    declarations = layout_declarations(css_class, layout)
+    if declarations.get('stroke', 'none') == 'none':
+        raise ReadError(f'no rule gives .{css_class} a stroke in the layout {layout}')
     return declarations.get('stroke-dasharray', 'none') != 'none'
 
 
@@ -510,11 +526,15 @@ def arrow_label(drawing: ElementTree.Element, arrow: DrawnArrow) -> Tuple[str, .
     return tuple(text.content for text in sorted(lines, key=lambda text: text.position.y))
 
 
-def drawn_connections(drawing: ElementTree.Element) -> List[DrawnConnection]:
-    """Return every arrow of a drawing as a connection, sorted by its two parts."""
+def drawn_connections(drawing: ElementTree.Element, layout: str) -> List[DrawnConnection]:
+    """Return every arrow of a layout's drawing as a connection, sorted by its two parts.
+
+    Whether an arrow is dashed comes from the style rules that apply in this layout.
+    """
     parts = connection_parts(drawing)
     return sorted(DrawnConnection(part_at(parts, arrow.start), part_at(parts, arrow.tip),
-                                  line_is_dashed(arrow.line_class), arrow_label(drawing, arrow))
+                                  line_is_dashed(arrow.line_class, layout),
+                                  arrow_label(drawing, arrow))
                   for arrow in drawn_arrows(drawing))
 
 
@@ -1076,19 +1096,24 @@ class TestReportToEkfFigure(unittest.TestCase):
                               if cell.index_text.startswith('✓')],
                              [YAW_RATE_VARIANCE_INDEX], layout)
 
-    def test_marked_cell_has_a_thicker_edge_than_the_other_cells(self) -> None:
-        """Compare the stroke widths that the include's rules give the two classes of cells."""
-        include = (ROOT / 'includes' / REPORT_TO_EKF_INCLUDE).read_text(encoding='utf-8')
-        marked_width, plain_width = (
-            float(css_declarations(include, css_class)['stroke-width'])
-            for css_class in (MARKED_CELL_CLASS, 'cell'))
-        self.assertGreater(marked_width, plain_width)
+    def test_each_layouts_marked_cell_has_a_thicker_edge_than_the_other_cells(self) -> None:
+        """Compare the stroke widths that the rules give the two classes of cells in a layout."""
+        for layout in LAYOUT_WIDTHS:
+            marked_width, plain_width = (
+                float(layout_declarations(css_class, layout)['stroke-width'])
+                for css_class in (MARKED_CELL_CLASS, 'cell'))
+            self.assertGreater(marked_width, plain_width, layout)
 
     def test_each_layout_has_exactly_the_four_connections_with_their_lines_and_labels(
             self) -> None:
-        """Compare every arrow's two parts, its dashed or solid line and its label."""
+        """Compare every arrow's two parts, its dashed or solid line and its label.
+
+        In each layout, both comparison paths have a visible dashed stroke. The check fails
+        if the stroke's rule applies only to the narrow layout or only to rectangles.
+        """
         for layout, drawing in report_to_ekf_drawings().items():
-            self.assertEqual(drawn_connections(drawing), sorted(EXPECTED_CONNECTIONS), layout)
+            self.assertEqual(drawn_connections(drawing, layout), sorted(EXPECTED_CONNECTIONS),
+                             layout)
 
     def test_caption_gives_each_line_style_the_meaning_that_its_connections_have(self) -> None:
         """Find one sentence for the dashed and one for the solid arrow in the caption."""
@@ -1098,20 +1123,23 @@ class TestReportToEkfFigure(unittest.TestCase):
         self.assertEqual(meanings, {'dashed': 'comparison by hand',
                                     'solid': 'value in the message'})
 
-    def test_intervals_differ_by_a_dashed_edge_as_well_as_by_their_color(self) -> None:
-        """Check the dash of the two interval classes in the include's rules."""
-        self.assertTrue(line_is_dashed(SETTING_INTERVAL_CLASS))
-        self.assertFalse(line_is_dashed(MEASURED_INTERVAL_CLASS))
+    def test_each_layouts_intervals_differ_by_a_dashed_edge_as_well_as_by_their_color(
+            self) -> None:
+        """Check the dash of the two interval classes in the rules of each layout."""
+        for layout in LAYOUT_WIDTHS:
+            self.assertTrue(line_is_dashed(SETTING_INTERVAL_CLASS, layout), layout)
+            self.assertFalse(line_is_dashed(MEASURED_INTERVAL_CLASS, layout), layout)
 
     def test_only_the_report_to_ekf_include_has_the_rules_of_its_intervals_and_dashed_arrows(
             self) -> None:
-        """Look for a stroke of the figure's own classes in each of the script's includes."""
+        """Look for a stroke of the figure's own classes in each drawing of each include."""
         for include_name in INCLUDE_NAMES:
             text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
             for css_class in (MEASURED_INTERVAL_CLASS, SETTING_INTERVAL_CLASS, 'compared-line'):
-                self.assertEqual('stroke' in css_declarations(text, css_class),
-                                 include_name == REPORT_TO_EKF_INCLUDE,
-                                 f'{css_class} in {include_name}')
+                for ancestors in drawing_ancestors(text):
+                    self.assertEqual('stroke' in css_declarations(text, css_class, ancestors),
+                                     include_name == REPORT_TO_EKF_INCLUDE,
+                                     f'{css_class} in {include_name}')
 
     def test_both_layouts_show_the_same_texts(self) -> None:
         """Compare the sorted lines of text of the two drawings."""
