@@ -29,6 +29,7 @@ from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import Drawing
 from board_drawings import escape
 from board_drawings import style_element
 
@@ -180,9 +181,10 @@ class Figure:
                              f'marker-end="url(#{self.name}-{css_class})"/>')
 
     def step(self, x: float, y: float, number: int) -> None:
-        """Add a step's number in a filled disc around (x, y)."""
-        self.elements.append(f'<circle class="step-disc" cx="{x}" cy="{y}" r="8"/>')
-        self.text(x, y + 4, str(number), 'step')
+        """Add a step's number in a filled disc around (x, y), as the shared drawings do."""
+        disc = Drawing()
+        disc.number_disc(x, y, number, 'step-disc', 'step')
+        self.elements.extend(disc.elements)
 
     def svg(self) -> str:
         """Return the drawing as an SVG element."""
