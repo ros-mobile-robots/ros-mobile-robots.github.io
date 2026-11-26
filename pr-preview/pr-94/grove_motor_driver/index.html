@@ -4984,82 +4984,61 @@ operate for this purpose. For a development environment it is best practice to u
 <a href="https://docs.python.org/3/library/venv.html"><code>venv</code></a> and install the packages inside it.</p>
 </div>
 <h3 id="connection">Connection</h3>
-<p>Connect the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> port of the motor driver to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> port 1 of the Raspberry Pi 4 B.
-Two things matter for this connection: the voltage of the two signals and a common ground.</p>
-<ul>
-<li><strong>Signal voltage:</strong> The motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus works with 5 V (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications">Seeed's specifications</a>). The Raspberry Pi's <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> pins work with 3.3 V and aren't 5 V tolerant (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html">Raspberry Pi's documentation of the 40-pin <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> header</a>). So the data line SDA and the clock line SCL go through a bidirectional <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> level shifter, for example <a href="https://www.adafruit.com/product/757">Adafruit's BSS138 level converter</a>. The level shifter connects the 3.3 V signals on its low side with the 5 V signals on its high side.</li>
-<li><strong>Common ground:</strong> Each board measures the voltages on SDA and SCL against its own ground. On DiffBot, the two boards have separate supplies: a power bank for the Raspberry Pi and eight NiMH AA cells for the motor driver (<a href="../power-supply/">Power Supply</a>). So the grounds of the Raspberry Pi, the level shifter and the motor driver have to be connected.</li>
-</ul>
-<div class="admonition warning">
-<p class="admonition-title">Not tested on a DiffBot yet</p>
-<p>The wiring below follows the specifications of the two boards. It isn't tested on a DiffBot yet.</p>
-</div>
-<p>Switch off both supplies before you connect the wires: shut down the Raspberry Pi and unplug its power bank, and take the batteries out of the motor driver's holder.
-With Adafruit's converter as the example, each row is one wire. The pins of the Raspberry Pi are those of its 40-pin header (<a href="https://pinout.xyz/pinout/i2c"><abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> pinout</a>), and the level shifter's pins are named as printed on its board:</p>
+<p>DiffBot's Raspberry Pi 4 B sends the motor commands on its <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus 1, through a passive <a href="https://wiki.seeedstudio.com/Grove-I2C_Hub/">Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> hub</a>.
+Select DiffBot on the <a href="../hardware_setup/electronics/">Electronics</a> page to see the cable routing.
+Use the physical header pins in the table for the wiring.
+Shut down the Raspberry Pi, unplug its power bank and take out the motor cells before you change connections.</p>
 <table>
 <thead>
 <tr>
-<th>From</th>
-<th>To</th>
+<th>Signal</th>
+<th>Raspberry Pi header to the hub's port J1</th>
+<th>Hub's port J4 to the driver's Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Raspberry Pi pin 1, 3.3 V</td>
-<td>Level shifter <code>LV</code></td>
+<td>SDA, data</td>
+<td>Pin 3, GPIO2 → SDA</td>
+<td>SDA → SDA</td>
 </tr>
 <tr>
-<td>Motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, VCC</td>
-<td>Level shifter <code>HV</code></td>
+<td>SCL, clock</td>
+<td>Pin 5, GPIO3 → SCL</td>
+<td>SCL → SCL</td>
 </tr>
 <tr>
-<td>Raspberry Pi pin 6, GND</td>
-<td>Level shifter <code>GND</code>, on the <code>LV</code> side</td>
+<td>5 V supply</td>
+<td>Pin 2 → breadboard's positive rail → VCC</td>
+<td>VCC → VCC</td>
 </tr>
 <tr>
-<td>Level shifter <code>GND</code>, on the <code>HV</code> side</td>
-<td>Motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, GND</td>
-</tr>
-<tr>
-<td>Raspberry Pi pin 3, SDA</td>
-<td>Level shifter <code>A1</code></td>
-</tr>
-<tr>
-<td>Level shifter <code>B1</code></td>
-<td>Motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, SDA</td>
-</tr>
-<tr>
-<td>Raspberry Pi pin 5, SCL</td>
-<td>Level shifter <code>A2</code></td>
-</tr>
-<tr>
-<td>Level shifter <code>B2</code></td>
-<td>Motor driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, SCL</td>
+<td>Ground</td>
+<td>Pin 9 → breadboard's ground rail → GND</td>
+<td>GND → GND</td>
 </tr>
 </tbody>
 </table>
-<p>The level shifter connects <code>A1</code> with <code>B1</code> and <code>A2</code> with <code>B2</code> itself. Don't connect these pins with a wire.</p>
-<p>Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and the logic supply of the motor driver, which Seeed gives as 5 V.
-The motor driver makes this supply from its batteries, with its own 5 V regulator.
-DiffBot's eight NiMH cells give the regulator enough input for its 5 V, as <a href="../power-supply/#diffbot-eight-nimh-cells-and-the-grove-i2c-motor-driver">DiffBot: eight NiMH cells and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</a> on the Power Supply page explains.
-Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, and Seeed asks for the jumper when 5 V should be supplied to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview">Seeed's hardware overview</a>).
-Connect this VCC pin only to the level shifter's <code>HV</code>, never to the Raspberry Pi, which has its own supply.
-The GND pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector is connected to the board's ground, with or without the jumper.</p>
-<p>Keep the motor driver powered whenever the Raspberry Pi has power.
-Without its batteries, the motor driver would get current from the Raspberry Pi's 3.3 V side through the level shifter and the SDA and SCL wires.
-These wires end at the board's microcontroller, an ATmega8 (<a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/Grove%20-%20I2C%20Motor%20Driver%20%20v1.3b.pdf">Seeed's schematic</a>), and each of its pins has a protection diode to its supply line (<a href="https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf">ATmega8 datasheet</a>, I/O Ports).
-The level shifter keeps the two sides apart only when the Raspberry Pi's side is off (<a href="https://cdn-shop.adafruit.com/datasheets/an97055.pdf">Philips application note AN97055</a>, section 2.3.4).
-So recharge the cells in this order:</p>
-<ol>
-<li>Stop the motors and shut down the Raspberry Pi.</li>
-<li>Unplug the Raspberry Pi's power bank. After a shutdown, the Raspberry Pi keeps power on its header while the power bank is plugged in (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#POWER_OFF_ON_HALT">Raspberry Pi's bootloader documentation, <code>POWER_OFF_ON_HALT</code></a>).</li>
-<li>Take out the eight cells, recharge them as <a href="../power-supply/#charging-the-nimh-cells">Charging the NiMH cells</a> on the Power Supply page describes, and put them back.</li>
-<li>Plug the power bank in again, which starts the Raspberry Pi.</li>
-</ol>
-<p>Make sure to set the address with the dip switches on the motor driver to <code>0x0f</code> because this is the default address used
-in the library files.</p>
-<p>To test the physical <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connection use <code>i2cdetect</code> described in <a href="../processing_units/hardware-interfaces/#single-board-computer-i2c-connection">Hardware Interfaces</a>:
-The output should list <code>0f</code> in the address table:</p>
+<p>The Raspberry Pi's power bank and the motor battery share their ground through the hub and the driver.
+Both boards use this ground as the reference for SDA and SCL.
+The Raspberry Pi's 5 V rail also supplies both wheel encoders.</p>
+<p>On the motor driver, the jumper J4 connects the output of the board's regulator to the VCC pin of the Grove connector.
+Seeed asks to remove this jumper when the battery powers the screw terminal and the Raspberry Pi supplies the connector, as in DiffBot's wiring (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview">Seeed's hardware overview</a>).
+With the jumper removed, the regulator supplies the driver's logic, the Raspberry Pi supplies the connector's VCC pin, and the grounds stay connected.</p>
+<p>DiffBot connects SDA and SCL through the hub without a level shifter.
+<abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> devices pull these lines low, and pull-up resistors bring them high when the devices release them.
+GPIO2 and GPIO3 each have a fixed 1.8 kΩ pull-up to 3.3 V on the Raspberry Pi.
+Its <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> inputs are designed for 3.3 V signals and can be damaged by 5 V (<a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html">Raspberry Pi's documentation of the 40-pin <abbr title="General-purpose input/output. Pins of a single-board computer or microcontroller that software can read or switch.">GPIO</abbr> header</a>).
+Seeed lists 5 V for the driver's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> interface (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#specifications">specifications</a>).
+The idle voltages on DiffBot's connected signal lines haven't been measured.</p>
+<p>With the motor cells removed and the Raspberry Pi powered, SDA and SCL can feed the unpowered microcontroller of the driver, an ATmega8, through the protection diodes of its inputs (<a href="https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf">ATmega8 datasheet</a>, I/O Ports).
+So shut down and unplug the Raspberry Pi before you take out the motor cells, and put the cells back before you power the Raspberry Pi.</p>
+<p>Set the driver's DIP switches to the address <code>0x0f</code> to match the Python library (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f98446cfa658ab520c61faa58146299a4697c736/ros/src/grove_motor_driver/src/grove_i2c_motor_driver.py#L35-L38"><code>grove_i2c_motor_driver.py</code></a>).
+<a href="https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/img/I2CMotorDriver-9.jpg">Seeed's address switch diagram</a> shows how the switches encode the address.</p>
+<p>To check that the driver responds to motor commands, follow <a href="#test-motor-driver">Test Motor Driver</a>.
+The GrovePi motor example advises against scanning this controller with <code>i2cdetect</code>, because the driver can stop responding and hold the clock line low (<a href="https://github.com/ros-mobile-robots/diffbot/blob/f98446cfa658ab520c61faa58146299a4697c736/ros/src/grove_motor_driver/src/motor_example.py#L9-L13"><code>motor_example.py</code></a>).
+If this happens after a scan, try the driver's <code>RESET</code> button.
+The following output records a scan on DiffBot's Raspberry Pi. A device answered at the configured address, <code>0x0f</code>, on bus 1.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5081,7 +5060,9 @@ The output should list <code>0f</code> in the address table:</p>
 <span class="go">70: -- -- -- -- -- -- -- --</span>
 </code></pre></div></td></tr></tbody></table></div>
 <h3 id="test-motor-driver">Test Motor Driver</h3>
-<p>Test the motor driver by running one of the python files:</p>
+<p>Support DiffBot with both drive wheels clear of the ground.
+On its Raspberry Pi, run <code>python3 motor_example.py</code> from the <code>grove_motor_driver/src</code> directory.
+Watch the wheels turn forward, reverse and stop.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5234,8 +5215,8 @@ and use the <code>RESET</code> button on the motor driver.</p>
 <span class="go">    bus.write_i2c_block_data(self.I2CMotorDriverAdd, self.MotorSpeedSet, [MotorSpeedA,MotorSpeedB])</span>
 <span class="go">IOError: [Errno 121] Remote I/O error</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>Try pressing the <code>RESET</code> button and release it right before executing one of the scripts.
-You should also be able to detect the motor driver with <code>i2cdetect -y 1</code>:</p>
+<p>If the driver remains unresponsive, press and release its <code>RESET</code> button, then retry the motor example.
+The following terminal output records a scan of bus 1 on DiffBot.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5256,9 +5237,9 @@ You should also be able to detect the motor driver with <code>i2cdetect -y 1</co
 <span class="go">60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </span>
 <span class="go">70: -- -- -- -- -- -- -- --</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>As you can see the address of the motor driver is detected at <code>0x0f</code>.</p>
-<p>In case of the following output, where every address of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus seems to be taken,
-it is most likely that the SDA (data) and SCL (clock) signal cables are switched:</p>
+<p>The first capture shows a response at <code>0x0f</code>.
+In the capture below, the scan reports a response at every probed address.
+The output alone doesn't identify the cause.</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5279,9 +5260,9 @@ it is most likely that the SDA (data) and SCL (clock) signal cables are switched
 <span class="go">60: 60 61 62 63 64 65 66 67 68 69 6a 6b 6c 6d 6e 6f </span>
 <span class="go">70: 70 71 72 73 74 75 76 77</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>To solve this make sure the SDA and SCL cables are connected to the right pins on the Raspberry Pi.
-See <a href="../processing_units/hardware-interfaces/#single-board-computer-i2c-connection">Hardware Interfaces</a> for more infos.</p>
-<p>Another solution is to restart the Raspberry Pi while making sure that the motor driver is powerd on by connecting it to the battery pack.</p>
+<p>To check the wiring, shut down and unplug the Raspberry Pi, then take out the motor cells.
+Check SDA at the physical pin 3, SCL at the physical pin 5 and the common ground against the <a href="#connection">Connection table</a>.
+Put the motor cells back before you power the Raspberry Pi, then retry the motor example.</p>
 <h3 id="ros-node-for-motor-driver">ROS Node for Motor Driver</h3>
 <p>To use the available library of the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> motor driver in ROS we need to create a wrapper node, called <a href="https://github.com/fjp/2wd-robot/blob/master/ros/src/grove_motor_driver/src/motor_driver.py"><code>motor_driver</code></a>.
 The node subscribes to the topic <code>/2wd_robot/cmd_vel</code> which is of type <a href="https://docs.ros.org/api/geometry_msgs/html/msg/Twist.html">Twist message</a> 
