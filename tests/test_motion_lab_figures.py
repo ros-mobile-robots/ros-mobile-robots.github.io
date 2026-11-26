@@ -123,7 +123,11 @@ class TestGuidedExamples(unittest.TestCase):
 
     def test_each_example_changes_one_setting(self) -> None:
         for example in figures.EXAMPLES:
-            self.assertEqual(len(figures.changed_settings(example.settings)), 1, example.key)
+            changed = [
+                name for name in figures.Settings._fields
+                if getattr(example.settings, name) != getattr(figures.DEFAULT_SETTINGS, name)
+            ]
+            self.assertEqual(len(changed), 1, example.key)
 
     def test_every_example_text_has_all_its_values_filled_in(self) -> None:
         for example in figures.EXAMPLES:
@@ -203,6 +207,7 @@ class TestOtherDrives(unittest.TestCase):
     def test_contact_at_the_outer_edges_changes_nothing_on_a_straight_drive(self) -> None:
         drive = other_drive(example_with_key('contact'))
         self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
+        self.assertAlmostEqual(drive.odometry.forward, FORWARD.distance, places=PLACES)
         self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
 
     def test_wheels_at_part_of_their_speed_turn_exactly_to_the_tolerance_boundary(self) -> None:
@@ -254,6 +259,28 @@ class TestChecks(unittest.TestCase):
         self.assertIn(agreement, figures.failing_checks(turn, outside))
 
 
+class TestKinematics(unittest.TestCase):
+    """The model's two geometric steps give results that follow from the geometry alone."""
+
+    def test_a_motion_is_measured_in_the_frame_of_the_start_pose(self) -> None:
+        # The robot looks along the ground's y axis and moves 1 m along it: 1 m forward, not left
+        start = figures.Pose(1.0, 2.0, math.pi / 2)
+        end = figures.Pose(1.0, 3.0, math.pi / 2)
+        motion = figures.relative_motion(start, end)
+        self.assertAlmostEqual(motion.forward, 1.0, places=PLACES)
+        self.assertAlmostEqual(motion.left, 0.0, places=PLACES)
+        self.assertAlmostEqual(motion.turned, 0.0, places=PLACES)
+
+    def test_a_turning_drive_follows_a_circle(self) -> None:
+        # 1 m/s and 1 rad/s give a circle of radius 1 m around (0, 1). After a quarter turn the
+        # robot is at (1, 1) and looks along the ground's y axis
+        quarter_turn = math.pi / 2
+        pose = figures.pose_after(figures.Velocity(linear=1.0, angular=1.0), quarter_turn)
+        self.assertAlmostEqual(pose.x, 1.0, places=PLACES)
+        self.assertAlmostEqual(pose.y, 1.0, places=PLACES)
+        self.assertAlmostEqual(pose.theta, quarter_turn, places=PLACES)
+
+
 class TestModelLimits(unittest.TestCase):
     """The model's two numerical limits decide as their constants say."""
 
@@ -288,13 +315,15 @@ class TestModelLimits(unittest.TestCase):
 class TestRobotsOwnValues(unittest.TestCase):
     """With each robot's own values, the three views agree and every check passes."""
 
-    def test_every_check_passes_for_both_robots_and_both_commands(self) -> None:
+    def test_every_check_passes_and_each_view_shows_the_commanded_motion(self) -> None:
         for robot in figures.ROBOTS.values():
             for kind, command in figures.COMMANDS.items():
                 drive = figures.simulate(robot, command, figures.DEFAULT_SETTINGS)
                 self.assertEqual(figures.failing_checks(kind, drive), [], (robot.name, kind))
-                for odometry, model in zip(drive.odometry, drive.model):
-                    self.assertAlmostEqual(odometry, model, places=PLACES)
+                for view in (drive.command, drive.odometry, drive.model):
+                    self.assertAlmostEqual(view.forward, command.distance, places=PLACES)
+                    self.assertAlmostEqual(view.left, 0.0, places=PLACES)
+                    self.assertAlmostEqual(view.turned, command.angle, places=PLACES)
 
 
 class TestDrawing(unittest.TestCase):
@@ -322,10 +351,24 @@ class TestDrawing(unittest.TestCase):
         point = pixel_points((0.0, 0.0))
         self.assertEqual(figures.without_straight_runs(point), point)
 
-    def test_the_reach_takes_in_the_wider_configured_outline(self) -> None:
+    def test_the_reach_takes_in_the_outer_wheel_edge_of_a_wider_configured_outline(self) -> None:
+        # The odometry's outline is drawn with the configured separation: the reach ends the
+        # drawing's margin beyond its wheel's outer edge
+        widened_percent = 120
+        wheels = REMO.wheels
+        outer_edge = wheels.separation * widened_percent / 100 / 2 + wheels.width / 2
+        wider = figures.model_inputs(REMO, figures.Settings(separation_percent=widened_percent))
+        self.assertAlmostEqual(figures.outline_reach_metres(wider),
+                               outer_edge + figures.DRAWING.margin, places=PLACES)
+
+    def test_the_reach_takes_in_the_commands_line_with_the_robots_own_values(self) -> None:
+        # Remo's own outline is narrower than the command's heading line is long
         own = figures.model_inputs(REMO, figures.DEFAULT_SETTINGS)
-        wider = figures.model_inputs(REMO, figures.Settings(separation_percent=120))
-        self.assertGreater(figures.outline_reach_metres(wider), figures.outline_reach_metres(own))
+        self.assertLess(REMO.wheels.separation / 2 + REMO.wheels.width / 2,
+                        figures.DRAWING.command_heading)
+        self.assertAlmostEqual(figures.outline_reach_metres(own),
+                               figures.DRAWING.command_heading + figures.DRAWING.margin,
+                               places=PLACES)
 
     def test_grid_lines_lie_at_least_the_least_spacing_apart(self) -> None:
         drive = figures.example_drive(figures.EXAMPLES[0])

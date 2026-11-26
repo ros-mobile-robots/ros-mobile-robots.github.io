@@ -12,6 +12,7 @@ process and compare the page's numbers with it. The page carries no expected res
 
 import contextlib
 import html
+import math
 import re
 from typing import Any
 from typing import Dict
@@ -39,6 +40,8 @@ FIGURE = 'figure[data-ix="motion-lab"]'
 # The figure starts within this time, also on a slow CI runner
 START_TIMEOUT_MS = 15000
 MILLISECONDS_PER_SECOND = 1000
+# The model's results are exact up to floating-point rounding
+MODEL_PLACES = 9
 # The tables show three decimals: a shown value lies within half of its last digit of the value,
 # plus floating-point slack
 SHOWN_ROUNDING = 0.5e-3 + 1e-9
@@ -466,6 +469,22 @@ class TestMotionLabPage(SimulationTestPageCase):
         self.assertGreater(halfway.odometry.x, halfway.model.x + 1)
         self.assert_markers_at(page, halfway, 'halfway')
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
+
+    def test_the_live_drawing_makes_room_for_a_wider_configured_outline(self) -> None:
+        # The odometry's outline is drawn with the configured separation. The drawing's scale
+        # leaves room for it, so the markers lie where the script's scale puts them
+        separation = slider_for('separation_percent')
+        settings = figures.DEFAULT_SETTINGS._replace(separation_percent=separation.highest)
+        kind = figures.EXAMPLES[0].command
+        drive = figures.simulate(REMO, figures.COMMANDS[kind], settings)
+        inputs = figures.model_inputs(REMO, settings)
+        page = self.open_live_figure().page
+        open_settings(page)
+        page.click(f'{FIGURE} .ix-settings .ix-reset')
+        set_slider(page, separation, separation.highest)
+        set_time(page, figures.TIME_SLIDER_STEPS)
+        expected = expected_marker_centers(page, drive, inputs, LAST_SAMPLE)
+        self.assert_markers_at(page, expected, 'at the end')
 
     def test_a_changed_value_keeps_the_time_and_the_results_waiting(self) -> None:
         slider = figures.CONFIGURATION_SLIDERS[0]
@@ -1174,9 +1193,9 @@ class TestPageLog(SimulationTestPageCase):
 
 
 class TestDiffDriveModule(SimulationTestPageCase):
-    """diffdrive.js computes with the limits it is given, as the script does with its constants.
+    """diffdrive.js gives the results that follow from the geometry, with the limits it is given.
 
-    The cases and their expected results are those of TestModelLimits in
+    The cases and their expected results are those of TestKinematics and TestModelLimits in
     tests/test_motion_lab_figures.py. Each test calls the module's function in the page.
     """
 
@@ -1200,6 +1219,27 @@ class TestDiffDriveModule(SimulationTestPageCase):
         pose: Dict[str, float] = call_model(page, 'poseAfter', self.SPEED, angular_velocity,
                                             self.DURATION, figures.STRAIGHT_ANGULAR_VELOCITY)
         return pose
+
+    def test_a_motion_is_measured_in_the_frame_of_the_start_pose(self) -> None:
+        # The robot looks along the ground's y axis and moves 1 m along it: 1 m forward, not left
+        page = self.open_simulation_test_page().page
+        start = {'x': 1.0, 'y': 2.0, 'theta': math.pi / 2}
+        end = {'x': 1.0, 'y': 3.0, 'theta': math.pi / 2}
+        motion = call_model(page, 'relativeMotion', start, end)
+        self.assertAlmostEqual(motion['forward'], 1.0, places=MODEL_PLACES)
+        self.assertAlmostEqual(motion['left'], 0.0, places=MODEL_PLACES)
+        self.assertAlmostEqual(motion['turned'], 0.0, places=MODEL_PLACES)
+
+    def test_a_turning_drive_follows_a_circle(self) -> None:
+        # 1 m/s and 1 rad/s give a circle of radius 1 m around (0, 1). After a quarter turn the
+        # robot is at (1, 1) and looks along the ground's y axis
+        quarter_turn = math.pi / 2
+        page = self.open_simulation_test_page().page
+        pose = call_model(page, 'poseAfter', 1.0, 1.0, quarter_turn,
+                          figures.STRAIGHT_ANGULAR_VELOCITY)
+        self.assertAlmostEqual(pose['x'], 1.0, places=MODEL_PLACES)
+        self.assertAlmostEqual(pose['y'], 1.0, places=MODEL_PLACES)
+        self.assertAlmostEqual(pose['theta'], quarter_turn, places=MODEL_PLACES)
 
     def test_a_value_on_the_tolerance_boundary_passes(self) -> None:
         self.assertIs(self.passes_in_page(self.BOUNDARY), True)
