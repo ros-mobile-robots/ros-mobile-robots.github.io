@@ -14,13 +14,15 @@ shows what one test of the simulated IMU does over simulation time:
   reset comes at exactly RUN_BEFORE_RESET, and the IMU publishes exactly IMU_RATE samples per
   second. The test itself only needs FRESH_SAMPLE_COUNT samples after the reset with advancing
   stamps below RECOVERY. Both axes end a fifth of RUN_BEFORE_RESET after the time at which a
-  plugin that keeps the old time publishes again, so that this sample lies inside the plot for
-  any RUN_BEFORE_RESET.
+  plugin that keeps the old time publishes again, and at least one period of the IMU after that
+  sample, so that the sample lies inside the plot for any RUN_BEFORE_RESET.
 
 The durations, rates and tolerances below are the constants of diffbot_gazebo/test/test_imu.py
 and test_imu_reset.py in the diffbot repository, at the commit that mkdocs.yml pins as
 imu_sim_src_raw. Change them together with the pin. The drawings show each test's plan, not a
-recorded run: the robot's headings follow from the commanded turn rate.
+recorded run: the robot's headings follow from the commanded turn rate. The scales follow from
+the constants: the time axis ends after the last command (drive_time_scale()), and each chart
+holds its reference value and its accepted band (upward_reading_scale(), turn_rate_scale()).
 
 The two series colors are the first two slots of the categorical palette that the Wheel Dynamics
 figures use. They were checked for color vision deficiencies against the site's light and dark
@@ -205,8 +207,10 @@ class Row(NamedTuple):
 # The two drive tests: the layout that both timelines share
 DRIVE_WIDTH = 360
 DRIVE_HEIGHT = 394
-# Simulation time since the test's first command, with room after the last phase
-DRIVE_TIME = Scale(0.0, 3.3, 40.0, 348.0)
+# The time axis on the drawing: its two ends, and the time that it shows after the last command
+DRIVE_TIME_LEFT = 40.0
+DRIVE_TIME_RIGHT = 348.0
+TIME_AFTER_LAST_COMMAND = 0.3  # s of simulation time
 COMMAND_BAR = Row(top=22, height=20)
 PHASES_Y = 54
 ROBOT_TITLE_Y = 90
@@ -292,21 +296,41 @@ class Reading(NamedTuple):
     legend: Sequence[LegendEntry]
 
 
-def draw_guide(figure: Figure, time: float) -> None:
+def last_command_time() -> float:
+    """Return when a drive test sends its last command, in s since its first command.
+
+    Both tests measure for MEASURE. The test at rest settles before, and the left turn speeds
+    up before. The later of the two ends counts, so both timelines get the same time axis.
+    """
+    return max(SETTLE, SPEED_UP) + MEASURE
+
+
+def drive_time_scale() -> Scale:
+    """Return the horizontal scale of both drive tests: simulation time since the first command.
+
+    The scale ends TIME_AFTER_LAST_COMMAND after the last command, so every phase, the stop
+    command and its label lie on it for any SETTLE, SPEED_UP and MEASURE.
+    """
+    return Scale(0.0, last_command_time() + TIME_AFTER_LAST_COMMAND, DRIVE_TIME_LEFT,
+                 DRIVE_TIME_RIGHT)
+
+
+def draw_guide(figure: Figure, time_scale: Scale, time: float) -> None:
     """Add a vertical guide at a time, in the rows without a label that the guide would cross."""
-    x = DRIVE_TIME.position(time)
+    x = time_scale.position(time)
     figure.path(f'M{x},{COMMAND_BAR.bottom + 4} V{PHASES_Y + 4} M{x},{CHART.top - 4} '
                 f'V{CHART.bottom} M{x},{MESSAGES_BAR.top - 4} V{MESSAGES_BAR.bottom + 2} '
                 f'M{x},{AXIS_Y - 4} V{AXIS_Y}', 'grid')
 
 
-def draw_command(figure: Figure, text: str, phases: Sequence[Phase], stops: bool) -> None:
+def draw_command(figure: Figure, time_scale: Scale, text: str, phases: Sequence[Phase],
+                 stops: bool) -> None:
     """Add the command that the test sends, the phases below it and the guides at their ends."""
     figure.text(8, 14, f'The test sends this command, {COMMAND_RATE} times per second',
                 'row-title')
     top, height = COMMAND_BAR.top, COMMAND_BAR.height
-    start = DRIVE_TIME.position(0.0)
-    end = DRIVE_TIME.position(sum(phase.seconds for phase in phases))
+    start = time_scale.position(0.0)
+    end = time_scale.position(sum(phase.seconds for phase in phases))
     figure.rectangle(start, top, end - start, height, 'command-wash', 4)
     figure.text((start + end) / 2, top + 14, text, anchor='middle')
     if stops:
@@ -314,15 +338,15 @@ def draw_command(figure: Figure, text: str, phases: Sequence[Phase], stops: bool
         figure.text(end + 8, top + 14, 'stop', 'note')
     phase_start = 0.0
     for phase in phases:
-        left = DRIVE_TIME.position(phase_start)
-        right = DRIVE_TIME.position(phase_start + phase.seconds)
-        draw_guide(figure, phase_start)
+        left = time_scale.position(phase_start)
+        right = time_scale.position(phase_start + phase.seconds)
+        draw_guide(figure, time_scale, phase_start)
         figure.path(f'M{left + 3},{PHASES_Y - 4} V{PHASES_Y + 4} M{left + 3},{PHASES_Y} '
                     f'H{right - 3} M{right - 3},{PHASES_Y - 4} V{PHASES_Y + 4}', 'span')
         figure.text((left + right) / 2, PHASES_Y + 16, f'{phase.name}, {phase.seconds:g} s',
                     'mono', 'middle')
         phase_start += phase.seconds
-    draw_guide(figure, phase_start)
+    draw_guide(figure, time_scale, phase_start)
 
 
 def robot_elements(heading: float) -> List[str]:
@@ -347,23 +371,23 @@ def robot_elements(heading: float) -> List[str]:
     return elements
 
 
-def draw_robots(figure: Figure, row: RobotRow) -> None:
+def draw_robots(figure: Figure, time_scale: Scale, row: RobotRow) -> None:
     """Add the row's title, the robot from above at each time, and the notes at their times."""
     figure.text(8, ROBOT_TITLE_Y, row.title, 'row-title')
     for robot in row.robots:
-        x = DRIVE_TIME.position(robot.time)
+        x = time_scale.position(robot.time)
         figure.group(f'translate({x},{ROBOT_Y})', robot_elements(robot.heading))
         label_x = x if robot.anchor == 'middle' else DRIVE_WIDTH - 6
         figure.text(label_x, ROBOT_LABEL_Y, robot.label, 'note', robot.anchor)
     for note in row.notes:
         for index, line in enumerate(note.lines):
-            figure.text(DRIVE_TIME.position(note.time), ROBOT_Y - 3 + index * LINE_HEIGHT, line,
+            figure.text(time_scale.position(note.time), ROBOT_Y - 3 + index * LINE_HEIGHT, line,
                         'note', 'middle')
 
 
 def draw_reading_legend(figure: Figure, entries: Sequence[LegendEntry]) -> None:
     """Add the chart's legend: one line per entry, with the key of the entry's kind."""
-    left = DRIVE_TIME.first_position
+    left = DRIVE_TIME_LEFT
     for index, entry in enumerate(entries):
         y = LEGEND_Y + index * LINE_HEIGHT
         if entry.kind is LegendKind.ACCEPTED_BAND:
@@ -373,16 +397,17 @@ def draw_reading_legend(figure: Figure, entries: Sequence[LegendEntry]) -> None:
         figure.text(left + 22, y, entry.label, 'note')
 
 
-def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> None:
+def draw_reading(figure: Figure, time_scale: Scale, reading: Reading,
+                 measure_start: float) -> None:
     """Add the reading's chart with its accepted band and its legend."""
     figure.text_markup(8, CHART_TITLE_Y, reading.title, 'row-title')
-    left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
+    left, right = time_scale.first_position, time_scale.last_position
     for tick in reading.ticks:
         y = reading.values.position(tick.value)
         figure.path(f'M{left},{y} H{right}', 'grid')
         figure.text(left - 6, y + 4, tick.label, 'note', 'end')
-    band_left = DRIVE_TIME.position(measure_start)
-    band_right = DRIVE_TIME.position(measure_start + MEASURE)
+    band_left = time_scale.position(measure_start)
+    band_right = time_scale.position(measure_start + MEASURE)
     band_top = reading.values.position(reading.accepted.highest)
     band_bottom = reading.values.position(reading.accepted.lowest)
     figure.rectangle(band_left, band_top, band_right - band_left, band_bottom - band_top,
@@ -395,15 +420,15 @@ def draw_reading(figure: Figure, reading: Reading, measure_start: float) -> None
     draw_reading_legend(figure, reading.legend)
 
 
-def draw_messages(figure: Figure, measure_start: float) -> None:
+def draw_messages(figure: Figure, time_scale: Scale, measure_start: float) -> None:
     """Add the IMU's messages, the ones the test keeps and how many of them the test needs."""
     figure.text(8, MESSAGES_TITLE_Y, f'The IMU publishes, {IMU_RATE:g} messages per second',
                 'row-title')
     top, height = MESSAGES_BAR.top, MESSAGES_BAR.height
-    left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
+    left, right = time_scale.first_position, time_scale.last_position
     figure.rectangle(left, top, right - left, height, 'imu-wash', 4)
-    kept_left = DRIVE_TIME.position(measure_start)
-    kept_right = DRIVE_TIME.position(measure_start + MEASURE)
+    kept_left = time_scale.position(measure_start)
+    kept_right = time_scale.position(measure_start + MEASURE)
     figure.rectangle(kept_left, top, kept_right - kept_left, height, 'imu-bar', 4)
     figure.text((kept_left + kept_right) / 2, top - 4 + height + 16,
                 f'the test keeps these, about {MEASURE * IMU_RATE:g}', 'note', 'middle')
@@ -412,12 +437,12 @@ def draw_messages(figure: Figure, measure_start: float) -> None:
                 'note', 'middle')
 
 
-def draw_drive_time_axis(figure: Figure) -> None:
-    """Add the time axis below all rows, with a number at each whole second."""
-    left, right = DRIVE_TIME.first_position, DRIVE_TIME.last_position
+def draw_drive_time_axis(figure: Figure, time_scale: Scale) -> None:
+    """Add the time axis below all rows, with a number at each whole second that it shows."""
+    left, right = time_scale.first_position, time_scale.last_position
     figure.path(f'M{left},{AXIS_Y} H{right}', 'axis')
-    for second in range(4):
-        figure.text(DRIVE_TIME.position(second), AXIS_Y + 14, str(second), 'note', 'middle')
+    for second in range(math.floor(time_scale.last_value) + 1):
+        figure.text(time_scale.position(second), AXIS_Y + 14, str(second), 'note', 'middle')
     figure.text((left + right) / 2, AXIS_Y + 28,
                 'simulation time since the test’s first command, in s', 'note', 'middle')
 
@@ -431,47 +456,91 @@ def fewest_messages_in_measure() -> int:
     return math.floor(RATE_TOLERANCE * IMU_RATE * MEASURE) + 1
 
 
+# The chart of the test at rest shows at least this range of readings, in m/s²
+UPWARD_READING_LOWEST = 9.0
+UPWARD_READING_HIGHEST = 10.6
+# The room above the accepted band in the left turn's chart, in rad/s
+TURN_RATE_HEADROOM = 0.05
+
+
+def accepted_upward_readings() -> Band:
+    """Return the means of the reading on the upward axis that the test at rest accepts."""
+    return Band(lowest=GRAVITY - GRAVITY_TOLERANCE, highest=GRAVITY + GRAVITY_TOLERANCE)
+
+
+def accepted_turn_rates() -> Band:
+    """Return the means of the yaw rate that the left turn accepts."""
+    return Band(lowest=TURN_RATE - TURN_RATE_TOLERANCE, highest=TURN_RATE + TURN_RATE_TOLERANCE)
+
+
+def upward_reading_scale() -> Scale:
+    """Return the vertical scale of the chart at rest, in m/s².
+
+    The scale holds the simulation's gravity and the accepted band for any GAZEBO_GRAVITY,
+    GRAVITY and GRAVITY_TOLERANCE.
+    """
+    accepted = accepted_upward_readings()
+    return Scale(min(UPWARD_READING_LOWEST, GAZEBO_GRAVITY, accepted.lowest),
+                 max(UPWARD_READING_HIGHEST, GAZEBO_GRAVITY, accepted.highest),
+                 CHART.bottom, CHART.top)
+
+
+def turn_rate_scale() -> Scale:
+    """Return the vertical scale of the left turn's chart, in rad/s.
+
+    The scale holds zero, the commanded turn rate and the accepted band for any TURN_RATE and
+    TURN_RATE_TOLERANCE.
+    """
+    accepted = accepted_turn_rates()
+    return Scale(min(0.0, accepted.lowest), max(0.0, accepted.highest) + TURN_RATE_HEADROOM,
+                 CHART.bottom, CHART.top)
+
+
 def at_rest_figure() -> Figure:
     """Return the timeline of the test at rest."""
+    time_scale = drive_time_scale()
+    accepted = accepted_upward_readings()
     figure = Figure(
         'tl-at-rest', DRIVE_WIDTH, DRIVE_HEIGHT, 'The test at rest over simulation time',
         f'The test sends the stop command {COMMAND_RATE} times per second, for SETTLE, '
         f'{SETTLE:g} s, and then for MEASURE, {MEASURE:g} s. The robot stands still. The test '
         f'keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, and needs at least '
         f'{fewest_messages_in_measure()}. The mean of their readings on the upward axis must lie '
-        f'between {GRAVITY - GRAVITY_TOLERANCE:.2f} and {GRAVITY + GRAVITY_TOLERANCE:.2f} m/s², '
+        f'between {accepted.lowest:.2f} and {accepted.highest:.2f} m/s², '
         f'and the mean of their yaw rates within {YAW_RATE_AT_REST_TOLERANCE:g} rad/s of 0 rad/s. '
         f'A black line marks a reference value, gravity in the simulation, {GAZEBO_GRAVITY} '
         'm/s². It is not a reading.')
-    draw_command(figure, 'stand still: all velocities 0',
+    draw_command(figure, time_scale, 'stand still: all velocities 0',
                  [Phase('SETTLE', SETTLE), Phase('MEASURE', MEASURE)], stops=False)
-    draw_robots(figure, RobotRow(
+    draw_robots(figure, time_scale, RobotRow(
         title='The robot, seen from above',
         robots=[TimedRobotPose(SETTLE + MEASURE / 2, 0.0, 'stands still')],
         notes=[TimedNote(SETTLE / 2, ['may still brake', 'after the left turn'])]))
     reading = Reading(
         title=('Reading on the upward axis, ' + svg_subscript('f', 'z', restore_baseline=True)
                + ', in m/s²'),
-        values=Scale(9.0, 10.6, CHART.bottom, CHART.top),
-        ticks=[Tick(9.0, '9'), Tick(10.0, '10')],
-        accepted=Band(lowest=GRAVITY - GRAVITY_TOLERANCE, highest=GRAVITY + GRAVITY_TOLERANCE),
+        values=upward_reading_scale(),
+        ticks=[Tick(UPWARD_READING_LOWEST, f'{UPWARD_READING_LOWEST:g}'), Tick(10.0, '10')],
+        accepted=accepted,
         band_label=f'the mean over {MEASURE:g} s must lie here',
         band_label_offset=14,
         legend=[LegendEntry(LegendKind.REFERENCE, 'reference value: gravity in the simulation, '
                                                   f'{GAZEBO_GRAVITY} m/s²'),
                 LegendEntry(LegendKind.ACCEPTED_BAND, 'accepted mean of the IMU’s readings: '
                                                       f'{GRAVITY} ± {GRAVITY_TOLERANCE}')])
-    draw_reading(figure, reading, SETTLE)
-    figure.path(f'M{DRIVE_TIME.first_position},{reading.values.position(GAZEBO_GRAVITY)} '
-                f'H{DRIVE_TIME.last_position}', LegendKind.REFERENCE.value)
-    draw_messages(figure, SETTLE)
-    draw_drive_time_axis(figure)
+    draw_reading(figure, time_scale, reading, SETTLE)
+    figure.path(f'M{time_scale.first_position},{reading.values.position(GAZEBO_GRAVITY)} '
+                f'H{time_scale.last_position}', LegendKind.REFERENCE.value)
+    draw_messages(figure, time_scale, SETTLE)
+    draw_drive_time_axis(figure, time_scale)
     return figure
 
 
 def left_turn_figure() -> Figure:
     """Return the timeline of the left turn."""
     turn_end = SPEED_UP + MEASURE
+    time_scale = drive_time_scale()
+    accepted = accepted_turn_rates()
     figure = Figure(
         'tl-left-turn', DRIVE_WIDTH, DRIVE_HEIGHT, 'The left turn over simulation time',
         f'The test sends a turn command of {TURN_RATE} rad/s about the upward axis, '
@@ -481,36 +550,35 @@ def left_turn_figure() -> Figure:
         f'rad after MEASURE. These headings are ideal: they follow from the command, not from '
         f'a run. The test keeps the IMU’s messages of MEASURE, about {MEASURE * IMU_RATE:g}, '
         f'and needs at least {fewest_messages_in_measure()}. The mean of their yaw rates must '
-        'lie between '
-        f'{TURN_RATE - TURN_RATE_TOLERANCE:.2f} and {TURN_RATE + TURN_RATE_TOLERANCE:.2f} rad/s.')
-    draw_command(figure, f'turn left: angular.z = {TURN_RATE} rad/s',
+        f'lie between {accepted.lowest:.2f} and {accepted.highest:.2f} rad/s.')
+    draw_command(figure, time_scale, f'turn left: angular.z = {TURN_RATE} rad/s',
                  [Phase('SPEED_UP', SPEED_UP), Phase('MEASURE', MEASURE)], stops=True)
     robots = [TimedRobotPose(0.0, 0.0, 'start')]
     for time, anchor in ((SPEED_UP, 'middle'), (turn_end, 'end')):
         turned = TURN_RATE * time
         robots.append(TimedRobotPose(
             time, turned, f'about {turned:g} rad, {math.degrees(turned):.0f}°', anchor))
-    draw_robots(figure, RobotRow(title='The robot from above: ideal headings from the command',
-                                 robots=robots, notes=[]))
+    draw_robots(figure, time_scale,
+                RobotRow(title='The robot from above: ideal headings from the command',
+                         robots=robots, notes=[]))
     reading = Reading(
         title=('Turn rate about the upward axis, '
                + svg_subscript('ω', 'z', restore_baseline=True) + ', in rad/s'),
-        values=Scale(0.0, 0.7, CHART.bottom, CHART.top),
+        values=turn_rate_scale(),
         ticks=[Tick(0.0, '0'), Tick(TURN_RATE, f'{TURN_RATE}')],
-        accepted=Band(lowest=TURN_RATE - TURN_RATE_TOLERANCE,
-                      highest=TURN_RATE + TURN_RATE_TOLERANCE),
+        accepted=accepted,
         band_label=f'the mean over {MEASURE:g} s must lie here',
         band_label_offset=11,
         legend=[LegendEntry(LegendKind.COMMAND, f'the test’s command: {TURN_RATE} rad/s'),
                 LegendEntry(LegendKind.ACCEPTED_BAND, 'accepted mean of the IMU’s yaw rates: '
                                                       f'{TURN_RATE} ± {TURN_RATE_TOLERANCE}')])
-    draw_reading(figure, reading, SPEED_UP)
-    start, end = DRIVE_TIME.position(0.0), DRIVE_TIME.position(turn_end)
+    draw_reading(figure, time_scale, reading, SPEED_UP)
+    start, end = time_scale.position(0.0), time_scale.position(turn_end)
     zero, commanded = reading.values.position(0.0), reading.values.position(TURN_RATE)
-    figure.path(f'M{start},{zero} V{commanded} H{end} V{zero} H{DRIVE_TIME.last_position}',
+    figure.path(f'M{start},{zero} V{commanded} H{end} V{zero} H{time_scale.last_position}',
                 LegendKind.COMMAND.value)
-    draw_messages(figure, SPEED_UP)
-    draw_drive_time_axis(figure)
+    draw_messages(figure, time_scale, SPEED_UP)
+    draw_drive_time_axis(figure, time_scale)
     return figure
 
 
@@ -529,10 +597,11 @@ def run_after_reset() -> float:
     """Return how long the panels follow the simulation after the reset, in s.
 
     A plugin that keeps the old time publishes again RUN_BEFORE_RESET and one period after the
-    reset. The panels show a fifth of RUN_BEFORE_RESET more, so that this sample and the
-    samples after it lie inside the plot.
+    reset. The panels show a fifth of RUN_BEFORE_RESET more, and at least one period after that
+    sample. So the sample lies inside the plot, also for a reset so early that a fifth of
+    RUN_BEFORE_RESET is shorter than a period.
     """
-    return 1.2 * RUN_BEFORE_RESET
+    return max(1.2 * RUN_BEFORE_RESET, RUN_BEFORE_RESET + 2 * IMU_PERIOD)
 
 
 def reset_run_scale() -> Scale:

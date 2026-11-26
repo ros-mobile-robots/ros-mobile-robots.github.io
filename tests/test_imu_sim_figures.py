@@ -15,10 +15,13 @@ import sys
 import tempfile
 from typing import Dict
 from typing import List
+from typing import NamedTuple
+from typing import Protocol
 from typing import Sequence
 from typing import Tuple
 import unittest
 from unittest import mock
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
@@ -213,10 +216,148 @@ class TestTextsFromValues(unittest.TestCase):
         self.assertEqual(labeled, [True, True, True])
 
 
+class Drawn(Protocol):
+    """A figure of one of the three scripts: it returns its drawing as an SVG element."""
+
+    def svg(self) -> str:
+        """Return the drawing as an SVG element."""
+
+
+class Edges(NamedTuple):
+    """The edges of an area on a drawing, in SVG units. y grows downward."""
+
+    left: float
+    top: float
+    right: float
+    bottom: float
+
+
+def svg_root(drawing: Drawn) -> ElementTree.Element:
+    """Return the SVG element that a figure writes, parsed as XML."""
+    return ElementTree.fromstring(drawing.svg())
+
+
+def elements_with_class(root: ElementTree.Element, tag: str,
+                        css_class: str) -> List[ElementTree.Element]:
+    """Return the elements with a tag whose class tokens include css_class, as drawn."""
+    return [element for element in root.iter(tag)
+            if css_class in element.get('class', '').split()]
+
+
+def attribute_number(element: ElementTree.Element, name: str) -> float:
+    """Return an element's attribute as a number."""
+    return float(element.attrib[name])
+
+
+def vertical_path_positions(path: ElementTree.Element) -> List[float]:
+    """Return the y positions that a path of M, V and H commands visits."""
+    positions = re.findall(r'M-?[\d.]+,(-?[\d.]+)|V(-?[\d.]+)', path.attrib['d'])
+    return [float(after_move or after_vertical) for after_move, after_vertical in positions]
+
+
 def sample_markers(drawing: imu_sim_test_figures.Figure) -> List[Tuple[float, float]]:
     """Return the positions of the dots that a reset panel draws on the IMU's samples."""
     return [(float(x), float(y)) for x, y in re.findall(
         r'<circle class="imu-dot" cx="([0-9.]+)" cy="([0-9.]+)"', drawing.svg())]
+
+
+class TestDriveTimelineScales(unittest.TestCase):
+    """The drive timelines keep what they draw inside their rows when a test's constant changes."""
+
+    LONGER_MEASURE = 3.0  # s, a second longer than the test's: the left turn then ends at 4 s
+    # The end of the turn, 4 s, on a time axis that runs from 0 to 4.3 s between x = 40 and 348
+    STOP_DOT_X_FOR_THE_LONGER_MEASURE = 326.5
+    FASTER_TURN_RATE = 1.0  # rad/s, twice the test's
+    # 1 rad/s in a chart that runs from 0 to 1.2 rad/s between y = 256 and 196
+    COMMAND_Y_FOR_THE_FASTER_TURN = 206.0
+    WIDER_GRAVITY_TOLERANCE = 1.0  # m/s², twice the test's: the test would accept 8.81 to 10.81
+    LOWER_GAZEBO_GRAVITY = 8.5  # m/s², below the 9 m/s² at which the chart starts otherwise
+    EARLY_RESET = 0.08  # s, so early that a fifth of it is shorter than the IMU's period of 0.02 s
+
+    def assert_rectangle_inside(self, rectangle: ElementTree.Element, edges: Edges) -> None:
+        """Assert that all four edges of a rect element lie within the edges."""
+        left, top = attribute_number(rectangle, 'x'), attribute_number(rectangle, 'y')
+        self.assertGreaterEqual(left, edges.left)
+        self.assertGreaterEqual(top, edges.top)
+        self.assertLessEqual(left + attribute_number(rectangle, 'width'), edges.right)
+        self.assertLessEqual(top + attribute_number(rectangle, 'height'), edges.bottom)
+        self.assertGreater(attribute_number(rectangle, 'height'), 0)
+
+    def chart_edges(self) -> Edges:
+        """Return the edges of the chart's row on a drive timeline."""
+        return Edges(left=imu_sim_test_figures.DRIVE_TIME_LEFT, top=imu_sim_test_figures.CHART.top,
+                     right=imu_sim_test_figures.DRIVE_TIME_RIGHT,
+                     bottom=imu_sim_test_figures.CHART.bottom)
+
+    def accepted_band(self, drawing: imu_sim_test_figures.Figure) -> ElementTree.Element:
+        """Return the rectangle of the accepted band: the first orange wash of a timeline."""
+        return elements_with_class(svg_root(drawing), 'rect', 'imu-wash')[0]
+
+    def test_time_axis_ends_shortly_after_the_last_command_of_the_tests(self) -> None:
+        self.assertEqual(imu_sim_test_figures.drive_time_scale(),
+                         imu_sim_test_figures.Scale(0.0, 3.3, 40.0, 348.0))
+
+    def test_left_turn_puts_the_stop_dot_on_the_time_axis_for_a_longer_measure(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'MEASURE', self.LONGER_MEASURE):
+            drawing = imu_sim_test_figures.left_turn_figure()
+        stop_dots = elements_with_class(svg_root(drawing), 'circle', 'command-dot')
+        self.assertEqual([attribute_number(dot, 'cx') for dot in stop_dots],
+                         [self.STOP_DOT_X_FOR_THE_LONGER_MEASURE])
+        self.assertLessEqual(self.STOP_DOT_X_FOR_THE_LONGER_MEASURE,
+                             imu_sim_test_figures.DRIVE_TIME_RIGHT)
+
+    def test_time_axis_numbers_the_fourth_second_for_a_longer_measure(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'MEASURE', self.LONGER_MEASURE):
+            drawing = imu_sim_test_figures.left_turn_figure()
+        numbers_y = imu_sim_test_figures.AXIS_Y + 14
+        numbers = [(text.text, attribute_number(text, 'x'))
+                   for text in svg_root(drawing).iter('text')
+                   if attribute_number(text, 'y') == numbers_y]
+        self.assertEqual([label for label, _ in numbers], ['0', '1', '2', '3', '4'])
+        self.assertEqual(numbers[-1][1], self.STOP_DOT_X_FOR_THE_LONGER_MEASURE)
+
+    def test_left_turn_keeps_the_command_trace_inside_the_chart_for_a_faster_turn(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'TURN_RATE', self.FASTER_TURN_RATE):
+            drawing = imu_sim_test_figures.left_turn_figure()
+        # The trace steps up and down. The legend's key of the same class is one level line
+        traces = [path for path in elements_with_class(svg_root(drawing), 'path', 'command-line')
+                  if 'V' in path.attrib['d']]
+        self.assertEqual(len(traces), 1, traces)
+        chart = self.chart_edges()
+        self.assertEqual(vertical_path_positions(traces[0]),
+                         [chart.bottom, self.COMMAND_Y_FOR_THE_FASTER_TURN, chart.bottom])
+        self.assertGreaterEqual(self.COMMAND_Y_FOR_THE_FASTER_TURN, chart.top)
+
+    def test_left_turn_keeps_the_accepted_band_inside_the_chart_for_a_faster_turn(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'TURN_RATE', self.FASTER_TURN_RATE):
+            drawing = imu_sim_test_figures.left_turn_figure()
+        self.assert_rectangle_inside(self.accepted_band(drawing), self.chart_edges())
+
+    def test_at_rest_keeps_the_accepted_band_inside_the_chart_for_a_wider_tolerance(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'GRAVITY_TOLERANCE',
+                               self.WIDER_GRAVITY_TOLERANCE):
+            drawing = imu_sim_test_figures.at_rest_figure()
+        self.assert_rectangle_inside(self.accepted_band(drawing), self.chart_edges())
+
+    def test_at_rest_keeps_the_reference_line_inside_the_chart_for_a_lower_gravity(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'GAZEBO_GRAVITY', self.LOWER_GAZEBO_GRAVITY):
+            drawing = imu_sim_test_figures.at_rest_figure()
+        # The reference line runs to the right end of the time axis. The legend's key is short
+        lines = [path for path in elements_with_class(svg_root(drawing), 'path', 'reference-line')
+                 if path.attrib['d'].endswith(f'H{imu_sim_test_figures.DRIVE_TIME_RIGHT}')]
+        self.assertEqual(len(lines), 1, lines)
+        chart = self.chart_edges()
+        self.assertEqual(vertical_path_positions(lines[0]), [chart.bottom])
+
+    def test_old_time_panel_marks_the_next_sample_inside_the_plot_for_an_early_reset(self) -> None:
+        with mock.patch.object(imu_sim_test_figures, 'RUN_BEFORE_RESET', self.EARLY_RESET):
+            drawing = imu_sim_test_figures.reset_with_the_old_time_figure()
+        markers = elements_with_class(svg_root(drawing), 'circle', 'imu-dot')
+        self.assertEqual(len(markers), 1, markers)
+        self.assertLessEqual(attribute_number(markers[0], 'cx'),
+                             imu_sim_test_figures.RESET_PLOT_RIGHT)
+        self.assertGreaterEqual(attribute_number(markers[0], 'cy'),
+                                imu_sim_test_figures.RESET_PLOT_TOP)
 
 
 class TestResetPanels(unittest.TestCase):
