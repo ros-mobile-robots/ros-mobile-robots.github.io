@@ -68,6 +68,116 @@ class TestSvgElement(unittest.TestCase):
         self.assertTrue(self.svg.endswith('\n<path class="arrow"/>\n</svg>'))
 
 
+class TestSvgElementWithADescription(unittest.TestCase):
+    """svg_element() adds a description to the accessible name and takes the drawing's markers."""
+
+    def test_svg_element_names_its_title_and_its_description(self) -> None:
+        svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A & B', [],
+                                         description='C < D')
+        self.assertIn('aria-labelledby="some-layout-title some-layout-description">'
+                      '<title id="some-layout-title">A &amp; B</title>'
+                      '<desc id="some-layout-description">C &lt; D</desc><defs>', svg)
+
+    def test_svg_element_has_no_definitions_without_markers(self) -> None:
+        svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A', [],
+                                         markers=())
+        self.assertNotIn('<defs>', svg)
+        self.assertNotIn('<marker', svg)
+
+    def test_svg_element_defines_exactly_the_given_markers(self) -> None:
+        markers = [board_drawings.arrowhead_marker('some-layout-flow', 'flow-head',
+                                                   'auto-start-reverse'),
+                   board_drawings.arrowhead_marker('some-layout-request', 'request-head')]
+        svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A', [],
+                                         markers=markers)
+        self.assertEqual(re.findall(r'<marker id="([^"]+)"[^>]* orient="([^"]+)">'
+                                    r'<path class="([^"]+)"', svg),
+                         [('some-layout-flow', 'auto-start-reverse', 'flow-head'),
+                          ('some-layout-request', 'auto', 'request-head')])
+
+
+class TestSvgSubscript(unittest.TestCase):
+    """svg_subscript() lowers the index and, on request, lifts the text after it again."""
+
+    def test_svg_subscript_lowers_the_index_at_the_end_of_a_line(self) -> None:
+        self.assertEqual(board_drawings.svg_subscript('f', 'z'),
+                         'f<tspan class="sub" dy="3">z</tspan>')
+
+    def test_svg_subscript_restores_the_baseline_for_the_text_after_it(self) -> None:
+        self.assertEqual(board_drawings.svg_subscript('f', 'z', restore_baseline=True),
+                         'f<tspan class="sub" dy="3">z</tspan><tspan dy="-3">\u200b</tspan>')
+
+
+class TestText(unittest.TestCase):
+    """Drawing.text() escapes its text, and Drawing.text_markup() keeps its markup."""
+
+    def test_text_escapes_the_characters_with_a_meaning_in_svg(self) -> None:
+        drawing = board_drawings.Drawing()
+        drawing.text(4, 12.5, 'a < b', 'note', 'end')
+        self.assertEqual(drawing.elements,
+                         ['<text class="note" x="4" y="12.5" text-anchor="end">a &lt; b</text>'])
+
+    def test_text_markup_keeps_the_markup_as_it_is(self) -> None:
+        drawing = board_drawings.Drawing()
+        drawing.text_markup(4, 12.5, board_drawings.svg_subscript('f', 'z'))
+        self.assertEqual(drawing.elements,
+                         ['<text x="4" y="12.5" text-anchor="start">f<tspan class="sub" dy="3">z'
+                          '</tspan></text>'])
+
+
+class TestFigureElement(unittest.TestCase):
+    """figure_element() puts the panels and the caption into one figure, sized by its widths."""
+
+    PANELS = '<svg class="some-fig"></svg>'
+    WIDTHS = board_drawings.PanelWidths(basis=280, widest=400)
+
+    def test_figure_element_lets_markdown_read_only_the_caption(self) -> None:
+        figure = board_drawings.figure_element('some', self.PANELS, 'A `caption`', self.WIDTHS)
+        self.assertEqual(
+            figure,
+            '<figure class="some-figure" markdown="block" '
+            'style="--some-basis:280px;--some-max:400px">\n'
+            '<div class="some-panels">\n<svg class="some-fig"></svg>\n</div>\n'
+            '<figcaption markdown="span">A `caption`</figcaption>\n</figure>')
+
+    def test_figure_element_has_no_markdown_attribute_for_a_caption_in_html(self) -> None:
+        figure = board_drawings.figure_element('some', self.PANELS, 'A <code>caption</code>',
+                                               self.WIDTHS, caption_is_markdown=False)
+        self.assertNotIn('markdown=', figure)
+        self.assertIn('<figcaption>A <code>caption</code></figcaption>', figure)
+
+
+class TestTabSet(unittest.TestCase):
+    """tab_set() builds each tab's radio input, label and block from one Tab."""
+
+    TABS = (board_drawings.Tab('First & only', '<p>one</p>'),
+            board_drawings.Tab('Second', '<p>two</p>'),
+            board_drawings.Tab('Third', '<p>three</p>'))
+
+    def setUp(self) -> None:
+        self.tab_set = board_drawings.tab_set('some', 'some-tabs', self.TABS)
+
+    def test_tab_set_has_one_radio_input_per_tab_and_selects_the_first(self) -> None:
+        inputs = re.findall(r'<input( checked)? id="([^"]+)" name="([^"]+)" type="radio">',
+                            self.tab_set)
+        self.assertEqual(inputs, [(' checked', '__tabbed_some_1', '__tabbed_some'),
+                                  ('', '__tabbed_some_2', '__tabbed_some'),
+                                  ('', '__tabbed_some_3', '__tabbed_some')])
+
+    def test_tab_set_labels_each_input_with_its_tabs_escaped_label(self) -> None:
+        labels = re.findall(r'<label for="([^"]+)">([^<]*)</label>', self.tab_set)
+        self.assertEqual(labels, [('__tabbed_some_1', 'First &amp; only'),
+                                  ('__tabbed_some_2', 'Second'), ('__tabbed_some_3', 'Third')])
+
+    def test_tab_set_holds_the_tabs_contents_in_the_order_of_their_labels(self) -> None:
+        blocks = re.findall(r'<div class="tabbed-block">\n(.*)\n</div>', self.tab_set)
+        self.assertEqual(blocks, ['<p>one</p>', '<p>two</p>', '<p>three</p>'])
+
+    def test_tab_set_names_its_class_and_its_number_of_tabs(self) -> None:
+        self.assertTrue(self.tab_set.startswith(
+            '<div class="tabbed-set tabbed-alternate some-tabs" data-tabs="some:3">'))
+
+
 class TestNumberDisc(unittest.TestCase):
     """Drawing.number_disc() centers the number in its disc."""
 
