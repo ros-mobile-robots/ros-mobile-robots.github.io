@@ -16,11 +16,8 @@ import itertools
 import os
 from pathlib import Path
 import re
-import shutil
 import socket
-import subprocess
 import sys
-import tempfile
 from types import ModuleType
 from typing import Dict
 from typing import List
@@ -34,6 +31,10 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 FIGURES = ROOT / 'scripts' / 'figures'
+sys.path.insert(0, str(ROOT / 'tests'))
+
+import figure_script_runs  # noqa: E402
+
 # The includes that each script writes
 INCLUDE_NAMES = {
     'localization_figures.py': [
@@ -75,9 +76,8 @@ TWO_LAYOUT_DRAWINGS = {
 }
 # A viewBox as the scripts write it: the origin, then the width and the height
 VIEW_BOX = re.compile(r'0 0 (\d+) (\d+)')
-# With these variables, Python's default encoding for a text file is ASCII: the C locale, without
-# Python's own switch to UTF-8 for that locale
-ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
+# The measured data that the scripts read, from the repository's root
+MEASURED_DATA = 'scripts/figures/data'
 
 
 def run_with_an_ascii_locale(script_name: str) -> Dict[str, bytes]:
@@ -86,15 +86,7 @@ def run_with_an_ascii_locale(script_name: str) -> Dict[str, bytes]:
     The script runs in a folder with only a copy of the measured data that the scripts read, so
     the repository's includes stay as they are.
     """
-    with tempfile.TemporaryDirectory() as folder:
-        includes = Path(folder) / 'includes'
-        includes.mkdir()
-        shutil.copytree(FIGURES / 'data', Path(folder) / 'scripts' / 'figures' / 'data')
-        run = subprocess.run([sys.executable, str(FIGURES / script_name)], cwd=folder,
-                             env={**os.environ, **ASCII_LOCALE}, capture_output=True, text=True)
-        if run.returncode != 0:
-            raise RuntimeError(f'{script_name} failed: {run.stderr.strip()}')
-        return {include.name: include.read_bytes() for include in includes.iterdir()}
+    return figure_script_runs.run_with_an_ascii_locale(script_name, [MEASURED_DATA])
 
 
 def include_text(include_name: str) -> str:
