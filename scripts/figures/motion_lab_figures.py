@@ -532,14 +532,14 @@ EXAMPLES = (
         ),
         other=Prompt(
             question=(
-                '<b>The configured wheel radius is {radius_error} % too big.</b> The robot is told'
-                ' to {command}. Does the turn notice the wrong radius too?'
+                '<b>The configured wheel radius is {radius_error} % too big.</b> When the robot is'
+                ' told to {command}, do the odometry and the true pose agree on the angle?'
             ),
             answer=(
-                'Yes. The odometry reports {odometry_turned} rad, and the robot turns'
-                ' {model_turned} rad. The two differ by {gap_turned} rad, more than the'
-                ' {agreement_tolerance} rad that the check allows. The check that compares the'
-                ' odometry with the true pose fails here too.'
+                'The odometry reports {odometry_turned} rad. The robot turns {model_turned} rad.'
+                ' The difference is {gap_turned} rad. Only the check that compares the odometry'
+                ' with the true pose fails, because it allows a difference of at most'
+                ' {agreement_tolerance} rad.'
             ),
         ),
     ),
@@ -559,13 +559,13 @@ EXAMPLES = (
         ),
         other=Prompt(
             question=(
-                '<b>The configured wheel separation is {separation_error} % too small.</b> The'
-                ' robot is told to {command}. Does a check fail?'
+                '<b>The configured wheel separation is {separation_error} % too small.</b> When'
+                ' the robot is told to {command}, does any check detect the error?'
             ),
             answer=(
-                'No, and nothing changes. On a straight drive both wheels turn at the same speed,'
-                " so the separation doesn't enter. The odometry and the robot both show"
-                ' {model_forward} m. Only the turn can catch a wrong separation.'
+                'All checks pass. Both wheels roll the same distance on this straight drive.'
+                ' Changing their configured separation leaves the forward distance at'
+                ' {model_forward} m in both views.'
             ),
         ),
     ),
@@ -580,20 +580,20 @@ EXAMPLES = (
         answer=(
             'No. The robot turns about the midpoint of its axle. A frame {offset_cm} cm behind'
             ' that midpoint follows an arc and ends {model_distance_cm} cm from its start. The'
-            ' check that allows {distance_tolerance} m fails. The odometry reports no movement. On'
-            " DiffBot and Remo, <code>base_footprint</code> is at the axle's midpoint and stays in"
-            ' place.'
+            ' check that allows {distance_tolerance} m fails. The odometry reports a turn in'
+            " place. On DiffBot and Remo, <code>base_footprint</code> is at the axle's midpoint"
+            ' and stays in place.'
         ),
         other=Prompt(
             question=(
                 '<b>What if <code>base_footprint</code> were {offset_cm} cm behind the axle?</b>'
-                ' The robot is told to {command}. Does <code>base_footprint</code> drive another'
-                ' distance?'
+                " When the robot is told to {command}, does that point travel as far as the axle's"
+                ' midpoint?'
             ),
             answer=(
-                'No. On a straight drive every point of the robot moves the same way, so'
-                ' <code>base_footprint</code> drives {model_forward} m, as the axle does. Only the'
-                ' turn shows where <code>base_footprint</code> lies.'
+                "Yes. The robot's heading stays constant, so the axle's midpoint and"
+                ' <code>base_footprint</code> both move forward {model_forward} m. All checks'
+                ' pass.'
             ),
         ),
     ),
@@ -614,13 +614,13 @@ EXAMPLES = (
         ),
         other=Prompt(
             question=(
-                '<b>What if the wheels pushed on the ground at their outer edges?</b> The robot is'
-                ' told to {command}. How far does the robot drive?'
+                '<b>What if the wheels pushed on the ground at their outer edges?</b> When the'
+                ' robot is told to {command}, how far does it travel?'
             ),
             answer=(
-                '{model_forward} m, as with wheels that push in their middle. Where the wheels'
-                ' push only changes how far apart they push, and that matters only when they turn'
-                ' at different speeds.'
+                'The robot travels {model_forward} m. Both wheels roll forward the same distance.'
+                ' Moving their contact points farther apart changes the turn when the wheels roll'
+                ' different distances. All checks for this straight drive pass.'
             ),
         ),
     ),
@@ -639,13 +639,13 @@ EXAMPLES = (
         ),
         other=Prompt(
             question=(
-                '<b>The wheels reach only {tracking} % of their commanded speed.</b> The robot is'
-                ' told to {command}. Does a check fail?'
+                '<b>The wheels reach only {tracking} % of their commanded speed.</b> When the'
+                ' robot is told to {command}, does the smaller turn pass the checks?'
             ),
             answer=(
-                'No, but only just. The odometry and the robot both show a turn of {model_turned}'
-                ' rad, the smallest that the check of {expected_turned} ± {turned_tolerance} rad'
-                " still allows. A value on a tolerance's boundary passes."
+                'Yes. Both the odometry and the true pose give {model_turned} rad. That is the'
+                ' lower limit of {expected_turned} ± {turned_tolerance} rad. The two angles agree'
+                ' and the robot turns in place, so all checks pass in this figure.'
             ),
         ),
     ),
@@ -1258,7 +1258,8 @@ def steps_html() -> str:
     return ''.join([
         '<div class="ix-steps">',
         f'<p><b>{NUMBER_WORDS[len(EXAMPLES)]} drives to try.</b> Each one changes a single value'
-        f' of {robot}. Guess the answer first.</p>',
+        f' of {robot}. Make a prediction, then press Play or move the time slider to see how'
+        ' the three views compare.</p>',
         '<div class="ix-stepper" data-live hidden><button type="button"'
         ' class="ix-previous">Previous</button><span class="ix-step-count"'
         ' aria-live="polite"></span><button type="button" class="ix-next">Next</button><button'
