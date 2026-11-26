@@ -11,7 +11,7 @@ The sections build on each other, from one measured value to a vector of values 
 5. [How ROS messages store a covariance](#how-ros-messages-store-a-covariance): a matrix as an array of 9 or 36 numbers, and the arrays with a special meaning.
 6. [What the EKF does with a variance](#what-the-ekf-does-with-a-variance): how a measurement's variance, compared with the prediction's, sets the measurement's weight.
 
-Each example says where its numbers come from: a setting in the robots' code, a measurement on Remo, or example values that make a formula easy to follow. The messages also carry a rotation as four numbers, which [Quaternions](quaternions.md) explains.
+Each example says where its numbers come from: a setting in the robots' code, a measurement on Remo, or example values that make a formula easy to follow. The robots' odometry messages also carry the robot's heading as a quaternion. The [Quaternions](quaternions.md) page explains those four numbers.
 
 ## The noise of one value
 

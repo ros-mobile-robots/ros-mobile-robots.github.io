@@ -5,10 +5,10 @@ ROS represents a rotation with a unit quaternion, four numbers in the order $x, 
 The sections go from the four numbers to the robots' messages:
 
 1. [A rotation as four numbers](#a-rotation-as-four-numbers): an axis and an angle, stored together.
-2. [The length 1 and the rotation that does nothing](#the-length-1-and-the-rotation-that-does-nothing): what a unit quaternion is, and why four zeros are no rotation.
+2. [The length 1 and the rotation that does nothing](#the-length-1-and-the-rotation-that-does-nothing): what a unit quaternion is and why four zeros can't represent a rotation.
 3. [Roll, pitch and yaw](#roll-pitch-and-yaw): three angles for the same rotation, and the heading of a robot on the floor.
 4. [Remo's IMU, turned by −90°](#remos-imu-turned-by-90): the worked example, from the robot's URDF model to the transform that ROS publishes.
-5. [How ROS stores a quaternion](#how-ros-stores-a-quaternion): the message's four fields, and where the robots' messages carry them.
+5. [How ROS stores a quaternion](#how-ros-stores-a-quaternion): the message's four fields, and which of the robots' messages hold an orientation.
 
 ## A rotation as four numbers
 
@@ -156,7 +156,7 @@ ROS's message for a quaternion, [`geometry_msgs/Quaternion`](https://github.com/
 
 The fields `x`, `y`, `z` and `w` are $q_x$, $q_y$, $q_z$ and $q_w$. Some libraries take $q_w$ first: the constructor `Quaternion(w, x, y, z)` of the C++ library Eigen, for example ([Eigen's `Quaternion` class](https://libeigen.gitlab.io/eigen/docs-nightly/classEigen_1_1Quaternion.html)). Before you copy four numbers from one library to another, check the order that each one uses.
 
-The robots' messages carry quaternions in three places:
+In the robots' messages, check where the four numbers come from and whether the orientation is available:
 
 - **The IMU's orientation:** on `/diffbot/imu/data_raw`, `orientation` of [`sensor_msgs/Imu`](noise-and-covariance.md#the-imus-message) is four zeros with −1 in `orientation_covariance[0]`, so the field holds no data. The BNO055 can compute its own orientation as a quaternion ([BNO055 datasheet, section 3.6.5.5 on page 37](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=37)). The chip's registers hold that quaternion with $q_w$ first. The firmware doesn't read that quaternion, because the EKF uses only the yaw rate.
 - **The odometry's orientation:** `pose.pose.orientation` of `nav_msgs/Odometry` holds the heading $\theta$ as a yaw-only quaternion. The drive controller publishes this message on `/diffbot/mobile_base_controller/odom`, and the EKF on `/diffbot/odometry/filtered`, as [The two outputs](../../packages/imu/robot_localization.md#the-two-outputs) on the Localization page describes.
