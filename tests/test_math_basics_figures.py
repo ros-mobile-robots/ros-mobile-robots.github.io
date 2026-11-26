@@ -30,6 +30,9 @@ SCRIPT = FIGURES / 'math_basics_figures.py'
 PAGE = ROOT / 'docs' / 'theory' / 'preliminaries' / 'noise-and-covariance.md'
 INCLUDE_NAMES = ['math-covariance-axes.html', 'math-covariance-scatter.html',
                  'math-covariance-shares.html', 'math-normal-distribution.html']
+# The includes of scripts/figures/imu_noise_figures.py that the page shows first, in "The noise
+# of one value": the readings at rest against time, and the three readings of the worked example
+OTHER_SCRIPTS_INCLUDES = ['imu-noise-trace.html', 'imu-noise-three-readings.html']
 # A row of the page's table of the shares inside: the standard deviations, then the shares for
 # one, two and three values, such as "| 1 standard deviation | 68.3 % | 39.3 % | 19.9 % |"
 SHARES_ROW = re.compile(r'\| (\d) standard deviations? \| ([\d.]+ %) \| ([\d.]+ %) \| '
@@ -81,6 +84,12 @@ class SharesRow(NamedTuple):
     one_value: str
     two_values: str
     three_values: str
+
+
+def page_include_names() -> List[str]:
+    """Return the file names of the includes that the page shows, from the top."""
+    return re.findall(r'^--8<-- "includes/([^"]+\.html)"$', PAGE.read_text(encoding='utf-8'),
+                      re.MULTILINE)
 
 
 def page_shares() -> List[SharesRow]:
@@ -152,10 +161,22 @@ class TestIncludes(unittest.TestCase):
             self.assertTrue(text.startswith(
                 '<!-- Written by scripts/figures/math_basics_figures.py -->\n'), include_name)
 
-    def test_includes_have_no_id_in_common(self) -> None:
-        # One page shows all four figures
-        ids: List[str] = []
+    def test_page_shows_each_of_the_scripts_includes_once(self) -> None:
+        shown = page_include_names()
         for include_name in INCLUDE_NAMES:
+            self.assertEqual(shown.count(include_name), 1, include_name)
+
+    def test_page_shows_the_trace_and_the_three_readings_before_the_scripts_figures(
+            self) -> None:
+        self.assertEqual(page_include_names()[:len(OTHER_SCRIPTS_INCLUDES)],
+                         OTHER_SCRIPTS_INCLUDES)
+
+    def test_pages_includes_have_no_id_in_common(self) -> None:
+        # The page shows this script's figures and two of imu_noise_figures.py
+        shown = page_include_names()
+        self.assertEqual(len(shown), len(INCLUDE_NAMES) + len(OTHER_SCRIPTS_INCLUDES))
+        ids: List[str] = []
+        for include_name in shown:
             ids += re.findall(r' id="([^"]+)"',
                               (ROOT / 'includes' / include_name).read_text(encoding='utf-8'))
         self.assertEqual(len(ids), len(set(ids)))

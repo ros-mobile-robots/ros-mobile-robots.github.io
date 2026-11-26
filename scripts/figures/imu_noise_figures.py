@@ -1,9 +1,10 @@
 """Generate the figures about the IMU's bias and noise at rest as inline SVG.
 
-The pages are docs/packages/imu/driver-bno055.md, section "Bias and noise at rest", and
-docs/packages/imu/noise-at-rest-tests.md, the walkthrough of the tests of
-diffbot_bringup/scripts/imu_noise_at_rest.py in the diffbot repository. The script writes these
-includes, which follow the site's light and dark colors:
+The pages are docs/theory/preliminaries/noise-and-covariance.md, section "The noise of one
+value", which explains the bias and the noise, and docs/packages/imu/noise-at-rest-tests.md, the
+walkthrough of the tests of diffbot_bringup/scripts/imu_noise_at_rest.py in the diffbot
+repository. The theory page shows the first two includes, and the tests page the second one and
+the others. The script writes these includes, which follow the site's light and dark colors:
 
 - includes/imu-noise-trace.html: yaw-rate readings at rest against time, with zero, the mean and
   the mean plus and minus one standard deviation, and a legend of the marks. The readings are a

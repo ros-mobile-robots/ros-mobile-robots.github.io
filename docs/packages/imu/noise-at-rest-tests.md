@@ -128,7 +128,7 @@ The frame matters because it says which way the axes x, y and z point. Readings 
 
 ## The statistics of one axis
 
-[`axis_statistics()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L592-L596) gets the readings of one axis and returns their mean, their sample variance and the number of distinct values. It takes the variance from [`sample_variance()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L577-L589), which calculates with fractions instead of floating-point numbers. [The mean and the variance of three readings](driver-bno055.md#the-mean-and-the-variance-of-three-readings) on the BNO055 page explains the formulas. The test of the sample variance uses the four values 1, 2, 3 and 4:
+[`axis_statistics()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L592-L596) gets the readings of one axis and returns their mean, their sample variance and the number of distinct values. It takes the variance from [`sample_variance()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L577-L589), which calculates with fractions instead of floating-point numbers. [The variance and the standard deviation](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) on the Noise and Covariance page explains the formulas. The test of the sample variance uses the four values 1, 2, 3 and 4:
 
 --8<-- "includes/imu-noise-test-variance.html"
 

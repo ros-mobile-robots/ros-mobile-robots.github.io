@@ -16,7 +16,7 @@ An inertial measurement unit (IMU) measures how the robot turns and accelerates:
 
 The robot uses one value from it: the **yaw rate** $\omega_z$, the angular velocity about the upward axis. The [EKF](robot_localization.md) on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's I2C bus, and the Teensy's firmware publishes its measurements over [rosserial](../../processing_units/teensy-mcu.md#other-boards-such-as-an-arduino).
 
-To measure how far your robot's IMU is off at rest and how much its readings scatter, go to [Bias and noise at rest](#bias-and-noise-at-rest). Its figure shows what the bias and the noise are, and one command measures both on a recording of the IMU's messages.
+To measure how far your robot's IMU is off at rest and how much its readings scatter, go to [Bias and noise at rest](#bias-and-noise-at-rest). One command measures both on a recording of the IMU's messages.
 
 [Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF. In the Gazebo simulation, a simulated IMU publishes on the same topic, with the same message type and frame and with the orientation marked unavailable, as [IMU: Simulation](simulation/index.md) shows. Its noise and its variances are settings of the simulation, not the firmware's, as [the simulation and the real robot](simulation/index.md#the-simulation-and-the-real-robot) explains.
 
@@ -103,19 +103,7 @@ A [tilt test](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomme
 
 ## Bias and noise at rest
 
-An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the **bias**, and they scatter around their average, the **noise**. The tool [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the IMU's messages, made while the robot stood still, and prints the gyroscope's remaining bias and the noise of each axis.
-
-### Bias and noise in a picture
-
-The figure shows what the two words mean. It plots the yaw rate $\omega_z$ that a gyroscope at rest reads, against time. A robot at rest doesn't turn, so every reading should lie on the zero line.
-
---8<-- "includes/imu-noise-trace.html"
-
-- **The bias** is how far the mean of the readings lies from zero.
-- **The noise** is how far the readings scatter around their mean. The band reaches one standard deviation $s$ above and below the mean.
-- **The steps:** the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055's step is 1/900 rad/s, about 0.0011 rad/s.
-
-The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show it. With Remo's +0.00005 rad/s, which [Results on Remo](#results-on-remo) lists, the line of the mean would lie on the zero line.
+An IMU at rest should read an angular velocity of zero and an acceleration of gravity's size. A real one doesn't: its readings have an offset, the **bias**, and they scatter around their average, the **noise**. [The noise of one value](../../theory/preliminaries/noise-and-covariance.md#the-noise-of-one-value) on the Noise and Covariance page shows both in a figure and calculates them by hand. The tool [`imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py) in the diffbot repository reads a recording of the IMU's messages, made while the robot stood still, and prints the gyroscope's remaining bias and the noise of each axis.
 
 ### Run the tool on a recording
 
@@ -146,7 +134,7 @@ The rest of this section explains the result:
 
 1. [Make a recording](#make-a-recording): 180 s on the robot, without overwriting the recording before.
 2. [Read the report](#read-the-report): what each number means.
-3. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings): the calculation by hand.
+3. [How the tool calculates](#how-the-tool-calculates): the two functions behind a row, and what a recording can't say.
 4. [From the report to the EKF](#from-the-report-to-the-ekf): where one measured number belongs.
 5. [Results on Remo](#results-on-remo) and [How the tool is tested](#how-the-tool-is-tested).
 
@@ -251,7 +239,7 @@ Then run the tool where the recording is, with the name that the recorder printe
 
 ### Read the report
 
-After the checks of the input, the report has 18 lines when each of the two fields, the angular velocity and the acceleration, has at least two readings. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) calculates its row `z` by hand.
+After the checks of the input, the report has 18 lines when each of the two fields, the angular velocity and the acceleration, has at least two readings. The example is the whole report for a small bag: three messages 20 ms apart, with the yaw rates 0, 1/900 and 2/900 rad/s and a robot that stands level. [The worked example](../../theory/preliminaries/noise-and-covariance.md#the-mean) on the Noise and Covariance page calculates the mean and the sample variance printed in row `z`.
 
 ??? example "The whole report for three messages"
     The tool's test [`test_tool_prints_the_report_of_three_readings_one_output_step_apart`](noise-at-rest-tests.md#the-whole-report-for-three-messages) writes this bag and compares every line of the report:
@@ -293,7 +281,7 @@ Each table has one row for each axis and these columns:
 | `3 readings` | Below the field's name: how many messages have a measurement of this field. A [`sensor_msgs/Imu`](#what-the-firmware-publishes) message marks a field that it didn't measure with −1 as the first element of the field's covariance ([`Imu.msg`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L5-L13)). The tool leaves such a message out of the field's statistics. |
 | `mean` of `angular_velocity` | The gyroscope's **bias**: what the gyroscope reads while the robot doesn't turn. In the IMU mode that the firmware selects, the BNO055's fusion estimates the gyroscope's offset in the background and subtracts the estimate from the output ([datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf), sections 3.6.5.1 and 3.6.5.3). So the mean is the bias that remains in the corrected output. It isn't the bias of the raw sensor, which the firmware never reads. |
 | `mean` of `linear_acceleration` | Gravity's share on each axis, plus the accelerometer's remaining error. One recording at rest can't separate the two. The shares depend on how the robot stands, so they change from one recording to the next. |
-| `variance` | The **noise** as a variance $s^2$: how far the readings scatter around their mean, as a squared distance in (rad/s)² or (m/s²)². [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) has the formula. The variances in the message's covariances have the same unit. |
+| `variance` | The **noise** as a variance $s^2$: how far the readings scatter around their mean, as a squared distance in (rad/s)² or (m/s²)². [The variance and the standard deviation](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) on the Noise and Covariance page has the formula. The variances in the message's covariances have the same unit. |
 | `std dev` | The standard deviation $s$, the square root of the variance. Its unit is the readings' own, so it is easier to compare with them. |
 | `distinct values` | How many different values the axis read in this recording. The BNO055 reports in steps of 1/900 rad/s (0.0011 rad/s) and 1/100 m/s² (0.01 m/s²). When the noise is smaller than one step, the readings take only a handful of values around their mean. The count says how many steps the recording used. It doesn't say how large a step is. |
 
@@ -315,41 +303,9 @@ The tool refuses a recording that it can't interpret. It then prints one line th
 
 [`--topic`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L770-L771) selects another `sensor_msgs/Imu` topic than `/diffbot/imu/data_raw`. The 30 ms of the line `Header intervals` belong to the firmware's 50 Hz and don't adapt to a topic with another rate.
 
-### The mean and the variance of three readings
+### How the tool calculates
 
-The row `z` of the example report comes from three readings of the yaw rate. One step of the BNO055's gyroscope is $\Delta$ = 1/900 rad/s, about 0.00111 rad/s, and the three readings $\omega_{z,1}$, $\omega_{z,2}$ and $\omega_{z,3}$ are 0, $\Delta$ and $2\Delta$:
-
---8<-- "includes/imu-noise-three-readings.html"
-
-**The mean** $\bar{\omega}_z$ is the sum of the $N$ = 3 readings, divided by $N$:
-
-$$
-\begin{aligned}
-\bar{\omega}_z &= \frac{1}{N}\sum_{i=1}^{N} \omega_{z,i} \\
-&= \frac{0 + \Delta + 2\Delta}{3} = \Delta \\
-&= 0.00111\ \text{rad/s}
-\end{aligned}
-$$
-
-**The sample variance** $s^2$ adds up the squared deviations of the readings from the mean, here $-\Delta$, 0 and $+\Delta$, and divides the sum by $N - 1$:
-
-$$
-\begin{aligned}
-s^2 &= \frac{1}{N-1}\sum_{i=1}^{N} \left(\omega_{z,i} - \bar{\omega}_z\right)^2 \\
-&= \frac{\Delta^2 + 0 + \Delta^2}{3 - 1} = \Delta^2 \\
-&= 1.235 \cdot 10^{-6}\ (\text{rad/s})^2
-\end{aligned}
-$$
-
-**The standard deviation** $s$ is the square root of the variance:
-
-$$
-s = \sqrt{s^2} = \Delta = 0.00111\ \text{rad/s}
-$$
-
-These are the three numbers of the row `z`: `+0.00111`, `1.235e-06` and `0.00111`. The last column of the row, `3`, counts the three different values.
-
-The divisor is $N - 1$ and not $N$, because the deviations are measured from the readings' own mean. That mean lies closer to the readings than the true mean, which nobody knows, so the squared deviations come out a little too small. Dividing by $N - 1$ makes up for it ([Bessel's correction](https://en.wikipedia.org/wiki/Bessel%27s_correction)). With $N$, the example's variance would be two thirds of $\Delta^2$.
+The row `z` of the example report comes from three readings of the yaw rate, 0, $\Delta$ and $2\Delta$, with the BNO055's output step $\Delta$ = 1/900 rad/s. Their mean is $\Delta$, their sample variance $s^2$ is $\Delta^2$, and their standard deviation $s$ is $\Delta$. These are the three numbers of the row `z`: `+0.00111`, `1.235e-06` and `0.00111`. The last column of the row, `3`, counts the three different values. [The variance and the standard deviation](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) on the Noise and Covariance page works the three numbers out by hand and says why the sample variance divides by $N - 1$, the number of readings minus one.
 
 The excerpt shows the two functions of the tool that do this calculation, [lines 577–596 of `imu_noise_at_rest.py`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L577-L596). [`axis_statistics()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L592-L596) gets the readings of one axis as [`values`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L592). It takes their mean from Python's [`statistics.mean()`](https://docs.python.org/3.8/library/statistics.html#statistics.mean) and their sample variance from [`sample_variance()`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L577-L589). That function passes the readings to Python's [`statistics.variance()`](https://docs.python.org/3.8/library/statistics.html#statistics.variance), which divides by $N - 1$, as fractions. A fraction holds a floating-point number exactly, so the mean, the deviations and their squares aren't rounded on the way:
 

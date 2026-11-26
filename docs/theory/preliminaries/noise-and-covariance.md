@@ -1,10 +1,10 @@
 # Noise and Covariance
 
-A stationary gyroscope gives slightly different readings from one sample to the next. Variance describes the spread on one axis. Covariance describes how errors on two axes vary together. The robots' [extended Kalman filter (EKF)](../../packages/imu/robot_localization.md) uses these uncertainties when it combines the gyroscope with wheel odometry.
+A stationary gyroscope gives slightly different readings from one sample to the next. Variance describes the spread on one axis. Covariance describes how errors on two axes vary together. The robots' [extended Kalman filter (EKF)](../../packages/imu/robot_localization.md) uses these uncertainties when it combines the gyroscope with wheel odometry. The gyroscope is part of the robots' inertial measurement unit (IMU), the [BNO055](../../packages/imu/driver-bno055.md).
 
 The sections build on each other, from one measured value to a vector of values and then to the filter:
 
-1. [The noise of one value](#the-noise-of-one-value): the bias, the mean, the variance and the standard deviation, worked by hand for three readings of a gyroscope.
+1. [The noise of one value](#the-noise-of-one-value): the bias and the noise in a figure, then the mean, the variance and the standard deviation, worked by hand for three readings of a gyroscope.
 2. [The normal distribution](#the-normal-distribution): the shape of the noise that the simulated IMU adds, and the model behind the EKF's mean and covariance.
 3. [The covariance of two values](#the-covariance-of-two-values): whether the errors of two values go up and down together, and why independent errors have the covariance 0.
 4. [The covariance matrix and its ellipsoid](#the-covariance-matrix-and-its-ellipsoid): all variances and covariances of a vector in one matrix, and the shape that the matrix describes.
@@ -20,7 +20,17 @@ A gyroscope measures how fast the sensor turns, as an angular velocity in rad/s.
 - **The bias:** an offset of the mean reading from the true value. A single reading can still lie on the other side of the true value.
 - **The noise:** what makes the individual readings scatter around that mean, differently from one reading to the next.
 
-A recording of $N$ readings $\omega_{z,1}, \omega_{z,2}, \dots, \omega_{z,N}$ at rest describes both with three numbers. The mean says where the readings lie. The variance and the standard deviation say how far they scatter. This example uses three readings, so that every step can be followed by hand. Remo's recording of 180 s contains thousands.
+The figure plots the yaw rate that a gyroscope at rest reads, against time. Every reading should lie on the zero line. Compare the line of the mean with the zero line to see the bias, and the band around the mean with the dots to see the noise:
+
+--8<-- "includes/imu-noise-trace.html"
+
+- **The bias** is how far the mean of the readings lies from zero.
+- **The noise** is how far the readings scatter around their mean. The band reaches one standard deviation $s$ above and below the mean.
+- **The steps:** the readings lie on the dotted lines only, because the sensor reports whole steps. The BNO055 reports the angular velocity in steps of $\Delta$ = 1/900 rad/s, about 0.00111 rad/s ([BNO055 datasheet, table 3-22 on page 35](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=35)).
+
+The example's bias is about 30 times the bias that was measured on Remo, so that the figure can show the bias. With Remo's +0.00005 rad/s, which [Results on Remo](../../packages/imu/driver-bno055.md#results-on-remo) on the BNO055 page lists, the line of the mean would lie on the zero line. [Bias and noise at rest](../../packages/imu/driver-bno055.md#bias-and-noise-at-rest) on the same page shows how to record a robot's IMU and measure both.
+
+A recording of $N$ readings $\omega_{z,1}, \omega_{z,2}, \dots, \omega_{z,N}$ at rest describes both with three numbers. The mean says where the readings lie. The variance and the standard deviation say how far they scatter. The example below uses three readings, so that every step can be followed by hand. Remo's recording of 180 s contains thousands.
 
 ### The mean
 
@@ -30,7 +40,11 @@ $$
 \bar\omega_z = \frac{1}{N}\sum_{i=1}^{N} \omega_{z,i}
 $$
 
-The robots' IMU, the BNO055, reports the angular velocity in whole steps of $\Delta$ = 1/900 rad/s, about 0.00111 rad/s ([BNO055 datasheet, table 3-22 on page 35](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=35)). Take three readings of a gyroscope at rest, one step apart: $\omega_{z,1}$ = 0 rad/s, $\omega_{z,2} = \Delta$ and $\omega_{z,3} = 2\Delta$. Their mean is:
+Take three readings of a gyroscope at rest, one step $\Delta$ = 1/900 rad/s of the BNO055 apart: $\omega_{z,1}$ = 0 rad/s, $\omega_{z,2} = \Delta$ and $\omega_{z,3} = 2\Delta$. The figure shows the three readings on an axis, with their mean and with an arrow for each reading's deviation from the mean:
+
+--8<-- "includes/imu-noise-three-readings.html"
+
+Their mean is:
 
 $$
 \bar\omega_z = \frac{0 + \Delta + 2\Delta}{3} = \Delta = 0.00111\ \text{rad/s}
@@ -74,14 +88,11 @@ The robots' angular velocity comes with these numbers. The first is a setting of
 | Source | Standard deviation | Variance |
 |:--|:--|:--|
 | The noise that the simulated IMU adds to each axis, the plugin's parameter [`gaussianNoise`]({{ ekf_src_url }}/diffbot_description/urdf/include/common_sensors.xacro#L251) | $\sigma$ = 0.005 rad/s | $\sigma^2$ = 2.5 · 10⁻⁵ (rad/s)² |
-| Remo's BNO055 at rest, the gyroscope's three axes in a recording of 180 s ([bench checks](../../packages/imu/driver-bno055.md#bench-checks)) | $s$ = 0.0005 to 0.0008 rad/s | $s^2$ = 2 to 6 · 10⁻⁷ (rad/s)² |
+| Remo's BNO055 at rest, the gyroscope's three axes in two recordings of 180 s ([Results on Remo](../../packages/imu/driver-bno055.md#results-on-remo)) | $s$ = 0.0005 to 0.0008 rad/s | $s^2$ = 2 to 7 · 10⁻⁷ (rad/s)² |
 | The firmware's setting [`angular_velocity_variance`]({{ ekf_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L71) for each axis, a starting value | $\sigma$ = 0.02 rad/s | $\sigma^2$ = 4 · 10⁻⁴ (rad/s)² |
 | The wheel odometry's yaw rate, a setting of the drive controller ([The two lists](../../packages/imu/robot_localization.md#the-two-lists)) | $\sigma \approx$ 0.17 rad/s | $\sigma^2$ = 0.03 (rad/s)² |
 
-The firmware's starting value is about a thousand times the variance that Remo's gyroscope showed at rest. The comment above the setting in [`diffbot_base_config.h`](https://github.com/ros-mobile-robots/diffbot/blob/22d4d2854a1c88d6f97453c099708b8c37601741/diffbot_firmware/lib/config/diffbot_base_config.h#L55-L68) gives a reason for the larger value and a condition for changing the value:
-
-- **The typical offset:** the BNO055's datasheet gives the gyroscope a typical offset of ±1 °/s, about 0.017 rad/s, with the chip's own offset cancellation switched off ([BNO055 datasheet, table 0-2 on page 15](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=15)). The chosen standard deviation of 0.02 rad/s covers that offset too, so that the EKF doesn't take a yaw rate with a bias as exact.
-- **Vibration:** driving adds vibration, which a recording at rest doesn't contain. Before the value changes, the comment asks for a comparison with a recording while driving, in which the vibration has to be told apart from the robot's real turning.
+The firmware's starting value is about a thousand times the variance that Remo's gyroscope showed at rest. The starting value is a chosen standard deviation of 0.02 rad/s, squared. That standard deviation also covers the gyroscope's typical offset of ±1 °/s, about 0.017 rad/s, which the BNO055's datasheet gives with the chip's own offset cancellation switched off ([BNO055 datasheet, table 0-2 on page 15](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=15)). A recording at rest also doesn't contain the vibration of driving. [From the report to the EKF](../../packages/imu/driver-bno055.md#from-the-report-to-the-ekf) on the BNO055 page follows Remo's measured variance to this setting and says why the starting value stays.
 
 ## The normal distribution
 
@@ -105,7 +116,7 @@ The figure draws the density $p(n)$ of the simulated IMU's noise $n$. Each brack
 
 **Why this distribution:** a sum of many small independent errors with finite variances can be approximately normal when no single one of them dominates ([central limit theorem](https://en.wikipedia.org/wiki/Central_limit_theorem)). A normal distribution of several values together, a joint normal distribution, is determined by its mean vector and its covariance matrix. So a filter with this model only has to carry a mean and a covariance from one step to the next. The Kalman filter does so exactly for a linear model. The EKF propagates an approximation through the robot's nonlinear motion. *Probabilistic Robotics* by Thrun, Burgard and Fox derives these filters in its chapter 3, "Gaussian Filters" ([Amazon.com][amazon_book_probabilistic_robotics_us], [Amazon.de][amazon_book_probabilistic_robotics_ger], affiliate links).
 
-**A limit of the model:** the BNO055 reports whole steps of 1/900 rad/s. At rest, the standard deviation of Remo's gyroscope is smaller than one step ([bench checks](../../packages/imu/driver-bno055.md#bench-checks)), so its readings fall on a few steps around their mean. A histogram of them has a few bars, not a smooth bell. The figure above draws the density of the simulation's noise, not a histogram of measured readings. For the real sensor, the normal distribution is a model, not an exact description of the readings. The filter's weighting in [What the EKF does with a variance](#what-the-ekf-does-with-a-variance) computes with means and variances only, so its arithmetic works for errors that aren't exactly normal too.
+**A limit of the model:** the BNO055 reports whole steps of 1/900 rad/s. At rest, the standard deviation of Remo's gyroscope is smaller than one step, so its readings fall on a few steps around their mean: each axis read 7 to 11 different values in 180 s ([Results on Remo](../../packages/imu/driver-bno055.md#results-on-remo)). A histogram of them has a few bars, not a smooth bell. The figure above draws the density of the simulation's noise, not a histogram of measured readings. For the real sensor, the normal distribution is a model, not an exact description of the readings. The filter's weighting in [What the EKF does with a variance](#what-the-ekf-does-with-a-variance) computes with means and variances only, so its arithmetic works for errors that aren't exactly normal too.
 
 ## The covariance of two values
 
