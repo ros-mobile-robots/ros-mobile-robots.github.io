@@ -5380,7 +5380,7 @@
 <li><strong>Print:</strong> <a href="#the-reports-text"><code>format_report()</code></a> writes these numbers into the report's lines, with a table for the angular velocity and a table for the acceleration, and <code>main()</code> prints them.</li>
 </ol>
 <h2 id="the-test-classes">The test classes</h2>
-<p>The file holds the tests in fourteen test classes. The figure puts them onto the tool's path. Each step's card names the classes whose tests call that step's functions. The bracket marks the 23 tests that start the tool as a command. Trace the path from the input card. Seven tests reach the report on standard output (stdout) and exit with status 0. The other sixteen follow the dashed arrow from the first step. They check for one line on standard error (stderr) and status 1.</p>
+<p>The file holds the tests in fourteen test classes. The figure puts them onto the tool's path. Each step's card names the classes whose tests call that step's functions. The bracket marks the 23 tests that start the tool as a command. Trace the path from the bag file's card. In seven of these tests, the tool passes the three steps, prints the report on standard output (stdout) and ends with status 0. In the other sixteen, the tool leaves the first step along the dashed arrow. These tests check for one line on standard error (stderr) and status 1.</p>
 <!-- Written by scripts/figures/imu_noise_figures.py -->
 <style>
 .md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
@@ -5604,7 +5604,7 @@
 <path class="command-span" d="M4,236 V240 H536 V236"></path>
 <text x="270.0" y="256.0" text-anchor="middle"><tspan class="class-name">TestToolOnBags</tspan><tspan class="note"> runs the tool as a command</tspan></text>
 </svg>
-<figcaption>The test classes in a step's card call that step's functions: 22 tests at Read and check, 26 tests at Calculate and 11 tests at Print. <code>TestToolOnBags</code> runs the script as a command, most of its tests on a small bag that the test writes. 7 of its tests compare the report and status 0, and 16 compare the one line and status 1.</figcaption>
+<figcaption>The test classes in a step's card call that step's functions: 22 tests at Read and check, 26 tests at Calculate and 11 tests at Print. <code>TestToolOnBags</code> runs the tool as a command, most of its tests on a small bag that the test writes. 7 of its tests check the report and status 0, and 16 check the one line and status 1.</figcaption>
 </figure>
 </div>
 
