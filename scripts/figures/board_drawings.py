@@ -7,12 +7,15 @@ BNO055 breakout. The parts keep the colors of the real ones in both color scheme
 returns their CSS.
 
 The module also holds what a figure script needs to write SVG: escape(), style_element(),
-svg_element() with its arrowhead marker, and Drawing, which collects the elements of one layout
-and draws its rectangles, circles, lines, text, boxes with text and numbers in discs.
+svg_subscript(), svg_element() with its arrowhead markers, and Drawing, which collects the elements
+of one layout and draws its rectangles, circles, lines, text, boxes with text and numbers in discs.
+For the HTML around a drawing it has figure_element(), the figure with its panels and its caption,
+and tab_set(), a set of content tabs.
 """
 
 import math
 from typing import List
+from typing import NamedTuple
 from typing import Optional
 from typing import Sequence
 from typing import Tuple
@@ -35,26 +38,59 @@ def style_element(rules: Sequence[Tuple[str, str]]) -> str:
     return '<style>\n' + '\n'.join(lines) + '\n</style>'
 
 
-def arrowhead_marker(marker_id: str) -> str:
-    """Return an SVG marker that ends a line with an arrowhead of the CSS class arrow-head."""
+class Point(NamedTuple):
+    """A point on a drawing, in SVG units from the upper left corner."""
+
+    x: float
+    y: float
+
+
+def svg_subscript(symbol: str, index: str, *, restore_baseline: bool = False) -> str:
+    """Return SVG markup for a symbol with a subscript of the CSS class sub.
+
+    symbol and index are text, which the markup holds escaped. The subscript lowers the baseline
+    of the text line. With restore_baseline, the markup moves the baseline back up, for a line
+    that goes on after the subscript.
+    """
+    lowered = f'{escape(symbol)}<tspan class="sub" dy="3">{escape(index)}</tspan>'
+    # A shift applies to a character, so the second tspan holds one that has no width: U+200B
+    return lowered + '<tspan dy="-3">\u200b</tspan>' if restore_baseline else lowered
+
+
+def arrowhead_marker(marker_id: str, head_class: str = 'arrow-head',
+                     orientation: str = 'auto') -> str:
+    """Return an SVG marker that ends a line with an arrowhead of the CSS class head_class.
+
+    orientation is the marker's orient attribute: auto, or auto-start-reverse for a marker that
+    may also start a line.
+    """
     return (f'<marker id="{marker_id}" viewBox="0 0 10 10" refX="9" refY="5" '
-            'markerWidth="7" markerHeight="7" orient="auto">'
-            '<path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker>')
+            f'markerWidth="7" markerHeight="7" orient="{orientation}">'
+            f'<path class="{head_class}" d="M0,0 L10,5 L0,10 z"/></marker>')
 
 
 def svg_element(name: str, css_classes: str, size: Tuple[float, float], title: str,
-                elements: Sequence[str], markers: Optional[Sequence[str]] = None) -> str:
+                elements: Sequence[str], *, description: Optional[str] = None,
+                markers: Optional[Sequence[str]] = None) -> str:
     """Return an SVG element of size (width, height) with the elements, named title.
 
-    name starts the element's IDs: name-title for its accessible name, and name-head for the
-    arrowhead marker that its arrows point to. A figure with markers of its own passes them as
-    markers instead.
+    name starts the element's IDs: name-title for its accessible name and, with a description,
+    name-description for the text that a screen reader reads after the name. markers are the
+    marker elements that the drawing's lines point to. Without them, the element has one
+    arrowhead marker, name-head. An empty sequence gives an element without markers.
     """
     width, height = size
-    definitions = ''.join(markers) if markers is not None else arrowhead_marker(f'{name}-head')
+    labelled_by = f'{name}-title'
+    described = ''
+    if description is not None:
+        labelled_by += f' {name}-description'
+        described = f'<desc id="{name}-description">{escape(description)}</desc>'
+    if markers is None:
+        markers = (arrowhead_marker(f'{name}-head'),)
+    definitions = f'<defs>{"".join(markers)}</defs>' if markers else ''
     return (f'<svg class="{css_classes}" viewBox="0 0 {width:g} {height:g}" role="img" '
-            f'aria-labelledby="{name}-title"><title id="{name}-title">{escape(title)}</title>'
-            f'<defs>{definitions}</defs>\n'
+            f'aria-labelledby="{labelled_by}"><title id="{name}-title">{escape(title)}</title>'
+            f'{described}{definitions}\n'
             + '\n'.join(elements) + '\n</svg>')
 
 
@@ -80,10 +116,19 @@ class Drawing:
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
-        """Add one line of text. anchor is start, middle or end."""
+        """Add one line of escaped text at the requested anchor."""
+        self.text_markup(x, y, escape(text), css_class, anchor)
+
+    def text_markup(self, x: float, y: float, markup: str, css_class: str = '',
+                    anchor: str = 'start') -> None:
+        """Add one line of text from SVG markup, such as a symbol with a subscript.
+
+        The markup goes into the drawing as it is, so escape() the text in it. anchor is start,
+        middle or end.
+        """
         class_attribute = f' class="{css_class}"' if css_class else ''
         self.elements.append(f'<text{class_attribute} x="{x:g}" y="{y:g}" '
-                             f'text-anchor="{anchor}">{escape(text)}</text>')
+                             f'text-anchor="{anchor}">{markup}</text>')
 
     def number_disc(self, x: float, y: float, number: int, disc_class: str,
                     number_class: str) -> None:
@@ -101,6 +146,60 @@ class Drawing:
         for index, (text, text_class) in enumerate(lines):
             baseline = y + height / 2 + (index - (len(lines) - 1) / 2) * 14 + 4
             self.text(x + width / 2, baseline, text, text_class, 'middle')
+
+
+class PanelWidths(NamedTuple):
+    """The widths of a figure's panels on the page, in px."""
+
+    basis: int  # the width from which a panel takes a row of its own
+    widest: int  # a panel's largest width
+
+
+def figure_element(css_prefix: str, panels_html: str, caption: str, widths: PanelWidths, *,
+                   caption_is_markdown: bool = True) -> str:
+    """Return a figure element with panels side by side and one caption below them.
+
+    css_prefix starts the classes and the CSS variables: prefix-figure, prefix-panels,
+    --prefix-basis and --prefix-max. panels_html is the markup of the panels, which wrap below
+    each other on a narrow screen. caption is Markdown, or HTML without caption_is_markdown, for
+    a figure inside raw HTML. The panels stand in a div without the markdown attribute, so that
+    Markdown leaves the SVG's text as it is and the glossary doesn't wrap a term such as IMU in
+    an abbr element.
+    """
+    figure_markdown, caption_markdown = (
+        (' markdown="block"', ' markdown="span"') if caption_is_markdown else ('', ''))
+    style = f'--{css_prefix}-basis:{widths.basis}px;--{css_prefix}-max:{widths.widest}px'
+    return (f'<figure class="{css_prefix}-figure"{figure_markdown} style="{style}">\n'
+            f'<div class="{css_prefix}-panels">\n{panels_html}\n</div>\n'
+            f'<figcaption{caption_markdown}>{caption}</figcaption>\n</figure>')
+
+
+class Tab(NamedTuple):
+    """One tab of a tab set: its label as text and its content as HTML."""
+
+    label: str
+    content_html: str
+
+
+def tab_set(name: str, css_class: str, tabs: Sequence[Tab]) -> str:
+    """Return a set of content tabs as HTML, the first one selected.
+
+    The HTML has the elements and classes of the tabs that the Markdown extension
+    pymdownx.tabbed writes with alternate_style, so the site's theme shows, links and prints the
+    set like a set from Markdown. The set is raw HTML, so Markdown leaves the text of a drawing
+    in a tab as it is. name makes the IDs, which keeps them apart from the numbered IDs of the
+    sets from Markdown. css_class is the set's own class. Each radio input, its label and its
+    block come from one Tab, so a tab's content can't stand under another tab's label.
+    """
+    group = f'__tabbed_{name}'
+    inputs = ''.join(f'<input{" checked" if index == 0 else ""} id="{group}_{index + 1}" '
+                     f'name="{group}" type="radio">' for index in range(len(tabs)))
+    labels = ''.join(f'<label for="{group}_{index + 1}">{escape(tab.label)}</label>'
+                     for index, tab in enumerate(tabs))
+    blocks = ''.join(f'<div class="tabbed-block">\n{tab.content_html}\n</div>\n' for tab in tabs)
+    return (f'<div class="tabbed-set tabbed-alternate {css_class}" '
+            f'data-tabs="{name}:{len(tabs)}">{inputs}<div class="tabbed-labels">{labels}</div>\n'
+            f'<div class="tabbed-content">\n{blocks}</div>\n</div>')
 
 
 def board_rules(scope: str) -> Tuple[Tuple[str, str], ...]:

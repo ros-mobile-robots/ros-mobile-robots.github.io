@@ -18,12 +18,14 @@ The robot uses one value from it: the **yaw rate** $\omega_z$, the angular veloc
 
 To measure how far your robot's IMU is off at rest and how much its readings scatter, go to [Bias and noise at rest](#bias-and-noise-at-rest). Its figure shows what the bias and the noise are, and one command measures both on a recording of the IMU's messages.
 
+[Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF. In the Gazebo simulation, a simulated IMU publishes on the same topic, with the same message type and frame and with the orientation marked unavailable, as [IMU: Simulation](simulation/index.md) shows. Its noise and its variances are settings of the simulation, not the firmware's, as [the simulation and the real robot](simulation/index.md#the-simulation-and-the-real-robot) explains.
+
 !!! info "Checked on Remo"
-    The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
+    The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard ([Remo's mounting](simulation/position-and-axes.md#the-mounting-on-each-robot)). On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
 
 ## Wiring to the Teensy
 
-The BNO055 shares the Teensy's first I2C bus, `Wire`, with the motor driver ([Adafruit Motor FeatherWing](../../components.md)). On the Teensy 4.0 and 3.2, `Wire` uses pin 18 for SDA and pin 19 for SCL ([PJRC: Wire library](https://www.pjrc.com/teensy/td_libs_Wire.html)):
+On Remo, the BNO055 shares the Teensy's first I2C bus, `Wire`, with the motor driver ([Adafruit Motor FeatherWing](../../components.md)). On the Teensy 4.0 and 3.2, `Wire` uses pin 18 for SDA and pin 19 for SCL ([PJRC: Wire library](https://www.pjrc.com/teensy/td_libs_Wire.html)):
 
 | BNO055 breakout | Teensy | Note |
 |:--|:--|:--|
@@ -33,7 +35,7 @@ The BNO055 shares the Teensy's first I2C bus, `Wire`, with the motor driver ([Ad
 | SCL | 19 (SCL) | |
 | ADR | not connected | I2C address 0x28. Connected to 3.3 V: 0x29, then set `IMU_BNO055_ADDRESS` |
 
-The other pins (3Vo, RST, INT, PS0, PS1) stay unconnected. 3Vo is the breakout's 3.3 V output. Adafruit's [pinouts page](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts) describes all of them. The motor driver's address is 0x60, so the two don't collide.
+The other pins (3Vo, RST, INT, PS0, PS1) stay unconnected. 3Vo is the breakout's 3.3 V output. Adafruit's [pinouts page](https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts) describes all of them. The FeatherWing's address is 0x60, so the two don't collide.
 
 ## What the firmware publishes
 

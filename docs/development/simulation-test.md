@@ -29,7 +29,7 @@ With `--text`, rostest prints the nodes' output in the terminal instead of log f
 
 ## Read the results
 
-rostest ends with a summary. A passing run of `sim_drive_diffbot.test`:
+rostest ends with a summary. A passing run of [`sim_drive_diffbot.test`](#1-the-test-file), with the test file at the commit that this page pins ([step 1][s1]):
 
 ```text
 [diffbot_gazebo.rosunit-drive_diffbot/test_forward][passed]
@@ -43,11 +43,19 @@ SUMMARY
  * FAILURES: 0
 ```
 
-The test file runs two test nodes ([step 1][s1]): `drive_diffbot`, which has the two test methods `test_forward` and `test_turn`, and `publish_diffbot`, which has one test. A failed check shows `[FAILURE]` instead of `[passed]`, with the check's message, which names the measured value, the expected one and the tolerance, followed by both measured motions; the result is then `FAIL`. An error means that a test couldn't get to its checks, for example because no odometry arrived.
+That test file runs two test nodes: `drive_diffbot`, which has the two test methods [`test_forward`](#4-test_forward) and [`test_turn`](#5-test_turn), and [`publish_diffbot`](#6-publishtest), which has one test. A failed check shows `[FAILURE]` instead of `[passed]`, with the check's message, which names the measured value, the expected one and the tolerance, followed by both measured motions. The result is then `FAIL`. An error means that a test couldn't get to its checks, for example because no odometry arrived.
 
-`catkin_test_results build` counts the tests in all result files. For this test, it reports 10: for each robot, rostest's own result file lists the two test nodes, and the nodes' files list their two drive tests and the one publish test.
+`catkin_test_results build` counts the tests in all result files. For this test at the pinned commit, it reports 10: for each robot, rostest's own result file lists the two test nodes, and the nodes' files list their two drive tests and the one publish test.
 
-**The measured motions:** `measure_motion()` logs both measurements of each drive, and rostest copies the node's log into its result file `rosunit-drive_diffbot.xml`. The file is in `~/.ros/test_results/diffbot_gazebo/` when you run rostest yourself, and in `build/diffbot_gazebo/test_results/diffbot_gazebo/` when catkin runs the tests:
+This example comes from the commit that this page pins. The [test file on the `noetic-devel` branch]({{ diffbot_repo_url }}/diffbot_gazebo/test/sim_drive_diffbot.test) runs three more test nodes, and each of their tests adds a line to the summary:
+
+- **[`imu_diffbot`](../packages/imu/simulation/tests.md#how-rostest-runs-the-imu-tests)** runs [`test_imu.py`](../packages/imu/simulation/tests.md), which has two tests of the simulated IMU: at rest and in a left turn.
+- **`imu_reset_diffbot`** runs [`test_imu_reset.py`](../packages/imu/simulation/tests.md#the-reset-test), which has one test: the simulated IMU publishes again after a reset of the simulation. [The IMU tests](../packages/imu/simulation/tests.md) explains both files and shows the summary with their lines.
+- **[`odom_tf_diffbot`](../packages/imu/robot_localization/tests/odom-tf.md#where-the-test-runs)** runs [`test_odom_tf.py`](../packages/imu/robot_localization/tests/odom-tf.md), which has one test: only the drive controller publishes the transform `odom → base_footprint`.
+
+So the summary of that test file lists 7 tests, and `catkin_test_results build` counts the result files of the three test nodes too.
+
+**The measured motions:** [`measure_motion()`](#measure_motion) logs both measurements of each drive, and rostest copies the node's log into its result file `rosunit-drive_diffbot.xml`. The file is in `~/.ros/test_results/diffbot_gazebo/` when you run rostest yourself, and in `build/diffbot_gazebo/test_results/diffbot_gazebo/` when [catkin](ci.md#tests) runs the tests:
 
 ```console
 grep -o '\(odometry\|true pose\): [^<&]*' ~/.ros/test_results/diffbot_gazebo/rosunit-drive_diffbot.xml
@@ -60,9 +68,9 @@ odometry: forward 0.001 m, left -0.000 m, turned 1.489 rad
 true pose: forward 0.001 m, left -0.000 m, turned 1.489 rad
 ```
 
-This output comes from DiffBot's model as of [diffbot#137](https://github.com/ros-mobile-robots/diffbot/pull/137). The code walkthrough below is pinned to the earlier `7190c9a`, before `base_footprint` moved to the axle's midpoint; its 3 to 5 cm of true-pose movement during the turn and its 0.15 m tolerance describe that revision.
+This output comes from DiffBot's model as of [diffbot#137](https://github.com/ros-mobile-robots/diffbot/pull/137). The code walkthrough below is pinned to the earlier `7190c9a`, before `base_footprint` moved to the axle's midpoint. Its 3 to 5 cm of true-pose movement during the turn and its 0.15 m tolerance describe that revision.
 
-Each drive is measured twice: with the robot's odometry and with its true pose in Gazebo ([How it works](#how-it-works)). The first two lines are `test_forward`, which commands 0.6 m straight ahead; the last two are `test_turn`, which commands 1.5 rad on the spot. `forward`, `left` and `turned` describe the motion as seen from where the robot started ([`relative_pose()`][s-rel]). The numbers aren't exactly the commanded ones: the checks accept a range around each expected value ([the checks][s-checks]), and [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains where the differences come from.
+Each drive is measured twice: with the robot's odometry and with its true pose in Gazebo ([How it works](#how-it-works)). The first two lines are `test_forward`, which commands 0.6 m straight ahead. The last two are `test_turn`, which commands 1.5 rad on the spot. [`forward`](#relative_pose), `left` and `turned` describe the motion as seen from where the robot started (`relative_pose()`). The numbers aren't exactly the commanded ones: the checks accept a range around each expected value ([the checks][s-checks]), and [Why the results differ from the commands](#why-the-results-differ-from-the-commands) explains where the differences come from.
 
 ## How it works
 
@@ -124,7 +132,7 @@ A configured radius that's too big makes the controller command fewer wheel turn
 
 ### On the real robot
 
-Switch the figure to the second tab, *Real robot*. The blue box stays the same: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) and the robot's `geometry.yaml` ([DiffBot]({{ diffbot_repo_url }}/diffbot_control/config/diffbot/geometry.yaml), [Remo]({{ diffbot_repo_url }}/diffbot_control/config/remo/geometry.yaml)). Only the hardware interface and what's below it change.
+Switch the figure to the second tab, *Real robot*. The tab shows Remo, whose Teensy commands the Adafruit FeatherWing. DiffBot's motor driver is wired to the Raspberry Pi instead, [through the Grove I2C hub](../power-supply.md#diffbot-four-alkaline-cells-and-the-grove-i2c-motor-driver). The node for that path, `motor_driver.py` of the separate `grove_motor_driver` package, is commented out as deprecated in [`minimal.launch`]({{ diffbot_repo_url }}/diffbot_bringup/launch/minimal.launch#L25-L28), so the launch files start no node that sends motor commands to it. The blue box stays the same: the controller manager with the two controllers, configured by [`diffbot_control.yaml`]({{ diffbot_repo_url }}/diffbot_control/config/diffbot_control.yaml) and the robot's `geometry.yaml` ([DiffBot]({{ diffbot_repo_url }}/diffbot_control/config/diffbot/geometry.yaml), [Remo]({{ diffbot_repo_url }}/diffbot_control/config/remo/geometry.yaml)). Only the hardware interface and what's below it change.
 
 On the real robot, the [`diffbot_base`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_base.cpp) node takes Gazebo's place. It creates the hardware interface [`DiffBotHWInterface`]({{ diffbot_repo_url }}/diffbot_base/src/diffbot_hw_interface.cpp) and a controller manager, and runs the loop itself: `read()`, update the controllers, `write()`. Its [launch file]({{ diffbot_repo_url }}/diffbot_base/launch/diffbot.launch) loads the same `diffbot_control.yaml` and spawns the same two controllers. This hardware interface talks to the Teensy over ROS topics:
 
