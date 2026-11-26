@@ -538,8 +538,10 @@ class TestMotionLabPage(unittest.TestCase):
         for size in (SMALL_PHONE, PHONE):
             with self.subTest(width=size['width']):
                 page = self.open_live_figure(**size).page
-                self.assertFalse(page.is_visible(changes))
                 open_settings(page)
+                # With the example's own values, neither the list nor the note shows
+                self.assertFalse(page.is_visible(changes))
+                self.assertFalse(page.is_visible(f'{FIGURE} .ix-differs'))
                 set_slider(page, radius, 98)
                 set_slider(page, offset, offset.highest)
                 page.select_option(f'{FIGURE} .ix-robot-select', 'diffbot')
@@ -558,6 +560,10 @@ class TestMotionLabPage(unittest.TestCase):
                 self.assertFalse(cut)
                 self.assertEqual(page.inner_text(f'{FIGURE} .ix-current .ix-show'),
                                  'Play the example')
+                # Playing the example sets its robot and values back: both go again
+                page.click(f'{FIGURE} .ix-current .ix-show')
+                self.assertFalse(page.is_visible(changes))
+                self.assertFalse(page.is_visible(f'{FIGURE} .ix-differs'))
 
     def test_show_what_happens_plays_the_changed_drive_then_shows_the_answer(self) -> None:
         page = self.open_live_figure().page

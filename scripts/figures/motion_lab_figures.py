@@ -660,8 +660,8 @@ HINT_TEXT = (
     'The answer shows once the drive has reached its end: press Play or move the time slider.'
 )
 DIFFERS_TEXT = (
-    "Your values differ from the example's: the list is under the sliders."
-    f' "{REPLAY_TEXT}" sets the example\'s values back.'
+    'Compare your changes below the sliders. Open "Change the values yourself" if needed.'
+    f' "{REPLAY_TEXT}" restores the example\'s robot and settings.'
 )
 # The list under the sliders: the values that differ from the example's
 CHANGES_LEAD = 'Your values:'
