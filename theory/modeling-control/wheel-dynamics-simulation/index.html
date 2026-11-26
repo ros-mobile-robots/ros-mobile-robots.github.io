@@ -70,7 +70,8 @@
              CSS, they also apply when visitors switch the scheme without reloading. */
           [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
           [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
-          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect,
+          [data-md-color-scheme="slate"] .mermaid .node polygon { fill: #2b2b46 !important; stroke: #9370db !important; }
           /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
           .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
           [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
@@ -2393,8 +2394,6 @@
       
         
       
-        
-      
     
     
     
@@ -2633,6 +2632,66 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5">
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../../diffbot_gazebo/" class="md-nav__link">
         
@@ -2641,7 +2700,7 @@
   <span class="md-ellipsis">
     
   
-    Simulation
+    Gazebo Package
   
 
     
@@ -2678,6 +2737,209 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_3">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../packages/imu/simulation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_5_3" id="__nav_4_5_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../packages/imu/simulation/position-and-axes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Position and Axes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../packages/imu/simulation/measurement-to-message/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From Measurement to Message
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../packages/imu/simulation/plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Robots' Own IMU Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../packages/imu/simulation/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2743,7 +3005,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7">
         
           
           <div class="md-nav__link md-nav__container">
@@ -2765,14 +3027,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3070,10 +3332,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_15">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14">
         
           
-          <label class="md-nav__link" for="__nav_4_15" id="__nav_4_15_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="0">
             
   
   
@@ -3091,8 +3353,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_15_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_15">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3166,7 +3428,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_15_2">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14_2">
         
           
           <div class="md-nav__link md-nav__container">
@@ -3188,14 +3450,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_15_2" id="__nav_4_15_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_14_2" id="__nav_4_14_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_15_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_15_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_14_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5299,14 +5561,14 @@
 <li>Its wheels jitter when it turns on the spot.</li>
 <li>A higher motor gain, meant to follow the commands better, makes the model explode at spawn.</li>
 </ul>
-<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a> with <a href="../../../simulators/#what-diffbot-and-remo-use-gazebo-classic-11">Gazebo Classic 11</a> and its default physics engine, <a href="https://www.ode.org/"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr></a> (Open Dynamics Engine). Two kinds of parameters are specific to that setup: the friction and contact settings (<code>mu1</code>, <code>mu2</code>, <code>fdir1</code>, <code>kp</code>, <code>kd</code>, <code>minDepth</code>, <code>maxVel</code>) are written for <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>, and the wheel's velocity <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> comes from <code>gazebo_ros_control</code>. The <a href="../../../simulators/#the-new-gazebo-for-ros-2">new Gazebo for ROS 2</a> has no <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>: it uses <abbr title="Dynamic Animation and Robotics Toolkit. A physics engine for robots; the new Gazebo uses it by default, instead of Gazebo Classic's ODE.">DART</abbr> by default and <code>gz_ros2_control</code> instead, so these settings can have other names, other effects or none there, and have to be checked again. The ideas carry over: where a wheel pushes on the ground, how its inertia responds to a torque, and, when a sampled motor controller computes the torque, why its gain depends on the update interval.</p>
+<p>All three come from parts of the simulation that the <a href="../modeling-differential-drive-robot/">kinematic model</a> and <a href="../odometry/">odometry</a> leave out: where the wheels touch the ground, how the physics engine computes the contact forces, and how a simulated motor turns a velocity command into a torque. This page explains these parts and the parameters that set them, for <a href="https://wiki.ros.org/noetic">ROS 1 Noetic</a> with <a href="../../../simulators/#what-diffbot-and-remo-use-gazebo-classic-11">Gazebo Classic 11</a> and its default physics engine, <a href="https://www.ode.org/"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr></a> (Open Dynamics Engine). Two kinds of parameters are specific to that setup: the friction and contact settings (<a href="#how-much-tangential-force-can-a-contact-carry"><code>mu1</code></a>, <code>mu2</code>, <code>fdir1</code>, <a href="#how-stiff-is-a-contact"><code>kp</code></a>, <code>kd</code>, <a href="#how-much-penetration-is-tolerated"><code>minDepth</code></a>, <code>maxVel</code>) are written for <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>, and the wheel's velocity <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> comes from <a href="#turning-a-wheel-speed-command-into-torque"><code>gazebo_ros_control</code></a>. The <a href="../../../simulators/#the-new-gazebo-for-ros-2">new Gazebo for ROS 2</a> has no <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>: it uses <abbr title="Dynamic Animation and Robotics Toolkit. A physics engine for robots; the new Gazebo uses it by default, instead of Gazebo Classic's ODE.">DART</abbr> by default and <a href="https://control.ros.org/jazzy/doc/gz_ros2_control/doc/index.html"><code>gz_ros2_control</code></a> instead, so these settings can have other names, other effects or none there, and have to be checked again. The ideas carry over: where a wheel pushes on the ground, how its inertia responds to a torque, and, when a sampled motor controller computes the torque, why its gain depends on the update interval.</p>
 <p>After this page, you can:</p>
 <ul>
 <li>tell apart a wheel's three descriptions in the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr>: how it looks, where it collides and how its mass is distributed;</li>
 <li>use three measurements, the wheel speeds, the odometry compared with Gazebo's motion, and the wheels' height at rest, to narrow down a simulation problem;</li>
 <li>change one setting at a time, and estimate how a wheel's inertia and the physics time step affect the stability of a simple motor loop.</li>
 </ul>
-<p>The page uses DiffBot and Remo as worked examples. Their current settings, the reasons for them and a tuning procedure are on the Simulation page, in <a href="../../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a>.</p>
+<p>The page uses DiffBot and Remo as worked examples. Their current settings, the reasons for them and a tuning procedure are on the Gazebo Package page, in <a href="../../../diffbot_gazebo/#tuning-the-simulated-robot">Tuning the simulated robot</a>.</p>
 <details class="info">
 <summary>About the experiments E1 to E3</summary>
 <p>The measurements on this page come from three controlled experiments in Gazebo Classic, run for this page in the <a href="../../../development/dev-container/">dev container</a> with the <a href="https://github.com/ros-mobile-robots/diffbot/tree/b896a3a1a233e7131835895ad343832d035b18f2">diffbot repository</a> at <code>b896a3a</code> and <a href="https://github.com/ros-mobile-robots/remo_description/tree/ba0b2c567e41adcd4ef0e5f652e6d49c919c9462">remo_description</a> at <code>ba0b2c5</code>:</p>
@@ -5837,12 +6099,12 @@ J = \frac{1}{2} m r^2 .
 <p>In the E2 settling plot, with 1 mm, the wheels sink to the configured 1 mm within 3 s. With 10 mm, they creep at a steady 0.37 mm/s for about 20 s and stop at about 8.3 mm, a quarter of the wheel radius, not at 10 mm. With 0, no sinkage is measurable. The run doesn't show why the creep stops at 8.3 mm; the compliance, the load and the other contacts all play a part. DiffBot's stiff default contacts, with <code>minDepth</code> 0, don't sink either.</p>
 <p>A positive allowance isn't always wrong: the <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide suggests a small surface layer to keep contacts from being created and broken in every step (<a href="https://ode.org/ode-latest-userguide.html#sec_5_2_0"><abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> user guide, section 5.2</a>). For small, light wheels with compliant contacts, start with zero, and check the settling height and the wheel speeds.</p>
 <h3 id="from-urdf-to-sdf">From <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr></h3>
-<p>Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, its own format. The <code>&lt;gazebo reference="..."&gt;</code> elements of a link set its collision's surface (<a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a>). <code>gz sdf -p robot.urdf</code> shows the result:</p>
+<p>Gazebo converts the <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> to <abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr>, its own format. The <a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf"><code>&lt;gazebo reference="..."&gt;</code></a> elements of a link set its collision's surface (<a href="https://classic.gazebosim.org/tutorials?tut=ros_urdf">Using a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> in Gazebo</a>). <code>gz sdf -p robot.urdf</code> shows the result:</p>
 <table>
 <thead>
 <tr>
 <th><abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> <code>&lt;gazebo&gt;</code> element</th>
-<th><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> element in <code>collision/surface</code></th>
+<th><abbr title="Simulation Description Format. The XML format of Gazebo's worlds and models; Gazebo converts a robot's URDF to SDF.">SDF</abbr> element in <a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf"><code>collision/surface</code></a></th>
 <th>Meaning</th>
 <th>Default</th>
 </tr>
@@ -5850,38 +6112,38 @@ J = \frac{1}{2} m r^2 .
 <tbody>
 <tr>
 <td><code>mu1</code>, <code>mu2</code></td>
-<td><code>friction/ode/mu</code>, <code>mu2</code></td>
+<td><a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L54-L60"><code>friction/ode/mu</code></a>, <code>mu2</code></td>
 <td>friction coefficients in the two pyramid directions</td>
 <td>1, 1</td>
 </tr>
 <tr>
 <td><code>fdir1</code></td>
-<td><code>friction/ode/fdir1</code></td>
+<td><a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L68-L73"><code>friction/ode/fdir1</code></a></td>
 <td>first friction direction, in the collision frame</td>
 <td>none (0 0 0)</td>
 </tr>
 <tr>
 <td><code>kp</code>, <code>kd</code></td>
-<td><code>contact/ode/kp</code>, <code>kd</code></td>
+<td><a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L188-L193"><code>contact/ode/kp</code></a>, <code>kd</code></td>
 <td>contact stiffness (N/m) and damping (N s/m)</td>
 <td><span class="arithmatex">\(10^{12}\)</span>, 1</td>
 </tr>
 <tr>
 <td><code>minDepth</code></td>
-<td><code>contact/ode/min_depth</code></td>
+<td><a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L197-L199"><code>contact/ode/min_depth</code></a></td>
 <td>penetration allowance (m)</td>
 <td>0</td>
 </tr>
 <tr>
 <td><code>maxVel</code></td>
-<td><code>contact/ode/max_vel</code></td>
+<td><a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L194-L196"><code>contact/ode/max_vel</code></a></td>
 <td>maximum correction velocity (m/s)</td>
 <td>0.01</td>
 </tr>
 </tbody>
 </table>
 <p>The defaults are from the SDFormat 1.7 specification that Gazebo 11 uses (<a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L52-L199"><code>surface.sdf</code></a>).</p>
-<p>For example, this is the collision of Remo's front left wheel in the output of <code>gz sdf -p</code>, from <a href="https://github.com/ros-mobile-robots/remo_description/tree/2.0.0">remo_description 2.0.0</a> with its default arguments and Gazebo 11.15.1. The sphere is the collision shape, <code>contact</code> holds the stiffness, damping and penetration settings, and <code>friction</code> the two coefficients. <code>fdir1</code> doesn't appear, because Remo leaves it unset:</p>
+<p>For example, this is the collision of Remo's front left wheel in the output of <code>gz sdf -p</code>, from <a href="https://github.com/ros-mobile-robots/remo_description/tree/2.0.0">remo_description 2.0.0</a> with its default arguments and Gazebo 11.15.1. The sphere is the collision shape, <a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L134"><code>contact</code></a> holds the stiffness, damping and penetration settings, and <a href="https://github.com/gazebosim/sdformat/blob/1774642ee6ac2d46f9fb335470dd7e881d0e6cc5/sdf/1.7/surface.sdf#L13"><code>friction</code></a> the two coefficients. <code>fdir1</code> doesn't appear, because Remo leaves it unset:</p>
 <div class="highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -5930,7 +6192,7 @@ J = \frac{1}{2} m r^2 .
 <span class="w">  </span><span class="nt">&lt;/surface&gt;</span>
 <span class="nt">&lt;/collision&gt;</span>
 </code></pre></div></td></tr></tbody></table></div>
-<p>To see your own model's output, expand its xacro file to a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and convert it, as in <a href="../../../diffbot_gazebo/#troubleshooting">Troubleshooting</a> on the Simulation page.</p>
+<p>To see your own model's output, expand its <a href="../../../packages/imu/simulation/position-and-axes/#the-link-and-the-joint-in-the-robots-urdf-model">xacro</a> file to a <abbr title="Unified Robot Description Format. The XML format that describes a robot's links, joints, sensors and their geometry for ROS.">URDF</abbr> and convert it, as in <a href="../../../diffbot_gazebo/#troubleshooting">Troubleshooting</a> on the Gazebo Package page.</p>
 <h2 id="turning-a-wheel-speed-command-into-torque">Turning a wheel-speed command into torque</h2>
 <p>On the real robot, the <a href="../../../packages/diffbot_base/pid/">motor <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> in the firmware</a> makes the motors reach the wheel speeds that <code>diff_drive_controller</code> commands. In Gazebo, <code>gazebo_ros_control</code>'s <code>DefaultRobotHWSim</code> takes the place of the firmware. If the parameter server has gains for a wheel joint under <code>/&lt;robot namespace&gt;/gazebo_ros_control/pid_gains/&lt;joint&gt;</code>, it controls the joint with a <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> that computes a torque from the speed error and applies it to the joint (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L217-L231"><code>default_robot_hw_sim.cpp</code></a>, <a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L370-L380">lines 370–380</a>). Without <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> gains, Gazebo Classic 11 with <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr> sends the wheel-speed target to <abbr title="Open Dynamics Engine. The physics engine that Gazebo Classic uses by default; it computes contacts and joints as constraints in each time step.">ODE</abbr>'s joint motor instead, with the joint's effort limit as its maximum torque (<a href="https://github.com/ros-simulation/gazebo_ros_pkgs/blob/cd9cc952402375be5f274f39b29399c4087aa839/gazebo_ros_control/src/default_robot_hw_sim.cpp#L355-L380">lines 355–380</a>, <a href="https://github.com/gazebosim/gazebo-classic/blob/b22c6e15e52299865b31093b8feebc9ca19e26e8/gazebo/physics/ode/ODEJoint.cc#L440-L454"><code>ODEJoint.cc</code></a>). That bypasses the torque <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> described here; with a finite limit, the wheel can still fall short of the requested speed under load. DiffBot and Remo load <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> gains, so the examples on this page use the torque-controlled path.</p>
 <p>The <abbr title="Proportional-integral-derivative. A controller whose output is a weighted sum of the error, its integral and its derivative.">PID</abbr> is control_toolbox's <code>Pid</code> (<a href="https://github.com/ros-controls/control_toolbox/blob/14b2a6120de57b038a05562839ee1ba4dabee2aa/src/pid.cpp#L336-L369"><code>pid.cpp</code></a>). In every update, it goes from the speed error to a torque, and <code>DefaultRobotHWSim</code> then limits that torque:</p>

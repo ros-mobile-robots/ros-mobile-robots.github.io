@@ -70,7 +70,8 @@
              CSS, they also apply when visitors switch the scheme without reloading. */
           [data-md-color-scheme="slate"] .mermaid .label { color: var(--md-default-fg-color) !important; }
           [data-md-color-scheme="slate"] .mermaid .label text { fill: var(--md-default-fg-color) !important; }
-          [data-md-color-scheme="slate"] .mermaid .node rect { fill: #2b2b46 !important; stroke: #9370db !important; }
+          [data-md-color-scheme="slate"] .mermaid .node rect,
+          [data-md-color-scheme="slate"] .mermaid .node polygon { fill: #2b2b46 !important; stroke: #9370db !important; }
           /* Nodes that a diagram highlights with "class A,B view;", in both schemes */
           .mermaid .node.view rect { fill: #fff3e0 !important; stroke: #e65100 !important; stroke-width: 3px !important; }
           [data-md-color-scheme="slate"] .mermaid .node.view rect { fill: #3d2a12 !important; stroke: #ffb74d !important; }
@@ -2624,8 +2625,6 @@
       
         
       
-        
-      
     
     
     
@@ -2864,6 +2863,66 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5">
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../../diffbot_gazebo/" class="md-nav__link">
         
@@ -2872,7 +2931,7 @@
   <span class="md-ellipsis">
     
   
-    Simulation
+    Gazebo Package
   
 
     
@@ -2909,6 +2968,209 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_3">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../simulation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_5_3" id="__nav_4_5_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/position-and-axes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Position and Axes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/measurement-to-message/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From Measurement to Message
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Robots' Own IMU Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulation/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2974,7 +3236,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7">
         
           
           <div class="md-nav__link md-nav__container">
@@ -2996,14 +3258,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3301,10 +3563,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_15">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14">
         
           
-          <label class="md-nav__link" for="__nav_4_15" id="__nav_4_15_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="0">
             
   
   
@@ -3322,8 +3584,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_15_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_15">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3397,7 +3659,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_15_2">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14_2">
         
           
           <div class="md-nav__link md-nav__container">
@@ -3419,14 +3681,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_15_2" id="__nav_4_15_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_14_2" id="__nav_4_14_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_15_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_15_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_14_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5300,12 +5562,13 @@
 </figure>
 <p>The robot uses one value from it: the <strong>yaw rate</strong> <span class="arithmatex">\(\omega_z\)</span>, the angular velocity about the upward axis. The <a href="../robot_localization/"><abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> on the robot's computer fuses it with the wheel odometry, which, on its own, estimates turns less well. The BNO055 sits on the Teensy's <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, and the Teensy's firmware publishes its measurements over <a href="../../../processing_units/teensy-mcu/#other-boards-such-as-an-arduino">rosserial</a>.</p>
 <p>To measure how far your robot's <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> is off at rest and how much its readings scatter, go to <a href="#bias-and-noise-at-rest">Bias and noise at rest</a>. Its figure shows what the bias and the noise are, and one command measures both on a recording of the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s messages.</p>
+<p><a href="../robot_localization/">Localization: Wheel Odometry and <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> (<abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>)</a> explains the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr>. In the Gazebo simulation, a simulated <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> publishes on the same topic, with the same message type and frame and with the orientation marked unavailable, as <a href="../simulation/"><abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>: Simulation</a> shows. Its noise and its variances are settings of the simulation, not the firmware's, as <a href="../simulation/#the-simulation-and-the-real-robot">the simulation and the real robot</a> explains.</p>
 <div class="admonition info">
 <p class="admonition-title">Checked on Remo</p>
-<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard. On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
+<p>The firmware passed the <a href="#bench-checks">bench checks</a> on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 (<a href="https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527">Teensy 4.0 results</a>). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard (<a href="../simulation/position-and-axes/#the-mounting-on-each-robot">Remo's mounting</a>). On DiffBot, the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s mounting still needs to be measured, and the firmware checked on DiffBot itself. The <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr> still needs a test with the real <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>.</p>
 </div>
 <h2 id="wiring-to-the-teensy">Wiring to the Teensy</h2>
-<p>The BNO055 shares the Teensy's first <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <code>Wire</code>, with the motor driver (<a href="../../../components/">Adafruit Motor FeatherWing</a>). On the Teensy 4.0 and 3.2, <code>Wire</code> uses pin 18 for SDA and pin 19 for SCL (<a href="https://www.pjrc.com/teensy/td_libs_Wire.html">PJRC: Wire library</a>):</p>
+<p>On Remo, the BNO055 shares the Teensy's first <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus, <code>Wire</code>, with the motor driver (<a href="../../../components/">Adafruit Motor FeatherWing</a>). On the Teensy 4.0 and 3.2, <code>Wire</code> uses pin 18 for SDA and pin 19 for SCL (<a href="https://www.pjrc.com/teensy/td_libs_Wire.html">PJRC: Wire library</a>):</p>
 <table>
 <thead>
 <tr>
@@ -5342,7 +5605,7 @@
 </tr>
 </tbody>
 </table>
-<p>The other pins (3Vo, RST, INT, PS0, PS1) stay unconnected. 3Vo is the breakout's 3.3 V output. Adafruit's <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts">pinouts page</a> describes all of them. The motor driver's address is 0x60, so the two don't collide.</p>
+<p>The other pins (3Vo, RST, INT, PS0, PS1) stay unconnected. 3Vo is the breakout's 3.3 V output. Adafruit's <a href="https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/pinouts">pinouts page</a> describes all of them. The FeatherWing's address is 0x60, so the two don't collide.</p>
 <h2 id="what-the-firmware-publishes">What the firmware publishes</h2>
 <p>The firmware in <a href="https://github.com/ros-mobile-robots/diffbot/tree/noetic-devel/diffbot_firmware"><code>diffbot_firmware</code></a> reads the BNO055 in its <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr> fusion mode (accelerometer and gyroscope, without the magnetometer, called IMUPLUS in Bosch's and Adafruit's libraries) and publishes <code>/diffbot/imu/data_raw</code>, a <a href="http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html"><code>sensor_msgs/Imu</code></a> message, at 50 Hz:</p>
 <table>

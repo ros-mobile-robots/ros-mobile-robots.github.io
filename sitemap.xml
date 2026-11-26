@@ -237,6 +237,26 @@
          <lastmod>2026-11-26</lastmod>
     </url>
     <url>
+         <loc>https://ros-mobile-robots.com/packages/imu/simulation/</loc>
+         <lastmod>2026-11-26</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/imu/simulation/measurement-to-message/</loc>
+         <lastmod>2026-11-26</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/imu/simulation/plugin/</loc>
+         <lastmod>2026-11-26</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/imu/simulation/position-and-axes/</loc>
+         <lastmod>2026-11-26</lastmod>
+    </url>
+    <url>
+         <loc>https://ros-mobile-robots.com/packages/imu/simulation/tests/</loc>
+         <lastmod>2026-11-26</lastmod>
+    </url>
+    <url>
          <loc>https://ros-mobile-robots.com/processing_units/</loc>
          <lastmod>2026-11-26</lastmod>
     </url>
