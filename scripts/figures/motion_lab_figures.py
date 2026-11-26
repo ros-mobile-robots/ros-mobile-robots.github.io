@@ -190,7 +190,7 @@ QUANTITY_NAMES = {
 VIEW_NAMES = {CheckView.ODOMETRY: 'odometry', CheckView.MODEL: 'true pose'}
 
 
-def number(value: float) -> str:
+def format_number(value: float) -> str:
     """Return a value as the figure's texts write it: 0.6, 1.5, 0.02."""
     return f'{value:g}'
 
@@ -199,16 +199,16 @@ def command_text(kind: CommandKind) -> str:
     """Return what a command tells the robot, as a sentence says it: "drive 0.6 m"."""
     command = COMMANDS[kind]
     if kind is CommandKind.FORWARD:
-        return f'drive {number(command.distance)} m'
-    return f'turn {number(command.angle)} rad on the spot'
+        return f'drive {format_number(command.distance)} m'
+    return f'turn {format_number(command.angle)} rad on the spot'
 
 
 def command_button_text(kind: CommandKind) -> str:
     """Return a command's button text: "Drive 0.6 m"."""
     command = COMMANDS[kind]
     if kind is CommandKind.FORWARD:
-        return f'Drive {number(command.distance)} m'
-    return f'Turn {number(command.angle)} rad'
+        return f'Drive {format_number(command.distance)} m'
+    return f'Turn {format_number(command.angle)} rad'
 
 
 class CheckRow(NamedTuple):
@@ -233,7 +233,7 @@ def view_check_row(check: Check, view: CheckView) -> CheckRow:
         view,
         name=f'{quantity}, {VIEW_NAMES[view]}',
         name_in_sentence=f'{quantity} ({VIEW_NAMES[view]})',
-        allowed=f'{number(check.expected)} ± {number(check.tolerance)} {unit}',
+        allowed=f'{format_number(check.expected)} ± {format_number(check.tolerance)} {unit}',
     )
 
 
@@ -245,7 +245,7 @@ def agreement_check_row(check: Check) -> CheckRow:
         CheckView.AGREEMENT,
         name=f'{odometry} and {model}, {QUANTITY_NAMES[check.quantity]}',
         name_in_sentence=f'the comparison of the {odometry} with the {model}',
-        allowed=f'at most {number(check.tolerance)} {UNITS[check.quantity]} apart',
+        allowed=f'at most {format_number(check.tolerance)} {UNITS[check.quantity]} apart',
     )
 
 
@@ -339,7 +339,7 @@ class ViewVelocities(NamedTuple):
     model: Velocity
 
 
-class Poses(NamedTuple):
+class SamplePoses(NamedTuple):
     """A drive's poses at one time.
 
     command is where the command alone puts the robot, odometry where the odometry says it is.
@@ -367,7 +367,7 @@ class Drive(NamedTuple):
     command: Motion
     odometry: Motion
     model: Motion
-    samples: Tuple[Poses, ...]
+    samples: Tuple[SamplePoses, ...]
 
 
 def model_inputs(robot: Robot, settings: Settings) -> ModelInputs:
@@ -385,7 +385,7 @@ def model_inputs(robot: Robot, settings: Settings) -> ModelInputs:
     )
 
 
-def wheel_speeds_for(velocity: Velocity, radius: float, separation: float) -> WheelSpeeds:
+def wheel_speeds_for_command(velocity: Velocity, radius: float, separation: float) -> WheelSpeeds:
     """Return the wheel speeds that diff_drive_controller commands with its geometry."""
     return WheelSpeeds(
         left=(velocity.linear - velocity.angular * separation / 2) / radius,
@@ -393,7 +393,7 @@ def wheel_speeds_for(velocity: Velocity, radius: float, separation: float) -> Wh
     )
 
 
-def velocity_from(speeds: WheelSpeeds, radius: float, separation: float) -> Velocity:
+def velocity_from_wheel_speeds(speeds: WheelSpeeds, radius: float, separation: float) -> Velocity:
     """Return the velocity that two wheel speeds give with a wheel radius and separation."""
     return Velocity(
         linear=radius * (speeds.right + speeds.left) / 2,
@@ -411,14 +411,16 @@ def view_velocities(inputs: ModelInputs, command: Command) -> ViewVelocities:
     """
     commanded = Velocity(command.linear_velocity, command.angular_velocity)
     configured = inputs.configured
-    commanded_speeds = wheel_speeds_for(commanded, configured.radius, configured.separation)
+    commanded_speeds = wheel_speeds_for_command(
+        commanded, configured.radius, configured.separation
+    )
     reached = WheelSpeeds(
         inputs.tracking * commanded_speeds.left, inputs.tracking * commanded_speeds.right
     )
     return ViewVelocities(
         command=commanded,
-        odometry=velocity_from(reached, configured.radius, configured.separation),
-        model=velocity_from(reached, inputs.wheels.radius, inputs.contact_separation),
+        odometry=velocity_from_wheel_speeds(reached, configured.radius, configured.separation),
+        model=velocity_from_wheel_speeds(reached, inputs.wheels.radius, inputs.contact_separation),
     )
 
 
@@ -435,7 +437,7 @@ def pose_after(velocity: Velocity, duration: float) -> Pose:
     return Pose(circle_radius * math.sin(theta), circle_radius * (1 - math.cos(theta)), theta)
 
 
-def poses_at(velocities: ViewVelocities, frame_offset: float, time: float) -> Poses:
+def poses_at(velocities: ViewVelocities, frame_offset: float, time: float) -> SamplePoses:
     """Return a drive's poses at a time (s).
 
     base_footprint starts at 0, 0 and lies frame_offset behind the axle's midpoint, so the axle's
@@ -448,7 +450,7 @@ def poses_at(velocities: ViewVelocities, frame_offset: float, time: float) -> Po
         axle.y - frame_offset * math.sin(axle.theta),
         axle.theta,
     )
-    return Poses(
+    return SamplePoses(
         command=pose_after(velocities.command, time),
         odometry=pose_after(velocities.odometry, time),
         axle=axle,
@@ -485,7 +487,7 @@ def simulate(robot: Robot, command: Command, settings: Settings) -> Drive:
     )
 
 
-def measured(quantity: Quantity, motion: Motion) -> float:
+def motion_quantity_value(quantity: Quantity, motion: Motion) -> float:
     """Return the value of a quantity in a motion."""
     values = {
         Quantity.FORWARD: motion.forward,
@@ -500,8 +502,12 @@ def row_value(row: CheckRow, drive: Drive) -> float:
     """Return the value that a row's check measures in a drive."""
     quantity = row.check.quantity
     if row.view is CheckView.AGREEMENT:
-        return abs(measured(quantity, drive.odometry) - measured(quantity, drive.model))
-    return measured(quantity, drive.odometry if row.view is CheckView.ODOMETRY else drive.model)
+        return abs(
+            motion_quantity_value(quantity, drive.odometry)
+            - motion_quantity_value(quantity, drive.model)
+        )
+    motion = drive.odometry if row.view is CheckView.ODOMETRY else drive.model
+    return motion_quantity_value(quantity, motion)
 
 
 def passes(check: Check, value: float) -> bool:
@@ -519,7 +525,7 @@ def failing_checks(kind: CommandKind, drive: Drive) -> List[str]:
 class Prompt(NamedTuple):
     """An example's question and answer for one of the test's drives.
 
-    Both are HTML. Their {placeholders} are the names of example_values().
+    Both are HTML. Their {placeholders} are the names of example_text_values().
     """
 
     question: str
@@ -729,26 +735,26 @@ def example_drive(example: Example, kind: Optional[CommandKind] = None) -> Drive
     return simulate(ROBOTS[EXAMPLE_ROBOT], command, example.settings)
 
 
-def check_values(kind: CommandKind) -> Dict[str, str]:
+def check_text_values(kind: CommandKind) -> Dict[str, str]:
     """Return the texts of a test's expected values and tolerances, for an example's texts.
 
     expected_turned is the expected angle, turned_tolerance its delta, agreement_tolerance the
     delta of the check that compares the odometry with the true pose. agreement_share is that
-    delta as a share (percent) of the commanded distance or angle: a wheel separation or radius
-    that is off by more than this share makes the agreement check fail.
+    delta as a share (percent) of the commanded distance or angle. For the separation example's
+    turn, this is the approximate percentage separation error at the agreement limit.
     """
     checks, command = CHECKS[kind], COMMANDS[kind]
     values = {}
     for check in checks.each_view:
-        values[f'expected_{check.quantity.value}'] = number(check.expected)
-        values[f'{check.quantity.value}_tolerance'] = number(check.tolerance)
+        values[f'expected_{check.quantity.value}'] = format_number(check.expected)
+        values[f'{check.quantity.value}_tolerance'] = format_number(check.tolerance)
     commanded = command.distance if kind is CommandKind.FORWARD else command.angle
-    values['agreement_tolerance'] = number(checks.agreement.tolerance)
+    values['agreement_tolerance'] = format_number(checks.agreement.tolerance)
     values['agreement_share'] = f'{checks.agreement.tolerance / commanded * 100:.0f}'
     return values
 
 
-def example_values(example: Example, kind: Optional[CommandKind] = None) -> Dict[str, str]:
+def example_text_values(example: Example, kind: Optional[CommandKind] = None) -> Dict[str, str]:
     """Return the texts that fill an example's question and answer, for the drive of kind."""
     kind = kind or example.command
     robot = ROBOTS[EXAMPLE_ROBOT]
@@ -758,18 +764,18 @@ def example_values(example: Example, kind: Optional[CommandKind] = None) -> Dict
     # How much less the robot turns than its odometry reports
     less = 1 - drive.model.turned / drive.odometry.turned if drive.odometry.turned else 0.0
     return {
-        **check_values(kind),
+        **check_text_values(kind),
         'command': command_text(kind),
         'radius_error': f'{settings.radius_percent - 100}',
         'separation_error': f'{100 - settings.separation_percent}',
-        'offset_cm': number(settings.offset_mm / 10),
+        'offset_cm': format_number(settings.offset_mm / 10),
         'tracking': f'{settings.tracking_percent}',
         'odometry_forward': f'{drive.odometry.forward:.3f}',
         'model_forward': f'{drive.model.forward:.3f}',
         'odometry_turned': f'{drive.odometry.turned:.3f}',
         'model_turned': f'{drive.model.turned:.3f}',
         'gap_turned': f'{abs(drive.odometry.turned - drive.model.turned):.3f}',
-        'model_distance_cm': f'{measured(Quantity.DISTANCE, drive.model) * 100:.1f}',
+        'model_distance_cm': f'{motion_quantity_value(Quantity.DISTANCE, drive.model) * 100:.1f}',
         'less_percent': f'{less * 100:.0f}',
         'contact_separation': f'{inputs.contact_separation:.3f}',
         'separation': f'{robot.wheels.separation:.3f}',
@@ -874,7 +880,7 @@ class StaticDrawing(NamedTuple):
     views: FrozenSet[DrawingView]
 
 
-def reach(inputs: ModelInputs) -> float:
+def outline_reach_metres(inputs: ModelInputs) -> float:
     """Return how far (m) the drawing reaches beyond the paths' poses.
 
     It takes in the wheels' outer edges of both outlines, the robot's arrow, the command's line
@@ -892,7 +898,7 @@ def reach(inputs: ModelInputs) -> float:
     return max(outer_edge, front) + DRAWING.margin
 
 
-def drawing_scale(width_px: float, samples: Sequence[Poses], reach_m: float) -> DrawingScale:
+def drawing_scale(width_px: float, samples: Sequence[SamplePoses], reach_m: float) -> DrawingScale:
     """Return the scale that fits every pose of the samples into a drawing, with the reach."""
     poses = [pose for sample in samples for pose in sample]
     left = min(pose.x for pose in poses) - reach_m
@@ -975,7 +981,7 @@ def without_straight_runs(points: Sequence[PixelPoint]) -> List[PixelPoint]:
     return kept + [points[-1]]
 
 
-def path_line(scale: DrawingScale, poses: Sequence[Pose], css_class: str) -> str:
+def path_polyline_svg(scale: DrawingScale, poses: Sequence[Pose], css_class: str) -> str:
     """Return a view's path through its poses as an SVG polyline."""
     points = without_straight_runs([scale.to_pixels(pose.position) for pose in poses])
     return f'<polyline class="ix-path {css_class}" points="{points_attribute(points)}"/>'
@@ -986,7 +992,7 @@ def line_element(start: PixelPoint, end: PixelPoint) -> str:
     return f'<line x1="{start.x:.1f}" y1="{start.y:.1f}" x2="{end.x:.1f}" y2="{end.y:.1f}"/>'
 
 
-def on_robot(pose: Pose, forward: float, left: float) -> GroundPoint:
+def robot_point_on_ground(pose: Pose, forward: float, left: float) -> GroundPoint:
     """Return the point on the ground of a point given in the frame of a robot at a pose."""
     cos, sin = math.cos(pose.theta), math.sin(pose.theta)
     return GroundPoint(
@@ -1001,25 +1007,29 @@ def robot_outline(
 
     The pose is the axle's midpoint. markers are further SVG elements of the robot's group.
     """
-    def at(forward: float, left: float) -> PixelPoint:
-        return scale.to_pixels(on_robot(pose, forward, left))
+    def robot_point_in_pixels(forward: float, left: float) -> PixelPoint:
+        """Return the pixel position of a point in the robot's frame."""
+        return scale.to_pixels(robot_point_on_ground(pose, forward, left))
 
     parts = [f'<g class="ix-robot {css_class}">']
     for side in (1, -1):
         middle = side * wheels.separation / 2
         corners = [
-            at(wheels.radius, middle + wheels.width / 2),
-            at(wheels.radius, middle - wheels.width / 2),
-            at(-wheels.radius, middle - wheels.width / 2),
-            at(-wheels.radius, middle + wheels.width / 2),
+            robot_point_in_pixels(wheels.radius, middle + wheels.width / 2),
+            robot_point_in_pixels(wheels.radius, middle - wheels.width / 2),
+            robot_point_in_pixels(-wheels.radius, middle - wheels.width / 2),
+            robot_point_in_pixels(-wheels.radius, middle + wheels.width / 2),
         ]
         parts.append(f'<polygon class="ix-wheel" points="{points_attribute(corners)}"/>')
-    parts.append(line_element(at(0, wheels.separation / 2), at(0, -wheels.separation / 2)))
-    parts.append(line_element(at(0, 0), at(DRAWING.nose, 0)))
+    parts.append(line_element(
+        robot_point_in_pixels(0, wheels.separation / 2),
+        robot_point_in_pixels(0, -wheels.separation / 2),
+    ))
+    parts.append(line_element(robot_point_in_pixels(0, 0), robot_point_in_pixels(DRAWING.nose, 0)))
     head = [
-        at(DRAWING.nose + DRAWING.head_length, 0),
-        at(DRAWING.nose, DRAWING.head_half_width),
-        at(DRAWING.nose, -DRAWING.head_half_width),
+        robot_point_in_pixels(DRAWING.nose + DRAWING.head_length, 0),
+        robot_point_in_pixels(DRAWING.nose, DRAWING.head_half_width),
+        robot_point_in_pixels(DRAWING.nose, -DRAWING.head_half_width),
     ]
     parts.append(f'<polygon class="ix-head" points="{points_attribute(head)}"/>')
     parts.append(f'{markers}</g>')
@@ -1031,7 +1041,7 @@ def true_pose_markers(scale: DrawingScale, axle: Pose, frame_offset: float) -> s
 
     With an offset, a thin line joins base_footprint to the axle's midpoint.
     """
-    frame = scale.to_pixels(on_robot(axle, -frame_offset, 0))
+    frame = scale.to_pixels(robot_point_on_ground(axle, -frame_offset, 0))
     markers = []
     if frame_offset > 0:
         middle = scale.to_pixels(axle.position)
@@ -1062,7 +1072,7 @@ def command_marker(scale: DrawingScale, pose: Pose) -> str:
     A line from the cross shows the command's heading.
     """
     cross = scale.to_pixels(pose.position)
-    heading = scale.to_pixels(on_robot(pose, DRAWING.command_heading, 0))
+    heading = scale.to_pixels(robot_point_on_ground(pose, DRAWING.command_heading, 0))
     half = DRAWING.cross_half_px
     return (
         f'<g class="ix-robot ix-command"><line x1="{cross.x:.1f}" y1="{cross.y:.1f}"'
@@ -1072,21 +1082,18 @@ def command_marker(scale: DrawingScale, pose: Pose) -> str:
     )
 
 
-def static_drawing(example: Example) -> StaticDrawing:
-    """Return the end of an example's drive as a static drawing, in the live drawing's look."""
-    robot = ROBOTS[EXAMPLE_ROBOT]
-    inputs = model_inputs(robot, example.settings)
-    drive = example_drive(example)
-    scale = drawing_scale(DRAWING.static_width_px, drive.samples, reach(inputs))
-    step = grid_step(scale)
+def static_drive_svg(drive: Drive, inputs: ModelInputs, scale: DrawingScale, step: float) -> str:
+    """Return a drive at its end as SVG: the grid, the views' paths, the robots and the markers."""
     start, end = drive.samples[0], drive.samples[-1]
     elements = [grid_lines(scale, step)]
     if inputs.frame_offset > 0:
-        elements.append(path_line(scale, [sample.axle for sample in drive.samples], 'ix-axle'))
+        elements.append(
+            path_polyline_svg(scale, [sample.axle for sample in drive.samples], 'ix-axle')
+        )
     elements += [
-        path_line(scale, [sample.frame for sample in drive.samples], 'ix-model'),
-        path_line(scale, [sample.odometry for sample in drive.samples], 'ix-odometry'),
-        path_line(scale, [sample.command for sample in drive.samples], 'ix-command'),
+        path_polyline_svg(scale, [sample.frame for sample in drive.samples], 'ix-model'),
+        path_polyline_svg(scale, [sample.odometry for sample in drive.samples], 'ix-odometry'),
+        path_polyline_svg(scale, [sample.command for sample in drive.samples], 'ix-command'),
         robot_outline(scale, start.axle, inputs.wheels, 'ix-start'),
         robot_outline(
             scale, end.axle, inputs.wheels, 'ix-model',
@@ -1098,9 +1105,18 @@ def static_drawing(example: Example) -> StaticDrawing:
         ),
         command_marker(scale, end.command),
     ]
-    svg = svg_element(
+    return svg_element(
         'motion-lab', 'ix-static', (scale.width_px, scale.height_px), DRAWING_TITLE, elements
     )
+
+
+def static_drawing(example: Example) -> StaticDrawing:
+    """Return the end of an example's drive as a static drawing, in the live drawing's look."""
+    robot = ROBOTS[EXAMPLE_ROBOT]
+    inputs = model_inputs(robot, example.settings)
+    drive = example_drive(example)
+    scale = drawing_scale(DRAWING.static_width_px, drive.samples, outline_reach_metres(inputs))
+    step = grid_step(scale)
     views = {DrawingView.COMMAND, DrawingView.ODOMETRY, DrawingView.MODEL}
     if inputs.frame_offset > 0:
         views.add(DrawingView.AXLE)
@@ -1108,7 +1124,7 @@ def static_drawing(example: Example) -> StaticDrawing:
         setting_text(name, value) for name, value in changed_settings(example.settings).items()
     )
     return StaticDrawing(
-        svg,
+        static_drive_svg(drive, inputs, scale, step),
         grid_note=f'Grid: {round(step * 100)} cm',
         time_note=f't = {COMMANDS[example.command].duration:.1f} s, the end',
         example_note=f"The first example at its drive's end: {robot.name}, {changes}",
@@ -1118,7 +1134,10 @@ def static_drawing(example: Example) -> StaticDrawing:
 
 def setting_text(name: str, value: int) -> str:
     """Return a setting with its value as the figure names it: 'wheel speed reached 80 %'."""
-    slider = next(s for s in CONFIGURATION_SLIDERS + WHAT_IF_SLIDERS if s.setting == name)
+    slider = next(
+        candidate for candidate in CONFIGURATION_SLIDERS + WHAT_IF_SLIDERS
+        if candidate.setting == name
+    )
     # A label that starts with a code name keeps its case
     label = slider.label
     if not label.startswith('<'):
@@ -1322,7 +1341,7 @@ def figure_data() -> Dict[str, object]:
     }
 
 
-def glyph(entry: LegendEntry) -> str:
+def legend_glyph_svg(entry: LegendEntry) -> str:
     """Return the small line-and-symbol sample of a legend entry."""
     return (
         '<svg class="ix-glyph" viewBox="0 0 28 12" aria-hidden="true">'
@@ -1335,7 +1354,7 @@ def legend_html(drawing: StaticDrawing) -> str:
     entries = ''.join(
         f'<li data-view="{entry.view.value}"{" hidden" if entry.starts_hidden else ""}'
         f'{"" if entry.view in drawing.views else " data-static-unused"}>'
-        f'{glyph(entry)}{entry.text}</li>'
+        f'{legend_glyph_svg(entry)}{entry.text}</li>'
         for entry in LEGEND
     )
     return f'<ul class="ix-legend">{entries}</ul>'
@@ -1369,7 +1388,7 @@ def example_item_html(example: Example) -> str:
     expected = {kind.value: example_expected(example, kind) for kind in kinds}
     questions, answers = [], []
     for kind in kinds:
-        texts = example_values(example, kind)
+        texts = example_text_values(example, kind)
         prompt = example_prompt(example, kind)
         live = '' if kind is example.command else ' data-live hidden'
         questions.append(f'<span class="ix-question" data-drive="{kind.value}"{live}>'
@@ -1388,6 +1407,7 @@ def example_item_html(example: Example) -> str:
 def steps_html() -> str:
     """Return the guided examples: the introduction, the stepper and the examples' list."""
     robot = ROBOTS[EXAMPLE_ROBOT].name
+    examples = ''.join(example_item_html(example) for example in EXAMPLES)
     return ''.join([
         '<div class="ix-steps">',
         f'<p><b>{NUMBER_WORDS[len(EXAMPLES)]} drives to try.</b> Each one changes a single value'
@@ -1398,7 +1418,7 @@ def steps_html() -> str:
         ' type="button" class="ix-next">Next</button><button'
         ' type="button" class="ix-reset" title="Back to the robot\'s own values">Reset'
         ' values</button><button type="button" class="ix-enlarge">Enlarge</button></div>',
-        f'<ol class="ix-examples">{"".join(example_item_html(e) for e in EXAMPLES)}</ol>',
+        f'<ol class="ix-examples">{examples}</ol>',
         '</div>',
     ])
 
@@ -1534,7 +1554,7 @@ def caption_html() -> str:
     )
 
 
-def build() -> str:
+def motion_lab_include_html() -> str:
     """Return the include's HTML."""
     data = json.dumps(figure_data(), separators=(',', ':'))
     drawing = static_drawing(EXAMPLES[0])
@@ -1581,7 +1601,7 @@ def check_include(text: str) -> None:
 
 def main() -> None:
     """Build the include, check it and write it."""
-    text = build()
+    text = motion_lab_include_html()
     check_include(text)
     INCLUDE.write_text(text, encoding='utf-8')
     print(f'wrote {INCLUDE.relative_to(ROOT)}')

@@ -47,7 +47,7 @@ def pixel_points(*pairs: Tuple[float, float]) -> List[figures.PixelPoint]:
     return [figures.PixelPoint(x, y) for x, y in pairs]
 
 
-def drive_with(command: figures.CommandKind, **settings: int) -> figures.Drive:
+def simulate_remo_with_settings(command: figures.CommandKind, **settings: int) -> figures.Drive:
     """Return Remo's drive of a command with some settings changed."""
     return figures.simulate(REMO, figures.COMMANDS[command], figures.Settings(**settings))
 
@@ -123,7 +123,7 @@ class TestGuidedExamples(unittest.TestCase):
     def test_every_example_text_has_all_its_values_filled_in(self) -> None:
         for example in figures.EXAMPLES:
             for kind in figures.CommandKind:
-                values = figures.example_values(example, kind)
+                values = figures.example_text_values(example, kind)
                 for text in figures.example_prompt(example, kind):
                     filled = text.format(**values)
                     self.assertNotRegex(filled, r'[{}]', f'{example.key}, {kind.value}')
@@ -194,17 +194,18 @@ class TestChecks(unittest.TestCase):
         boundary = turned.expected - turned.tolerance
         # The wheels reach the share of their speed that ends the turn exactly on the boundary
         tracking = round(boundary / TURN.angle * 100)
-        drive = drive_with(figures.CommandKind.TURN, tracking_percent=tracking)
+        drive = simulate_remo_with_settings(figures.CommandKind.TURN, tracking_percent=tracking)
         self.assertAlmostEqual(drive.model.turned, boundary, places=PLACES)
         self.assertEqual(figures.failing_checks(figures.CommandKind.TURN, drive), [])
 
     def test_the_turn_test_catches_a_separation_off_by_more_than_the_stated_share(self) -> None:
-        share = int(figures.check_values(figures.CommandKind.TURN)['agreement_share'])
+        share = int(figures.check_text_values(figures.CommandKind.TURN)['agreement_share'])
         agreement = 'odometry and true pose, turned'
-        inside = drive_with(figures.CommandKind.TURN, separation_percent=100 - (share - 1))
-        outside = drive_with(figures.CommandKind.TURN, separation_percent=100 - share)
-        self.assertNotIn(agreement, figures.failing_checks(figures.CommandKind.TURN, inside))
-        self.assertIn(agreement, figures.failing_checks(figures.CommandKind.TURN, outside))
+        turn = figures.CommandKind.TURN
+        inside = simulate_remo_with_settings(turn, separation_percent=100 - (share - 1))
+        outside = simulate_remo_with_settings(turn, separation_percent=100 - share)
+        self.assertNotIn(agreement, figures.failing_checks(turn, inside))
+        self.assertIn(agreement, figures.failing_checks(turn, outside))
 
 
 class TestModelLimits(unittest.TestCase):
@@ -278,13 +279,13 @@ class TestDrawing(unittest.TestCase):
     def test_the_reach_takes_in_the_wider_configured_outline(self) -> None:
         own = figures.model_inputs(REMO, figures.DEFAULT_SETTINGS)
         wider = figures.model_inputs(REMO, figures.Settings(separation_percent=120))
-        self.assertGreater(figures.reach(wider), figures.reach(own))
+        self.assertGreater(figures.outline_reach_metres(wider), figures.outline_reach_metres(own))
 
     def test_grid_lines_lie_at_least_the_least_spacing_apart(self) -> None:
         drive = figures.example_drive(figures.EXAMPLES[0])
         inputs = figures.model_inputs(REMO, figures.EXAMPLES[0].settings)
         scale = figures.drawing_scale(figures.DRAWING.static_width_px, drive.samples,
-                                      figures.reach(inputs))
+                                      figures.outline_reach_metres(inputs))
         step = figures.grid_step(scale)
         self.assertGreaterEqual(step * scale.pixels_per_metre, figures.DRAWING.grid_spacing_px)
         for smaller in (spacing for spacing in figures.DRAWING.grid_steps if spacing < step):
@@ -307,7 +308,7 @@ class TestInclude(unittest.TestCase):
         self.include = figures.INCLUDE.read_text(encoding='utf-8')
 
     def test_include_is_the_scripts_output(self) -> None:
-        self.assertEqual(self.include, figures.build(),
+        self.assertEqual(self.include, figures.motion_lab_include_html(),
                          'run python3 scripts/figures/motion_lab_figures.py')
 
     def test_include_names_its_script_on_its_first_line(self) -> None:
