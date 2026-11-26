@@ -1,0 +1,291 @@
+<!-- Written by scripts/figures/imu_noise_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-noise .lv-fig .level{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.7;stroke-dasharray:1.5 3}
+.lv-noise .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .spread-band{fill:var(--lv-imu);fill-opacity:.14;stroke:none}
+.lv-noise .lv-fig .mean-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .spread-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6;stroke-dasharray:5 3}
+.lv-noise .lv-fig .reading{fill:var(--md-default-fg-color);fill-opacity:.85;stroke:none}
+.lv-noise .lv-fig .deviation-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-noise .lv-fig .deviation-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .step-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.5}
+.lv-noise .lv-fig .step-bad{fill:none;stroke:var(--lv-bad);stroke-width:2;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .long-interval{fill:none;stroke:var(--lv-bad);stroke-width:1.6}
+.lv-noise .lv-fig .box-edge{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1;stroke-dasharray:3 3}
+.lv-noise .lv-fig .gravity-line{fill:none;stroke:var(--lv-imu);stroke-width:2.4}
+.lv-noise .lv-fig .gravity-head{fill:var(--lv-imu);stroke:none}
+.lv-noise .lv-fig .class-name{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-noise .lv-fig .flow-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-noise .lv-fig .flow-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-noise .lv-fig .refused-line{fill:none;stroke:var(--lv-bad);stroke-width:1.6;stroke-dasharray:4 2.5}
+.lv-noise .lv-fig .refused-head{fill:var(--lv-bad);stroke:none}
+.lv-noise .lv-fig .command-span{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-noise .lv-fig .measured-band{fill:var(--lv-imu);stroke:var(--lv-imu);stroke-width:1}
+.lv-noise .lv-fig .setting-band{fill:var(--md-default-fg-color--light);fill-opacity:.12;stroke:var(--md-default-fg-color);stroke-width:1.2;stroke-dasharray:5 3}
+.lv-noise .lv-fig .compared-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-noise .lv-fig .compared-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-noise .lv-fig .cell-index{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-noise .lv-fig .cell-index.strong{fill:var(--md-default-fg-color)}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
+</style>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-noise lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 634" role="img" aria-labelledby="imu-noise-report-to-ekf-title"><title id="imu-noise-report-to-ekf-title">The yaw rate's standard deviation that Remo's report measured at rest, ±0.00073 rad/s, and the standard deviation of the firmware's setting, ±0.02 rad/s, as two bands on one axis. The setting's band is about 27 times as wide. The firmware writes the setting's variance, 4 · 10⁻⁴ (rad/s)², to the indices 0, 4 and 8 of angular_velocity_covariance. The EKF reads index 8, the yaw rate's variance</title>
+<rect class="item" x="4.0" y="4.0" width="292.0" height="78.0" rx="5"/>
+<text class="strong" x="12.0" y="22.0" text-anchor="start">The report's row z, Remo at rest</text>
+<text x="12.0" y="40.0" text-anchor="start">mean</text>
+<text x="288.0" y="40.0" text-anchor="end">+0.00005 rad/s</text>
+<text x="12.0" y="56.0" text-anchor="start">std dev</text>
+<text x="288.0" y="56.0" text-anchor="end">0.00073 rad/s</text>
+<text x="12.0" y="72.0" text-anchor="start">variance</text>
+<text x="288.0" y="72.0" text-anchor="end">5.317 · 10⁻⁷ (rad/s)²</text>
+<rect class="item" x="4.0" y="280.0" width="292.0" height="78.0" rx="5"/>
+<text class="strong" x="12.0" y="298.0" text-anchor="start">The firmware's setting</text>
+<text class="mono" x="12.0" y="316.0" text-anchor="start">angular_velocity_variance</text>
+<text x="12.0" y="332.0" text-anchor="start">variance</text>
+<text x="288.0" y="332.0" text-anchor="end">4 · 10⁻⁴ (rad/s)²</text>
+<text x="12.0" y="348.0" text-anchor="start">std dev, its root</text>
+<text x="288.0" y="348.0" text-anchor="end">0.02 rad/s</text>
+<rect class="item" x="4.0" y="110.0" width="292.0" height="142.0" rx="5"/>
+<text class="note" x="150.0" y="126.0" text-anchor="middle">compared by hand, drawn to scale</text>
+<rect class="measured-band" x="146.0" y="136.0" width="8.0" height="34.0" rx="0"/>
+<text x="138.0" y="157.0" text-anchor="end">measured at rest</text>
+<text class="strong" x="162.0" y="157.0" text-anchor="start">±0.00073 rad/s</text>
+<path class="axis" d="M30.0,182.0 H270.0"/>
+<path class="tick" d="M40.0,178.0 v8"/>
+<text class="note" x="40.0" y="199.0" text-anchor="middle">−0.02 rad/s</text>
+<path class="tick" d="M150.0,178.0 v8"/>
+<text class="note" x="150.0" y="199.0" text-anchor="middle">0</text>
+<path class="tick" d="M260.0,178.0 v8"/>
+<text class="note" x="260.0" y="199.0" text-anchor="middle">+0.02 rad/s</text>
+<rect class="setting-band" x="40.0" y="208.0" width="220.0" height="34.0" rx="0"/>
+<text class="strong" x="150.0" y="223.0" text-anchor="middle">setting ±0.02 rad/s</text>
+<text x="150.0" y="237.0" text-anchor="middle">about 27 times as wide</text>
+<text class="mono" x="150.0" y="409.0" text-anchor="middle">angular_velocity_covariance</text>
+<text class="note" x="150.0" y="424.0" text-anchor="middle">3 × 3, in (rad/s)², index in the corner</text>
+<text x="86.0" y="443.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<text x="45.0" y="472.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<text x="148.0" y="443.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">y</tspan></text>
+<text x="45.0" y="508.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">y</tspan></text>
+<text x="210.0" y="443.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<text x="45.0" y="544.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<rect class="cell" x="57.0" y="450.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="62.0" y="462.0" text-anchor="start">0</text>
+<text x="88.0" y="478.0" text-anchor="middle">4 · 10⁻⁴</text>
+<rect class="cell" x="119.0" y="450.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="124.0" y="462.0" text-anchor="start">1</text>
+<text class="note" x="150.0" y="478.0" text-anchor="middle">0</text>
+<rect class="cell" x="181.0" y="450.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="186.0" y="462.0" text-anchor="start">2</text>
+<text class="note" x="212.0" y="478.0" text-anchor="middle">0</text>
+<rect class="cell" x="57.0" y="486.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="62.0" y="498.0" text-anchor="start">3</text>
+<text class="note" x="88.0" y="514.0" text-anchor="middle">0</text>
+<rect class="cell" x="119.0" y="486.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="124.0" y="498.0" text-anchor="start">4</text>
+<text x="150.0" y="514.0" text-anchor="middle">4 · 10⁻⁴</text>
+<rect class="cell" x="181.0" y="486.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="186.0" y="498.0" text-anchor="start">5</text>
+<text class="note" x="212.0" y="514.0" text-anchor="middle">0</text>
+<rect class="cell" x="57.0" y="522.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="62.0" y="534.0" text-anchor="start">6</text>
+<text class="note" x="88.0" y="550.0" text-anchor="middle">0</text>
+<rect class="cell" x="119.0" y="522.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="124.0" y="534.0" text-anchor="start">7</text>
+<text class="note" x="150.0" y="550.0" text-anchor="middle">0</text>
+<rect class="cell-fused" x="181.0" y="522.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index strong" x="186.0" y="534.0" text-anchor="start">✓8</text>
+<text class="strong" x="212.0" y="550.0" text-anchor="middle">4 · 10⁻⁴</text>
+<rect class="item" x="4.0" y="586.0" width="292.0" height="44.0" rx="5"/>
+<text class="strong" x="150.0" y="605.0" text-anchor="middle">EKF</text>
+<text class="note" x="150.0" y="618.0" text-anchor="middle">fuses only the IMU's yaw rate</text>
+<path class="compared-line" d="M150.0,82.0 L150.0,105.0"/>
+<path class="compared-head" d="M150.0,110.0 L145.8,103.0 L154.2,103.0 z"/>
+<text class="note" x="157.0" y="100.0" text-anchor="start">std dev</text>
+<path class="compared-line" d="M150.0,280.0 L150.0,257.0"/>
+<path class="compared-head" d="M150.0,252.0 L154.2,259.0 L145.8,259.0 z"/>
+<text class="note" x="157.0" y="270.0" text-anchor="start">std dev</text>
+<path class="flow-line" d="M150.0,358.0 L150.0,393.0"/>
+<path class="flow-head" d="M150.0,398.0 L145.8,391.0 L154.2,391.0 z"/>
+<text class="note" x="157.0" y="375.5" text-anchor="start">into every message,</text>
+<text class="note" x="157.0" y="388.5" text-anchor="start">at indices 0, 4 and 8</text>
+<path class="flow-line" d="M212.0,558.0 L212.0,581.0"/>
+<path class="flow-head" d="M212.0,586.0 L207.8,579.0 L216.2,579.0 z"/>
+<text class="note" x="205.0" y="576.0" text-anchor="end">index 8: the yaw rate</text>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 540 386" role="img" aria-labelledby="imu-noise-report-to-ekf-wide-title"><title id="imu-noise-report-to-ekf-wide-title">The yaw rate's standard deviation that Remo's report measured at rest, ±0.00073 rad/s, and the standard deviation of the firmware's setting, ±0.02 rad/s, as two bands on one axis. The setting's band is about 27 times as wide. The firmware writes the setting's variance, 4 · 10⁻⁴ (rad/s)², to the indices 0, 4 and 8 of angular_velocity_covariance. The EKF reads index 8, the yaw rate's variance</title>
+<rect class="item" x="4.0" y="4.0" width="196.0" height="78.0" rx="5"/>
+<text class="strong" x="12.0" y="22.0" text-anchor="start">The report's row z, Remo at rest</text>
+<text x="12.0" y="40.0" text-anchor="start">mean</text>
+<text x="192.0" y="40.0" text-anchor="end">+0.00005 rad/s</text>
+<text x="12.0" y="56.0" text-anchor="start">std dev</text>
+<text x="192.0" y="56.0" text-anchor="end">0.00073 rad/s</text>
+<text x="12.0" y="72.0" text-anchor="start">variance</text>
+<text x="192.0" y="72.0" text-anchor="end">5.317 · 10⁻⁷ (rad/s)²</text>
+<rect class="item" x="4.0" y="100.0" width="196.0" height="78.0" rx="5"/>
+<text class="strong" x="12.0" y="118.0" text-anchor="start">The firmware's setting</text>
+<text class="mono" x="12.0" y="136.0" text-anchor="start">angular_velocity_variance</text>
+<text x="12.0" y="152.0" text-anchor="start">variance</text>
+<text x="192.0" y="152.0" text-anchor="end">4 · 10⁻⁴ (rad/s)²</text>
+<text x="12.0" y="168.0" text-anchor="start">std dev, its root</text>
+<text x="192.0" y="168.0" text-anchor="end">0.02 rad/s</text>
+<rect class="item" x="244.0" y="20.0" width="292.0" height="142.0" rx="5"/>
+<text class="note" x="390.0" y="36.0" text-anchor="middle">compared by hand, drawn to scale</text>
+<rect class="measured-band" x="386.0" y="46.0" width="8.0" height="34.0" rx="0"/>
+<text x="378.0" y="67.0" text-anchor="end">measured at rest</text>
+<text class="strong" x="402.0" y="67.0" text-anchor="start">±0.00073 rad/s</text>
+<path class="axis" d="M270.0,92.0 H510.0"/>
+<path class="tick" d="M280.0,88.0 v8"/>
+<text class="note" x="280.0" y="109.0" text-anchor="middle">−0.02 rad/s</text>
+<path class="tick" d="M390.0,88.0 v8"/>
+<text class="note" x="390.0" y="109.0" text-anchor="middle">0</text>
+<path class="tick" d="M500.0,88.0 v8"/>
+<text class="note" x="500.0" y="109.0" text-anchor="middle">+0.02 rad/s</text>
+<rect class="setting-band" x="280.0" y="118.0" width="220.0" height="34.0" rx="0"/>
+<text class="strong" x="390.0" y="133.0" text-anchor="middle">setting ±0.02 rad/s</text>
+<text x="390.0" y="147.0" text-anchor="middle">about 27 times as wide</text>
+<text class="mono" x="121.0" y="229.0" text-anchor="middle">angular_velocity_covariance</text>
+<text class="note" x="121.0" y="244.0" text-anchor="middle">3 × 3, in (rad/s)², index in the corner</text>
+<text x="57.0" y="263.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<text x="16.0" y="292.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">x</tspan></text>
+<text x="119.0" y="263.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">y</tspan></text>
+<text x="16.0" y="328.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">y</tspan></text>
+<text x="181.0" y="263.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<text x="16.0" y="364.0" text-anchor="middle"><tspan class="variable">ω</tspan><tspan class="subscript index" dy="2.5">z</tspan></text>
+<rect class="cell" x="28.0" y="270.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="33.0" y="282.0" text-anchor="start">0</text>
+<text x="59.0" y="298.0" text-anchor="middle">4 · 10⁻⁴</text>
+<rect class="cell" x="90.0" y="270.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="95.0" y="282.0" text-anchor="start">1</text>
+<text class="note" x="121.0" y="298.0" text-anchor="middle">0</text>
+<rect class="cell" x="152.0" y="270.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="157.0" y="282.0" text-anchor="start">2</text>
+<text class="note" x="183.0" y="298.0" text-anchor="middle">0</text>
+<rect class="cell" x="28.0" y="306.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="33.0" y="318.0" text-anchor="start">3</text>
+<text class="note" x="59.0" y="334.0" text-anchor="middle">0</text>
+<rect class="cell" x="90.0" y="306.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="95.0" y="318.0" text-anchor="start">4</text>
+<text x="121.0" y="334.0" text-anchor="middle">4 · 10⁻⁴</text>
+<rect class="cell" x="152.0" y="306.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="157.0" y="318.0" text-anchor="start">5</text>
+<text class="note" x="183.0" y="334.0" text-anchor="middle">0</text>
+<rect class="cell" x="28.0" y="342.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="33.0" y="354.0" text-anchor="start">6</text>
+<text class="note" x="59.0" y="370.0" text-anchor="middle">0</text>
+<rect class="cell" x="90.0" y="342.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index" x="95.0" y="354.0" text-anchor="start">7</text>
+<text class="note" x="121.0" y="370.0" text-anchor="middle">0</text>
+<rect class="cell-fused" x="152.0" y="342.0" width="62.0" height="36.0" rx="0"/>
+<text class="cell-index strong" x="157.0" y="354.0" text-anchor="start">✓8</text>
+<text class="strong" x="183.0" y="370.0" text-anchor="middle">4 · 10⁻⁴</text>
+<rect class="item" x="360.0" y="338.0" width="176.0" height="44.0" rx="5"/>
+<text class="strong" x="448.0" y="357.0" text-anchor="middle">EKF</text>
+<text class="note" x="448.0" y="370.0" text-anchor="middle">fuses only the IMU's yaw rate</text>
+<path class="compared-line" d="M200.0,51.0 L239.0,51.0"/>
+<path class="compared-head" d="M244.0,51.0 L237.0,55.2 L237.0,46.8 z"/>
+<text class="note" x="222.0" y="45.0" text-anchor="middle">std dev</text>
+<path class="compared-line" d="M200.0,131.0 L239.0,131.0"/>
+<path class="compared-head" d="M244.0,131.0 L237.0,135.2 L237.0,126.8 z"/>
+<text class="note" x="222.0" y="125.0" text-anchor="middle">std dev</text>
+<path class="flow-line" d="M114.0,178.0 L114.0,213.0"/>
+<path class="flow-head" d="M114.0,218.0 L109.8,211.0 L118.2,211.0 z"/>
+<text class="note" x="121.0" y="195.5" text-anchor="start">into every message,</text>
+<text class="note" x="121.0" y="208.5" text-anchor="start">at indices 0, 4 and 8</text>
+<path class="flow-line" d="M214.0,360.0 L355.0,360.0"/>
+<path class="flow-head" d="M360.0,360.0 L353.0,364.2 L353.0,355.8 z"/>
+<text class="note" x="287.0" y="354.0" text-anchor="middle">index 8: the yaw rate</text>
+</svg>
+<figcaption>The two bands are drawn to scale: the setting's band is about 27 times as wide as the measured one. A dashed arrow is a comparison by hand. A solid arrow is a value that the firmware writes or that the EKF reads. The measured values are Remo's at rest, with its Teensy 4.0.</figcaption>
+</figure>
+</div>

@@ -26,10 +26,15 @@ includes, which follow the site's light and dark colors:
   test classes that call each step's functions, the exit with one line and status 1, and the
   command tests, which start the tool and check its output and exit status. Its wide layout
   puts the three steps side by side.
+- includes/imu-noise-report-to-ekf.html: the yaw rate's standard deviation that Remo's report
+  measured at rest and the standard deviation of the firmware's setting, as two bands to scale
+  on one axis. Around them the report's row z, the setting, the message's covariance with the
+  index of each element, and the EKF, which reads index 8. Its wide layout puts the two values
+  left of the bands and the EKF right of the covariance.
 
 Every drawing is 300 units wide and carries short labels only, so that its text is readable on a
-phone. The trace figure, the flow figure and the two stamp figures also have a wide layout
-of 540 units, which the CSS of LAYOUT_RULES in
+phone. The trace figure, the flow figure, the two stamp figures and the figure from the report
+to the EKF also have a wide layout of 540 units, which the CSS of LAYOUT_RULES in
 localization_figures.py shows where the text column has room for it. Explanations are HTML text
 below a drawing. Figure, the CSS rules and the helpers come from localization_figures.py.
 
@@ -50,9 +55,12 @@ from typing import Callable
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
+from typing import Tuple
 
 from board_drawings import Drawing
 from board_drawings import style_element
+from localization_figures import ANGULAR_VELOCITY_FUSED_VARIANCES
+from localization_figures import ANGULAR_VELOCITY_VARIABLES
 from localization_figures import arrow_head
 from localization_figures import DRAWING_RULES
 from localization_figures import Figure
@@ -63,6 +71,7 @@ from localization_figures import LAYOUT_SPACE
 from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
 from localization_figures import Span
+from localization_figures import symbol
 from localization_figures import SYMBOL_RULES
 from localization_figures import WIDE_LAYOUT
 from localization_figures import WIDE_WIDTH
@@ -280,16 +289,18 @@ def write_figure(path: str, figure: Figure, caption: str) -> None:
                       f'{figure_element([figure.svg()], caption, FIGURE_CLASSES)}\n')
 
 
-def write_layout_figure(path: str, layouts: Sequence[Figure], caption: str) -> None:
+def write_layout_figure(path: str, layouts: Sequence[Figure], caption: str,
+                        rules: Sequence[Tuple[str, str]] = FIGURE_RULES) -> None:
     """Write an include with a drawing's narrow and wide layout and its caption.
 
     The include starts with a comment that names this script. The figure stands in a block of
-    the class LAYOUT_SPACE, whose width decides which layout shows.
+    the class LAYOUT_SPACE, whose width decides which layout shows. rules are the CSS rules of
+    the drawing, for a figure with rules of its own.
     """
     figure = figure_element([layout.svg() for layout in layouts], caption,
                             f'{FIGURE_CLASSES} lv-layouts')
     with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES + LAYOUT_RULES)}\n'
+        include.write(f'{INCLUDE_COMMENT}\n{style_element(tuple(rules) + LAYOUT_RULES)}\n'
                       f'<div class="{LAYOUT_SPACE}">\n{figure}\n</div>\n')
 
 
@@ -1011,6 +1022,384 @@ def write_flow() -> None:
                         flow_caption(TOOL_STEPS))
 
 
+# The figure from the report to the EKF. Its CSS rules stand in its own include only
+REPORT_TO_EKF_RULES = (
+    ('.lv-noise .lv-fig .measured-band', 'fill:var(--lv-imu);stroke:var(--lv-imu);'
+                                         'stroke-width:1'),
+    ('.lv-noise .lv-fig .setting-band', f'fill:{FG_LIGHT};fill-opacity:.12;stroke:{FG};'
+                                        'stroke-width:1.2;stroke-dasharray:5 3'),
+    ('.lv-noise .lv-fig .compared-line', f'fill:none;stroke:{FG};stroke-width:1.4;'
+                                         'stroke-dasharray:4 3'),
+    ('.lv-noise .lv-fig .compared-head', f'fill:{FG};stroke:none'),
+    ('.lv-noise .lv-fig .cell-index', f'font-size:9.5px;fill:{FG_LIGHT}'),
+    ('.lv-noise .lv-fig .cell-index.strong', f'fill:{FG}'),
+)
+
+
+class ReportRow(NamedTuple):
+    """One axis of the report's table of the angular velocity."""
+
+    mean: float  # rad/s, the bias
+    standard_deviation: float  # rad/s
+    variance: float  # (rad/s)^2
+
+
+# Remo's row z at rest, recorded on 2026-11-03: the column "Teensy 4.0" of the table "Results on
+# Remo" on docs/packages/imu/driver-bno055.md. The report prints a rate with five decimals and
+# a variance with three decimals before its power of ten
+REMO_YAW_RATE_AT_REST = ReportRow(mean=0.00005, standard_deviation=0.00073, variance=5.317e-7)
+REPORT_VARIANCE_DECIMALS = 3
+# The firmware's angular_velocity_variance: diffbot_firmware/lib/config/diffbot_base_config.h,
+# line 75, at the commit that mkdocs.yml pins as imu_noise_src_url
+FIRMWARE_ANGULAR_VELOCITY_VARIANCE = 4.0e-4  # (rad/s)^2
+FIRMWARE_STANDARD_DEVIATION = math.sqrt(FIRMWARE_ANGULAR_VELOCITY_VARIANCE)  # rad/s
+# diffbot_firmware/lib/imu/imu_publisher.h, lines 220-224 at the same commit, writes the setting
+# to the diagonal of the message's angular_velocity_covariance, a matrix stored row by row
+COVARIANCE_SIZE = len(ANGULAR_VELOCITY_VARIABLES)
+COVARIANCE_FIELD = 'angular_velocity_covariance'
+VARIANCE_INDICES = tuple(range(0, COVARIANCE_SIZE ** 2, COVARIANCE_SIZE + 1))
+# The EKF fuses the yaw rate only, so of the nine elements it reads this one
+YAW_RATE_VARIANCE_INDEX, = ANGULAR_VELOCITY_FUSED_VARIANCES
+# How many times as wide the setting's band is as the measured one
+BAND_WIDTH_RATIO = FIRMWARE_STANDARD_DEVIATION / REMO_YAW_RATE_AT_REST.standard_deviation
+
+VALUE_CARD_ROW_HEIGHT = 16
+VALUE_CARD_ROWS = 3  # below a card's title, in the report's card and in the setting's
+VALUE_CARD_HEIGHT = 30 + VALUE_CARD_ROWS * VALUE_CARD_ROW_HEIGHT
+ARROW_LENGTH = 28  # of an arrow with one line of text beside it
+TWO_LINE_ARROW_LENGTH = 40
+ARROW_LABEL_LINE_HEIGHT = 13
+BAND_HEIGHT = 34
+# From the comparison panel's left and right edge to the ends of the setting's band, for the
+# labels of the axis's outer ticks
+PANEL_AXIS_MARGIN = 36
+PANEL_MEASURED_TOP = 26  # from the panel's top to the measured band
+PANEL_AXIS_Y = PANEL_MEASURED_TOP + BAND_HEIGHT + 12
+PANEL_SETTING_TOP = PANEL_AXIS_Y + 26
+PANEL_HEIGHT = PANEL_SETTING_TOP + BAND_HEIGHT + 10
+COVARIANCE_CELL_WIDTH = 62
+COVARIANCE_CELL_HEIGHT = 36
+COVARIANCE_HEADER_HEIGHT = 52  # the field's name, a note and the column symbols above the cells
+COVARIANCE_ROW_SYMBOL_WIDTH = 24  # left of the cells
+COVARIANCE_WIDTH = COVARIANCE_SIZE * COVARIANCE_CELL_WIDTH
+COVARIANCE_HEIGHT = COVARIANCE_HEADER_HEIGHT + COVARIANCE_SIZE * COVARIANCE_CELL_HEIGHT
+FILTER_BOX_HEIGHT = 44
+SUPERSCRIPT_DIGITS = str.maketrans('-0123456789', '⁻⁰¹²³⁴⁵⁶⁷⁸⁹')
+
+
+class Box(NamedTuple):
+    """A rectangle in a drawing, in SVG coordinates."""
+
+    x: float
+    y: float
+    width: float
+    height: float
+
+    @property
+    def right(self) -> float:
+        """Return the x coordinate of the box's right edge."""
+        return self.x + self.width
+
+    @property
+    def bottom(self) -> float:
+        """Return the y coordinate of the box's lower edge."""
+        return self.y + self.height
+
+    @property
+    def middle_x(self) -> float:
+        """Return the x coordinate of the box's middle."""
+        return self.x + self.width / 2
+
+    @property
+    def middle_y(self) -> float:
+        """Return the y coordinate of the box's middle."""
+        return self.y + self.height / 2
+
+
+class ArrowKind(Enum):
+    """What an arrow of the figure from the report to the EKF means, as its line's style."""
+
+    WRITTEN = 'flow'  # solid: a value that code writes or reads
+    COMPARED = 'compared'  # dashed: a value that a person compares by hand
+
+
+class Connection(NamedTuple):
+    """A straight line from the edge of one box to the facing edge of another."""
+
+    start: DrawingPoint
+    end: DrawingPoint
+
+
+class CardRow(NamedTuple):
+    """A row of a card of values: what the value is, and the value at the card's right edge."""
+
+    label: str
+    value: str = ''
+    label_class: str = ''
+
+
+class ReportToEkfLayout(NamedTuple):
+    """One of the two layouts of the figure from the report to the EKF: where its parts stand."""
+
+    name: str  # the drawing's name, unique on the page
+    css_class: str  # NARROW_LAYOUT or WIDE_LAYOUT, by which the CSS shows one layout
+    width: int
+    report_card: Box
+    comparison_panel: Box
+    setting_card: Box
+    covariance: Box  # the field's name, the symbols of the columns and the nine cells
+    filter_box: Box
+
+    @property
+    def height(self) -> int:
+        """Return the drawing's height: a margin below its lowest part."""
+        return int(max(self.covariance.bottom, self.filter_box.bottom)) + 4
+
+
+def covariance_cell(covariance: Box, element: int) -> Box:
+    """Return the cell of an element of the covariance's array, which holds it row by row."""
+    row, column = divmod(element, COVARIANCE_SIZE)
+    return Box(covariance.x + column * COVARIANCE_CELL_WIDTH,
+               covariance.y + COVARIANCE_HEADER_HEIGHT + row * COVARIANCE_CELL_HEIGHT,
+               COVARIANCE_CELL_WIDTH, COVARIANCE_CELL_HEIGHT)
+
+
+def narrow_report_to_ekf_layout() -> ReportToEkfLayout:
+    """Return the narrow layout: the parts from top to bottom, the setting below the bands."""
+    left, width = 4, DRAWING_WIDTH - 8
+    report_card = Box(left, 4, width, VALUE_CARD_HEIGHT)
+    comparison_panel = Box(left, report_card.bottom + ARROW_LENGTH, width, PANEL_HEIGHT)
+    setting_card = Box(left, comparison_panel.bottom + ARROW_LENGTH, width, VALUE_CARD_HEIGHT)
+    covariance = Box((DRAWING_WIDTH - COVARIANCE_WIDTH) / 2,
+                     setting_card.bottom + TWO_LINE_ARROW_LENGTH, COVARIANCE_WIDTH,
+                     COVARIANCE_HEIGHT)
+    filter_box = Box(left, covariance.bottom + ARROW_LENGTH, width, FILTER_BOX_HEIGHT)
+    return ReportToEkfLayout('imu-noise-report-to-ekf', NARROW_LAYOUT, DRAWING_WIDTH,
+                             report_card, comparison_panel, setting_card, covariance, filter_box)
+
+
+def wide_report_to_ekf_layout() -> ReportToEkfLayout:
+    """Return the wide layout: the two cards left of the bands, the EKF right of the covariance."""
+    left, card_width, right = 4, 196, WIDE_WIDTH - 4
+    report_card = Box(left, 4, card_width, VALUE_CARD_HEIGHT)
+    setting_card = Box(left, report_card.bottom + 18, card_width, VALUE_CARD_HEIGHT)
+    panel_left = report_card.right + 44
+    # Beside the two cards, in the middle of their height
+    comparison_panel = Box(panel_left, (report_card.y + setting_card.bottom - PANEL_HEIGHT) / 2,
+                           right - panel_left, PANEL_HEIGHT)
+    covariance = Box(left + COVARIANCE_ROW_SYMBOL_WIDTH,
+                     setting_card.bottom + TWO_LINE_ARROW_LENGTH, COVARIANCE_WIDTH,
+                     COVARIANCE_HEIGHT)
+    filter_width = 176
+    # Beside the cell that the EKF reads
+    filter_box = Box(right - filter_width,
+                     covariance_cell(covariance, YAW_RATE_VARIANCE_INDEX).middle_y
+                     - FILTER_BOX_HEIGHT / 2, filter_width, FILTER_BOX_HEIGHT)
+    return ReportToEkfLayout('imu-noise-report-to-ekf-wide', WIDE_LAYOUT, WIDE_WIDTH,
+                             report_card, comparison_panel, setting_card, covariance, filter_box)
+
+
+def power_of_ten_text(value: float, mantissa_decimals: int) -> str:
+    """Return a positive value as a number times a power of ten, such as "4 · 10⁻⁴"."""
+    exponent = math.floor(math.log10(value))
+    mantissa = value / 10 ** exponent
+    return f'{mantissa:.{mantissa_decimals}f} · 10{str(exponent).translate(SUPERSCRIPT_DIGITS)}'
+
+
+def variance_text(variance: float, mantissa_decimals: int) -> str:
+    """Return a variance of an angular velocity with its unit, such as "4 · 10⁻⁴ (rad/s)²"."""
+    return f'{power_of_ten_text(variance, mantissa_decimals)} (rad/s)²'
+
+
+def spread_text(standard_deviation: float) -> str:
+    """Return a band's reach to both sides of zero, such as "±0.02 rad/s"."""
+    return f'±{standard_deviation:g} rad/s'
+
+
+def report_rows() -> Sequence[CardRow]:
+    """Return the three values of Remo's row z, as the report prints them."""
+    row = REMO_YAW_RATE_AT_REST
+    return (CardRow('mean', f'{signed_yaw_rate(row.mean)} rad/s'),
+            CardRow('std dev', f'{row.standard_deviation:g} rad/s'),
+            CardRow('variance', variance_text(row.variance, REPORT_VARIANCE_DECIMALS)))
+
+
+def setting_rows() -> Sequence[CardRow]:
+    """Return the setting's name, its variance and the standard deviation that it stands for."""
+    return (CardRow('angular_velocity_variance', label_class='mono'),
+            CardRow('variance', variance_text(FIRMWARE_ANGULAR_VELOCITY_VARIANCE, 0)),
+            CardRow('std dev, its root', f'{FIRMWARE_STANDARD_DEVIATION:g} rad/s'))
+
+
+def value_card(figure: Figure, card: Box, title: str, rows: Sequence[CardRow]) -> None:
+    """Add a card with a bold title and its rows, each a label and its value at the right."""
+    figure.rect(card.x, card.y, card.width, card.height, 'item', corner_radius=5)
+    figure.text(card.x + 8, card.y + 18, title, 'strong')
+    for index, row in enumerate(rows):
+        baseline = card.y + 36 + index * VALUE_CARD_ROW_HEIGHT
+        figure.text(card.x + 8, baseline, row.label, row.label_class)
+        if row.value:
+            figure.text(card.right - 8, baseline, row.value, '', 'end')
+
+
+def pixels_per_rad_s(panel: Box) -> float:
+    """Return the scale of a comparison panel's axis: the setting's band fills its width."""
+    return (panel.width / 2 - PANEL_AXIS_MARGIN) / FIRMWARE_STANDARD_DEVIATION
+
+
+def comparison_panel(figure: Figure, panel: Box) -> None:
+    """Add the two bands, to scale on one axis in rad/s that has zero in the panel's middle.
+
+    The measured band is solid, with its name and its reach beside it. The setting's band has
+    a dashed edge, with its name and its reach inside it.
+    """
+    scale = pixels_per_rad_s(panel)
+    zero_x = panel.middle_x
+    measured_reach = REMO_YAW_RATE_AT_REST.standard_deviation * scale
+    setting_reach = FIRMWARE_STANDARD_DEVIATION * scale
+    figure.rect(panel.x, panel.y, panel.width, panel.height, 'item', corner_radius=5)
+    figure.text(zero_x, panel.y + 16, 'compared by hand, drawn to scale', 'note', 'middle')
+    measured_top = panel.y + PANEL_MEASURED_TOP
+    figure.rect(zero_x - measured_reach, measured_top, 2 * measured_reach, BAND_HEIGHT,
+                'measured-band')
+    label_baseline = measured_top + BAND_HEIGHT / 2 + 4
+    figure.text(zero_x - measured_reach - 8, label_baseline, 'measured at rest', '', 'end')
+    figure.text(zero_x + measured_reach + 8, label_baseline,
+                spread_text(REMO_YAW_RATE_AT_REST.standard_deviation), 'strong')
+    axis_y = panel.y + PANEL_AXIS_Y
+    figure.path(f'M{zero_x - setting_reach - 10:.1f},{axis_y:.1f} '
+                f'H{zero_x + setting_reach + 10:.1f}', 'axis')
+    for yaw_rate in (-FIRMWARE_STANDARD_DEVIATION, 0, FIRMWARE_STANDARD_DEVIATION):
+        tick_x = zero_x + yaw_rate * scale
+        figure.path(f'M{tick_x:.1f},{axis_y - 4:.1f} v8', 'tick')
+        label = '0' if yaw_rate == 0 else f'{signed_value(yaw_rate)} rad/s'
+        figure.text(tick_x, axis_y + 17, label, 'note', 'middle')
+    setting_top = panel.y + PANEL_SETTING_TOP
+    figure.rect(zero_x - setting_reach, setting_top, 2 * setting_reach, BAND_HEIGHT,
+                'setting-band')
+    figure.text(zero_x, setting_top + 15, f'setting {spread_text(FIRMWARE_STANDARD_DEVIATION)}',
+                'strong', 'middle')
+    figure.text(zero_x, setting_top + 29, f'about {BAND_WIDTH_RATIO:.0f} times as wide', '',
+                'middle')
+
+
+def covariance_grid(figure: Figure, covariance: Box) -> None:
+    """Add the message's covariance: each cell with its index in the array and its value.
+
+    The diagonal holds the firmware's setting, the other cells hold zero. The cell that the EKF
+    reads has a thick edge and a check mark before its index, as on the Localization page.
+    """
+    figure.text(covariance.middle_x, covariance.y + 11, COVARIANCE_FIELD, 'mono', 'middle')
+    figure.text(covariance.middle_x, covariance.y + 26,
+                f'{COVARIANCE_SIZE} × {COVARIANCE_SIZE}, in (rad/s)², index in the corner',
+                'note', 'middle')
+    for position, (letter, index) in enumerate(ANGULAR_VELOCITY_VARIABLES):
+        column_cell = covariance_cell(covariance, position)
+        row_cell = covariance_cell(covariance, position * COVARIANCE_SIZE)
+        symbol(figure, column_cell.middle_x - 2, column_cell.y - 7, letter, index, True)
+        symbol(figure, row_cell.x - COVARIANCE_ROW_SYMBOL_WIDTH / 2, row_cell.middle_y + 4,
+               letter, index, True)
+    for element in range(COVARIANCE_SIZE ** 2):
+        cell = covariance_cell(covariance, element)
+        is_read = element == YAW_RATE_VARIANCE_INDEX
+        figure.rect(cell.x, cell.y, cell.width, cell.height, 'cell-fused' if is_read else 'cell')
+        figure.text(cell.x + 5, cell.y + 12, f'✓{element}' if is_read else str(element),
+                    'cell-index strong' if is_read else 'cell-index')
+        if element in VARIANCE_INDICES:
+            figure.text(cell.middle_x, cell.y + 28,
+                        power_of_ten_text(FIRMWARE_ANGULAR_VELOCITY_VARIANCE, 0),
+                        'strong' if is_read else '', 'middle')
+        else:
+            figure.text(cell.middle_x, cell.y + 28, '0', 'note', 'middle')
+
+
+def connection(start: Box, end: Box) -> Connection:
+    """Return the straight line from a box to the facing edge of another box.
+
+    The line is vertical, in the middle of the x positions that both boxes cover. Where they
+    cover none, the line is horizontal, in the middle of the y positions that both cover.
+    """
+    shared_left, shared_right = max(start.x, end.x), min(start.right, end.right)
+    if shared_left < shared_right:
+        x = (shared_left + shared_right) / 2
+        if start.y < end.y:
+            return Connection(DrawingPoint(x, start.bottom), DrawingPoint(x, end.y))
+        return Connection(DrawingPoint(x, start.y), DrawingPoint(x, end.bottom))
+    y = (max(start.y, end.y) + min(start.bottom, end.bottom)) / 2
+    if start.x < end.x:
+        return Connection(DrawingPoint(start.right, y), DrawingPoint(end.x, y))
+    return Connection(DrawingPoint(start.x, y), DrawingPoint(end.right, y))
+
+
+def labelled_arrow(figure: Figure, start: Box, end: Box, kind: ArrowKind,
+                   label_lines: Sequence[str]) -> None:
+    """Add an arrow from a box to another box, with the lines of its label.
+
+    The label stands beside a vertical arrow, on the side of the drawing's middle, and above a
+    horizontal arrow.
+    """
+    line = connection(start, end)
+    figure.arrow(line.start.x, line.start.y, line.end.x, line.end.y, kind.value)
+    last_line_offset = (len(label_lines) - 1) * ARROW_LABEL_LINE_HEIGHT
+    if line.start.x == line.end.x:
+        beside_left = line.start.x > figure.width / 2
+        x = line.start.x + (-7 if beside_left else 7)
+        anchor = 'end' if beside_left else 'start'
+        first_baseline = (line.start.y + line.end.y) / 2 + 4 - last_line_offset / 2
+    else:
+        x, anchor = (line.start.x + line.end.x) / 2, 'middle'
+        first_baseline = line.start.y - 6 - last_line_offset
+    for index, text in enumerate(label_lines):
+        figure.text(x, first_baseline + index * ARROW_LABEL_LINE_HEIGHT, text, 'note', anchor)
+
+
+def report_to_ekf_title() -> str:
+    """Return the accessible name of the figure: the two bands, the covariance and the EKF."""
+    return ("The yaw rate's standard deviation that Remo's report measured at rest, "
+            f'{spread_text(REMO_YAW_RATE_AT_REST.standard_deviation)}, and the standard '
+            f"deviation of the firmware's setting, {spread_text(FIRMWARE_STANDARD_DEVIATION)}, "
+            f"as two bands on one axis. The setting's band is about {BAND_WIDTH_RATIO:.0f} "
+            "times as wide. The firmware writes the setting's variance, "
+            f'{variance_text(FIRMWARE_ANGULAR_VELOCITY_VARIANCE, 0)}, to the indices '
+            f'{listed([str(index) for index in VARIANCE_INDICES])} of {COVARIANCE_FIELD}. '
+            f"The EKF reads index {YAW_RATE_VARIANCE_INDEX}, the yaw rate's variance")
+
+
+def report_to_ekf_figure(layout: ReportToEkfLayout) -> Figure:
+    """Return a layout of the drawing from the report's row z to the EKF."""
+    figure = Figure(layout.name, report_to_ekf_title(), layout.height, layout.width,
+                    layout.css_class)
+    value_card(figure, layout.report_card, "The report's row z, Remo at rest", report_rows())
+    value_card(figure, layout.setting_card, "The firmware's setting", setting_rows())
+    comparison_panel(figure, layout.comparison_panel)
+    covariance_grid(figure, layout.covariance)
+    figure.box(layout.filter_box.x, layout.filter_box.y, layout.filter_box.width,
+               layout.filter_box.height,
+               (('EKF', 'strong'), ("fuses only the IMU's yaw rate", 'note')))
+    for card in (layout.report_card, layout.setting_card):
+        labelled_arrow(figure, card, layout.comparison_panel, ArrowKind.COMPARED, ['std dev'])
+    labelled_arrow(figure, layout.setting_card, layout.covariance, ArrowKind.WRITTEN,
+                   ['into every message,',
+                    f'at indices {listed([str(index) for index in VARIANCE_INDICES])}'])
+    labelled_arrow(figure, covariance_cell(layout.covariance, YAW_RATE_VARIANCE_INDEX),
+                   layout.filter_box, ArrowKind.WRITTEN,
+                   [f'index {YAW_RATE_VARIANCE_INDEX}: the yaw rate'])
+    return figure
+
+
+def write_report_to_ekf() -> None:
+    """Write the figure from the report to the EKF in its two layouts."""
+    layouts = (narrow_report_to_ekf_layout(), wide_report_to_ekf_layout())
+    write_layout_figure(
+        'includes/imu-noise-report-to-ekf.html',
+        [report_to_ekf_figure(layout) for layout in layouts],
+        "The two bands are drawn to scale: the setting's band is about "
+        f'{BAND_WIDTH_RATIO:.0f} times as wide as the measured one. A dashed arrow is a '
+        'comparison by hand. A solid arrow is a value that the firmware writes or that the EKF '
+        "reads. The measured values are Remo's at rest, with its Teensy 4.0.",
+        FIGURE_RULES + REPORT_TO_EKF_RULES)
+
+
 if __name__ == '__main__':
     write_trace()
     write_three_readings()
@@ -1020,3 +1409,4 @@ if __name__ == '__main__':
     write_measured()
     write_gravity()
     write_flow()
+    write_report_to_ekf()

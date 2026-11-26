@@ -363,16 +363,9 @@ Two readings are enough to calculate a variance, and the tool asks for no more. 
 
 ### From the report to the EKF
 
-One number of the report has a counterpart in the robot's configuration: the variance of the yaw rate. The figure follows the number from the recording to the filter:
+One number of the report has a counterpart in the robot's configuration: the variance of the yaw rate. In the figure, first compare the two bands. They show, to scale on one axis, the standard deviation that Remo's report measured at rest and the standard deviation that the firmware's setting stands for. Then follow the solid arrows: from the setting to the covariance matrix in the IMU's message, and from the matrix's index 8 to the EKF.
 
-```mermaid
-graph TB
-  RECORDING["Recording at rest"] -->|the bag| TOOL["imu_noise_at_rest.py"]
-  TOOL -->|"row z: variance 5.317 · 10⁻⁷ (rad/s)²"| BASELINE["Baseline at rest"]
-  BASELINE -.->|"compare by hand"| SETTING["Firmware setting<br/>angular_velocity_variance<br/>4 · 10⁻⁴ (rad/s)²"]
-  SETTING -->|"written into every message"| COVARIANCE["angular_velocity_covariance<br/>indices 0, 4 and 8"]
-  COVARIANCE -->|"index 8: the yaw rate"| FILTER["EKF"]
-```
+--8<-- "includes/imu-noise-report-to-ekf.html"
 
 1. **In the report:** Remo's row `z` of [`angular_velocity`](#what-the-firmware-publishes) has three numbers:
     - **The mean,** +0.00005 rad/s, is the average of all readings. A robot at rest doesn't turn, so a perfect gyroscope's mean would be 0. What's left is the bias.
