@@ -341,6 +341,14 @@ class TestExamplePairs(unittest.TestCase):
         self.assertEqual(figures.sample_covariance(signs_apart).xy, 0)
         self.assertAlmostEqual(figures.sample_covariance(signs_together).xy, 4 / 3)
 
+    def test_sample_covariance_of_the_pages_six_pairs_is_positive_with_four_negative_products(
+            self) -> None:
+        figures = load_script()
+        pairs = [figures.Deviation(x, y)
+                 for x, y in ((3, 3), (-3, -3), (1, -1), (1, -1), (-1, 1), (-1, 1))]
+        self.assertEqual(len(pairs) - figures.positive_product_count(pairs), 4)
+        self.assertAlmostEqual(figures.sample_covariance(pairs).xy, 2.8)
+
     def test_positive_product_count_counts_only_pairs_with_the_same_signs(self) -> None:
         figures = load_script()
         pairs = [figures.Deviation(x, y) for x, y in ((1, 2), (-1, -2), (1, -2), (0, 2))]

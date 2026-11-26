@@ -117,13 +117,15 @@ $$
 s_{xy} = \frac{1}{N-1}\sum_{i=1}^{N} (x_i - \bar x)(y_i - \bar y)
 $$
 
-The covariance $\sigma_{xy}$ of the distribution is the same average over all the values that the two could take. Its sign says how the errors go together:
+The covariance $\sigma_{xy}$ of the distribution, the population covariance, is the expected product of the two deviations from the distribution's means $\mu_x$ and $\mu_y$: the average of the product over all the values that the two could take. Two deviations with the same sign give a positive product. Two deviations with opposite signs give a negative product. The covariance is:
 
-- **Positive:** when $x$ lies above its mean, $y$ tends to lie above its mean too. Most products are positive.
-- **Negative:** when $x$ lies above its mean, $y$ tends to lie below its mean. Most products are negative.
-- **Zero:** the positive and the negative products cancel. The deviation of $x$ says nothing about the sign of the deviation of $y$.
+- **Positive:** when the positive products outweigh the negative ones on average.
+- **Negative:** when the negative products outweigh the positive ones on average.
+- **Zero:** when the average product is zero.
 
-The figure shows example pairs with a positive covariance and with the covariance 0: the deviations $x - \mu_x$ and $y - \mu_y$ of a position from its mean $\mu$, in cm. Count the dots in the four quadrants of each plot. With the positive covariance, most pairs lie in the two quadrants in which both deviations have the same sign, so most products are positive. With the covariance 0, the four quadrants hold about the same number of pairs. The ellipses over each cloud outline where most pairs lie, as [The covariance ellipsoid](#the-covariance-ellipsoid) explains:
+The products count with their sizes, so a few large products can decide the sign against many small ones. Take these six pairs of deviations, in example values: (3, 3), (−3, −3), (1, −1), (1, −1), (−1, 1) and (−1, 1). Four of the six products are negative. The sample covariance is still positive, (9 + 9 − 1 − 1 − 1 − 1) / 5 = 2.8.
+
+The figure shows example pairs from a distribution with a positive covariance and from one with the covariance 0: the deviations $x - \mu_x$ and $y - \mu_y$ of a position from its mean $\mu$, in cm. Compare the two clouds. In this example of a positive covariance, many dots lie in the two quadrants marked +, where both deviations have the same sign. In the example of the covariance 0, dots appear about equally often in all four quadrants. The signs and the sizes of the products both matter. The ellipses over each cloud belong to the cloud's distribution, as [The covariance ellipsoid](#the-covariance-ellipsoid) explains:
 
 --8<-- "includes/math-covariance-scatter.html"
 
@@ -140,11 +142,11 @@ With $y = x$, the formula becomes the one for $s^2$, so the covariance of a valu
 
 The products add up to 0, so $s_{xy}$ = 0. If the deviations of $\omega_y$ were $-\Delta$, $-\Delta$, $+\Delta$ and $+\Delta$ instead, always with the sign of the deviation of $\omega_x$, all four products would be $+\Delta^2$. Then $s_{xy} = 4\Delta^2/3$, as large as each of the two variances: the two errors go up and down fully together.
 
-**The correlation:** the covariance has the unit of $x$ times the unit of $y$, so its size is hard to judge. Divided by both standard deviations, the covariance becomes the correlation $\rho_{xy} = s_{xy} / (s_x\,s_y)$, a number between −1 and +1 without a unit. In the second example, $\rho_{xy}$ = 1.
+**The correlation:** the covariance has the unit of $x$ times the unit of $y$, so its size is hard to judge. Divided by both sample standard deviations, the sample covariance becomes the sample correlation $r_{xy} = s_{xy} / (s_x\,s_y)$, a number between −1 and +1 without a unit. The division needs both sample standard deviations to be positive. In the second example, $r_{xy}$ = 1.
 
 ### Why independent errors have the covariance 0
 
-Two errors are **independent** when one of them says nothing about the other. Then, whatever the error of $x$ is, the error of $y$ averages 0. So the product $(x - \mu_x)(y - \mu_y)$ averages to the error of $x$ times 0, which is 0. Written with the expected value $\mathrm E[\,\cdot\,]$, the mean over all the values that the errors could take:
+Two errors are **independent** when one of them says nothing about the other. For independent variables, knowing $x$ leaves the average of $y - \mu_y$ at zero. So the product $(x - \mu_x)(y - \mu_y)$ averages to the error of $x$ times 0, which is 0. Written with the expected value $\mathrm E[\,\cdot\,]$, the mean over all the values that the errors could take:
 
 $$
 \begin{aligned}
@@ -154,14 +156,14 @@ $$
 \end{aligned}
 $$
 
-The middle step holds for independent values only: the expected value of a product of independent values is the product of their expected values.
+Independence guarantees the factorization in the middle line: the expected value of a product of independent values is the product of their expected values. Dependent variables can also have the covariance 0, as the second limit below shows.
 
 **The simulated IMU:** the plugin calls [`GuassianKernel()`]({{ ekf_src_url }}/diffbot_gazebo_plugins/src/gazebo_ros_imu_sensor.cpp#L194-L206) once for each value of each message, so each axis gets a random number of its own. The noise on one axis says nothing about the noise on another, and the covariance of every two axes is 0. That is why the plugin's message has zeros off the diagonal of its covariance matrices, which [the next section](#the-covariance-matrix-and-its-ellipsoid) introduces.
 
 Two limits apply:
 
-- **A recording isn't the model:** for independent noise, the sample covariance of a recording lies near 0, not at exactly 0, because a recording has only $N$ readings. The 0 in a message is the model's value.
-- **The covariance 0 doesn't always mean independent:** the covariance only measures whether two errors grow together along a straight line. Errors can depend on each other in other ways and still have the covariance 0. For two errors whose pair follows a normal distribution, the covariance 0 does mean independent ([Covariance: uncorrelatedness and independence](https://en.wikipedia.org/wiki/Covariance#Uncorrelatedness_and_independence)).
+- **A recording isn't the model:** even for independent errors, the sample covariance of a recording can be positive, negative or exactly zero. With enough independent pairs, the sample covariance approaches the population's value. The round cloud of the figure above comes from a distribution with the covariance 0, and its 200 pairs have a sample covariance of about −0.009 cm². The 0 in a message is the model's value.
+- **The covariance 0 doesn't always mean independent:** the covariance only measures whether two errors grow together along a straight line. Errors can depend on each other in other ways and still have the covariance 0. Take an $x$ that is −2, −1, 1 or 2 with the same probability, and $y = x^2$. Then $x$ determines $y$ completely, and the covariance is still 0: the products of the deviations are −3, +1.5, −1.5 and +3, which average 0. For two errors whose pair follows a normal distribution, the covariance 0 does mean independent ([Covariance: uncorrelatedness and independence](https://en.wikipedia.org/wiki/Covariance#Uncorrelatedness_and_independence)).
 
 ## The covariance matrix and its ellipsoid
 
