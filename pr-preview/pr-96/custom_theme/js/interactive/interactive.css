@@ -37,7 +37,7 @@
 .ix .ix-plot svg { display: block; width: 100%; height: 100%; }
 .ix .ix-live-plot { display: none; }
 .ix.ix-is-live .ix-live-plot { display: block; }
-.ix.ix-is-live .ix-static, .ix.ix-is-live .ix-static-note { display: none; }
+.ix.ix-is-live .ix-static, .ix.ix-is-live .ix-static-only { display: none; }
 .ix .ix-grid line { stroke: var(--md-default-fg-color--lightest); stroke-width: 1; }
 .ix .ix-path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
 .ix .ix-path.ix-command { stroke: var(--ix-command); stroke-width: 1.6; stroke-dasharray: 5 4; }
@@ -77,15 +77,21 @@
 .md-typeset .ix .ix-steps > p { margin: 0 0 .2em; }
 .md-typeset .ix .ix-examples { margin: 0 0 0 1.2em; padding: 0; }
 .md-typeset .ix .ix-examples li { margin: .5em 0; }
-.md-typeset .ix.ix-is-live .ix-examples { display: grid; margin: .5em 0 0; list-style: none; }
+.md-typeset .ix.ix-is-live .ix-examples { display: grid; grid-template-columns: minmax(0, 1fr); margin: .5em 0 0; list-style: none; }
 .md-typeset .ix.ix-is-live .ix-examples > li { grid-area: 1 / 1; margin: 0; }
 .ix.ix-is-live .ix-examples > li:not(.ix-current) { visibility: hidden; }
 .ix.ix-is-live .ix-examples > li.ix-revealed .ix-show { visibility: hidden; }
 .ix .ix-answer, .ix .ix-shown-answer { display: block; margin-top: .25em; padding-left: .6em; border-left: 3px solid var(--ix-line); }
-.md-typeset .ix .ix-shown-answer { margin: .8em 0 0; }
-/* The example's answer while other values are set: its place stays */
-.ix .ix-shown-answer.ix-off { visibility: hidden; }
-.ix .ix-show { display: block; margin-top: .4em; }
+/* Under the play bar, one place for the answer, the hint before it and the values that differ
+   from the example's, as high as the highest of them: changing a value moves nothing below */
+.md-typeset .ix .ix-answer-area { display: grid; grid-template-columns: minmax(0, 1fr); margin: .8em 0 0; }
+.md-typeset .ix .ix-answer-area > p { grid-area: 1 / 1; margin: 0; }
+.ix .ix-answer-area > .ix-off { visibility: hidden; }
+.md-typeset .ix .ix-hint, .md-typeset .ix .ix-changes { font-size: .7rem; color: var(--md-default-fg-color--light); }
+/* An example's two questions, one per drive, share one place: switching the drive moves nothing */
+.md-typeset .ix.ix-is-live .ix-prompts { display: grid; grid-template-columns: minmax(0, 1fr); }
+.md-typeset .ix.ix-is-live .ix-prompts > .ix-question { grid-area: 1 / 1; }
+.ix.ix-is-live .ix-prompts > .ix-question:not(.ix-drive) { visibility: hidden; }
 .ix .ix-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .8em; margin: .5em 0 0; }
 .ix .ix-stepper .ix-reset { margin-left: auto; }
 .ix .ix-stepper button:disabled { opacity: .4; cursor: default; }
@@ -132,6 +138,8 @@
 .ix .ix-control label { font-weight: 700; }
 .ix .ix-control output { min-width: 16ch; font-size: .7rem; color: var(--md-default-fg-color--light); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .ix .ix-control input, .ix .ix-control small { grid-column: 1 / -1; }
+/* The help text's short form shows only in the enlarged figure */
+.ix .ix-control .ix-key { display: none; }
 .ix .ix-control small, .ix .ix-controls > small { font-size: .64rem; line-height: 1.4; color: var(--md-default-fg-color--light); }
 .ix .ix-choice { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .6em; }
 .ix .ix-choice > span, .ix .ix-choice > label { font-weight: 700; }
@@ -139,28 +147,35 @@
 .md-typeset .ix .ix-model-note { margin: .5em 0 0; font-size: .7rem; color: var(--md-default-fg-color--light); }
 .ix .ix-announce, .ix .ix-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* Enlarged: the figure over the whole window, the stage (question, drawing, play bar, answer,
-   summary) on the left and the side (values, tables) on the right, each scrolling on its own.
+/* Enlarged: the figure in a modal dialog over the whole window, the stage (question, drawing,
+   play bar, answer, summary, caption) on the left and the side (values, tables) on the right,
+   each scrolling on its own. Screens only: printing brings the figure back to the page.
    The button shows from 60em on, the width that motion-lab.js's WIDE_MIN_EM names too */
 @media screen and (max-width: 59.9375em) { .ix .ix-enlarge { display: none; } }
-html.ix-wide-open { overflow: hidden; }
-.md-typeset figure.ix.ix-wide { position: fixed; inset: 0; z-index: 10; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 1fr); gap: 0 1.6rem; margin: 0; padding: .8rem 1.2rem; background: var(--md-default-bg-color); }
-.ix.ix-wide .ix-stage, .ix.ix-wide .ix-side { min-height: 0; overflow-y: auto; }
-.ix.ix-wide .ix-side { display: flex; flex-direction: column; }
-.ix.ix-wide .ix-side .ix-settings { order: -1; }
-.md-typeset .ix.ix-wide .ix-steps > p, .ix.ix-wide figcaption, .ix.ix-wide details.ix-settings > summary { display: none; }
-.md-typeset .ix.ix-wide details.ix-settings { margin: 0; }
-.ix.ix-wide .ix-controls { gap: .35em; }
-/* The sliders' help texts stay on the page: enlarged, the tables get their room */
-.ix.ix-wide .ix-control small { display: none; }
-.md-typeset .ix.ix-wide .ix-table { margin-top: .5em; font-size: .64rem; }
-.md-typeset .ix.ix-wide .ix-table th, .md-typeset .ix.ix-wide .ix-table td { padding: .2em .4em; }
+@media screen {
+  html.ix-wide-open { overflow: hidden; }
+  .ix-dialog { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; color: var(--md-typeset-color); background: var(--md-default-bg-color); }
+  .ix-dialog::backdrop { background: var(--md-default-bg-color); }
+  .md-typeset figure.ix.ix-wide { display: grid; height: 100%; grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 1fr); gap: 0 1.6rem; margin: 0; padding: .8rem 1.2rem; }
+  .ix.ix-wide .ix-stage, .ix.ix-wide .ix-side { min-height: 0; overflow-y: auto; }
+  .md-typeset .ix.ix-wide .ix-steps > p, .ix.ix-wide details.ix-settings > summary { display: none; }
+  .md-typeset .ix.ix-wide details.ix-settings { margin: 0; }
+  .ix.ix-wide .ix-controls { gap: .35em; }
+  /* The sliders' help texts stay on the page: enlarged, their short form gives the tables room */
+  .ix.ix-wide .ix-control small { display: none; }
+  .ix.ix-wide .ix-control .ix-key { display: block; }
+  .md-typeset .ix.ix-wide .ix-table { margin-top: .5em; font-size: .64rem; }
+  .md-typeset .ix.ix-wide .ix-table th, .md-typeset .ix.ix-wide .ix-table td { padding: .2em .4em; }
+}
 
-/* On paper: the static drawing and every example's answer */
+/* On paper: the static drawing with its own notes and legend, and every example's answer */
 @media print {
   .md-typeset .ix [data-live], .md-typeset .ix .ix-live-plot { display: none !important; }
-  .md-typeset .ix.ix-is-live .ix-static, .md-typeset .ix .ix-answer[hidden] { display: block !important; }
-  .md-typeset .ix.ix-is-live .ix-static-note { display: inline !important; }
+  .md-typeset .ix.ix-is-live .ix-static, .md-typeset .ix .ix-answer[hidden]:not([data-live]) { display: block !important; }
+  .ix .ix-question { visibility: visible !important; }
+  .md-typeset .ix.ix-is-live .ix-static-only { display: inline !important; }
+  .md-typeset .ix .ix-legend [data-static-unused] { display: none !important; }
+  .md-typeset .ix .ix-legend li:not([data-static-unused]) { display: inline-flex !important; visibility: visible !important; }
   .md-typeset .ix.ix-is-live .ix-examples { display: block; margin-left: 1.2em; list-style: decimal; }
   .md-typeset .ix .ix-examples li { display: list-item !important; visibility: visible !important; }
 }
