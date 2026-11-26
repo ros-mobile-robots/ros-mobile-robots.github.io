@@ -130,6 +130,12 @@ OTHER_SETTINGS = figures.Settings(
 PHONE = {'width': 390, 'height': 844, 'is_mobile': True, 'has_touch': True}
 SMALL_PHONE = {**PHONE, 'width': 320, 'height': 700}
 FULL_HD = {'width': 1920, 'height': 1080}
+# motion-lab.js's WIDE_MIN_EM: the Enlarge button shows from this window width on, in em of the
+# browser's default font size, which is 16 px unless a reader changes it
+ENLARGE_MIN_EM = 60
+DEFAULT_FONT_PX = 16
+LARGER_FONT_PX = 20
+WINDOW_HEIGHT_PX = 900
 # The media that emulate_media takes: the screen and paper
 Media = Literal['screen', 'print']
 PRINT: Media = 'print'
@@ -406,6 +412,19 @@ class TestMotionLabPage(SimulationTestPageCase):
         self.assertEqual(len(check_rows), len(figures.check_rows(kind)))
         for row in motion_rows + check_rows:
             self.assertTrue(all(row), row)
+        # A hidden row or cell still gives its text and cuts nothing, so each must be seen first
+        tables = ((f'{FIGURE} .ix-motion-rows', len(motion_rows), len(ShownMotionRow._fields)),
+                  (f'{FIGURE} .ix-check-rows', len(check_rows), len(ShownCheckRow._fields)))
+        for body, row_count, column_count in tables:
+            self.assertEqual(page.eval_on_selector_all(f'{body} > tr', VISIBLE_COUNT), row_count,
+                             body)
+            for row_number in range(1, row_count + 1):
+                cells = f'{body} > tr:nth-child({row_number}) > :is(th, td)'
+                self.assertEqual(page.eval_on_selector_all(cells, VISIBLE_COUNT), column_count,
+                                 f'{body}, row {row_number}')
+        column_headers = f'{FIGURE} .ix-table > thead > tr > th'
+        self.assertEqual(page.eval_on_selector_all(column_headers, VISIBLE_COUNT),
+                         len(ShownMotionRow._fields) + len(ShownCheckRow._fields))
         self.assertEqual(page.evaluate(CUT_CELLS, FIGURE), [])
 
     def assert_shown_value(
@@ -628,9 +647,15 @@ class TestMotionLabPage(SimulationTestPageCase):
         # Tap at a fifth of the slider: the first tap moves the value there, the second resets it
         x, y = box['x'] + box['width'] / 5, box['y'] + box['height'] / 2
         default = str(getattr(figures.DEFAULT_SETTINGS, slider.setting))
+        # The page records the value after the first tap, so that nothing runs between the taps
+        page.eval_on_selector(f'#{slider.element_id}', """input => input.addEventListener('input',
+            () => { input.dataset.afterFirstTap = input.value; }, {once: true})""")
         page.touchscreen.tap(x, y)
-        self.assertNotEqual(page.input_value(f'#{slider.element_id}'), default)
         page.touchscreen.tap(x, y)
+        after_first_tap = page.eval_on_selector(f'#{slider.element_id}',
+                                                'input => input.dataset.afterFirstTap')
+        self.assertIsNotNone(after_first_tap)
+        self.assertNotEqual(after_first_tap, default)
         self.assertEqual(page.input_value(f'#{slider.element_id}'), default)
         self.assertEqual(page.input_value(f'#{other.element_id}'), str(other.lowest))
 
@@ -759,6 +784,44 @@ class TestMotionLabPage(SimulationTestPageCase):
     def test_enlarge_is_hidden_on_a_phone(self) -> None:
         page = self.open_live_figure(**PHONE).page
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-enlarge'))
+
+    def test_enlarge_shows_from_its_width_on(self) -> None:
+        threshold_px = ENLARGE_MIN_EM * DEFAULT_FONT_PX
+        for width_px, shown in ((threshold_px - 1, False), (threshold_px, True)):
+            with self.subTest(width_px=width_px):
+                page = self.open_live_figure(width=width_px, height=WINDOW_HEIGHT_PX).page
+                self.assertEqual(page.is_visible(f'{FIGURE} .ix-enlarge'), shown)
+
+    def test_enlarge_follows_a_larger_default_font(self) -> None:
+        # With a 20 px default font, the width is 1200 px. A width rule in CSS and one in
+        # JavaScript could disagree here and show a button that can't open the dialog
+        threshold_px = ENLARGE_MIN_EM * LARGER_FONT_PX
+        for width_px, shown in ((threshold_px - 1, False), (threshold_px, True)):
+            with self.subTest(width_px=width_px):
+                page = self.open_live_figure(width=width_px, height=WINDOW_HEIGHT_PX).page
+                # A reader's font setting applies from the page's load on, so the page loads again
+                page.context.new_cdp_session(page).send(
+                    'Page.setFontSizes', {'fontSizes': {'standard': LARGER_FONT_PX}})
+                page.reload()
+                page.wait_for_selector(f'{FIGURE}.ix-is-live', timeout=START_TIMEOUT_MS)
+                self.assertFalse(page.evaluate(
+                    f'() => matchMedia("(min-width: {width_px / DEFAULT_FONT_PX}em)").matches'))
+                self.assertEqual(page.is_visible(f'{FIGURE} .ix-enlarge'), shown)
+                if shown:
+                    page.click(f'{FIGURE} .ix-enlarge')
+                    self.assertTrue(page.eval_on_selector(FIGURE, IN_DIALOG))
+
+    def test_narrowing_below_the_width_brings_the_enlarged_figure_back(self) -> None:
+        threshold_px = ENLARGE_MIN_EM * DEFAULT_FONT_PX
+        page = self.open_live_figure(width=threshold_px, height=WINDOW_HEIGHT_PX).page
+        page.click(f'{FIGURE} .ix-enlarge')
+        self.assertTrue(page.eval_on_selector(FIGURE, IN_DIALOG))
+        page.set_viewport_size({'width': threshold_px - 1, 'height': WINDOW_HEIGHT_PX})
+        page.wait_for_function(f'() => !document.querySelector({FIGURE!r}).closest("dialog")')
+        self.assertFalse(page.is_visible(f'{FIGURE} .ix-enlarge'))
+        self.assertTrue(page.evaluate(FOCUS_IN_FIGURE, FIGURE))
+        self.assertTrue(page.evaluate(
+            '() => document.activeElement.checkVisibility()'))
 
     def test_each_drive_shows_its_example_answer(self) -> None:
         for shown in self.shown_example_drives():
@@ -1279,6 +1342,21 @@ class TestPageLog(SimulationTestPageCase):
         failed = [error for error in opened.log.errors if self.UNRELATED_FILE in error]
         self.assertTrue(failed, opened.log.errors)
         self.assertTrue(any('ERR_CONNECTION_RESET' in error for error in failed), failed)
+
+    def test_an_unexpected_failure_at_a_previously_blocked_url_is_logged(self) -> None:
+        opened = self.open_simulation_test_page(blocked=(self.UNRELATED_FILE,))
+        page = opened.page
+        page.wait_for_load_state('networkidle')
+        # The test's routing stops the first request to the address: no error
+        page.evaluate('file => fetch(file).catch(() => null)', self.UNRELATED_FILE)
+        self.assertEqual(opened.log.errors, [])
+        # The second request to the same address breaks for another reason, before the routing
+        page.route(f'**{self.UNRELATED_FILE}', lambda route: route.abort(self.CONNECTION_RESET),
+                   times=1)
+        page.evaluate('file => fetch(file).catch(() => null)', self.UNRELATED_FILE)
+        failed = [error for error in opened.log.errors if self.UNRELATED_FILE in error]
+        self.assertTrue(any('ERR_CONNECTION_RESET' in error for error in failed),
+                        opened.log.errors)
 
     def test_an_error_that_the_page_writes_to_the_console_is_an_error(self) -> None:
         opened = self.open_simulation_test_page()

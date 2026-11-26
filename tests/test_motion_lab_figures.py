@@ -422,9 +422,10 @@ class TestInclude(unittest.TestCase):
     def test_include_has_no_blank_line_or_template_marker(self) -> None:
         figures.check_include(self.include)
 
-    def test_check_include_rejects_a_blank_line(self) -> None:
-        with self.assertRaises(ValueError):
-            figures.check_include('<p>one</p>\n\n<p>two</p>')
+    def test_check_include_rejects_a_blank_line_also_with_spaces_or_a_tab(self) -> None:
+        for blank in ('', '  ', '\t'):
+            with self.subTest(blank=blank), self.assertRaises(ValueError):
+                figures.check_include(f'<p>one</p>\n{blank}\n<p>two</p>')
 
     def test_check_include_rejects_each_marker_that_starts_a_template_expression(self) -> None:
         # Written out here, not taken from the script's list: a marker missing there fails

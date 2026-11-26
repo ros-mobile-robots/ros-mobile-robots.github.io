@@ -22,7 +22,7 @@ const DOUBLE_TAP_MS = 350;
 const TAP_MAX_MS = 300;
 const TAP_SLOP_PX = 10;
 const DOUBLE_TAP_DISTANCE_PX = 30;
-// The Enlarge button shows from this window width on, as in interactive.css
+// The Enlarge button shows from this window width on. bindEnlargedView() alone shows and hides it
 const WIDE_MIN_EM = 60;
 
 const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -284,7 +284,7 @@ function bindEnlargedView(root) {
   let dialog = null, settingsWereOpen = false;
 
   function enlargeFigure() {
-    if (dialog) return;
+    if (dialog || !wideEnough.matches) return;
     // Enlarged, the values show first in the right-hand column, and the caption ends the left one
     settingsWereOpen = settings.open;
     settings.open = true;
@@ -328,7 +328,14 @@ function bindEnlargedView(root) {
   }
 
   enlarge.addEventListener('click', () => (dialog ? returnToPage() : enlargeFigure()));
-  wideEnough.addEventListener('change', () => { if (!wideEnough.matches) returnToPage(); });
+  // Below the width the button hides, and an enlarged figure returns to the page
+  function syncEnlargeAvailability() {
+    enlarge.hidden = !wideEnough.matches;
+    if (enlarge.hidden) returnToPage();
+  }
+
+  syncEnlargeAvailability();
+  wideEnough.addEventListener('change', syncEnlargeAvailability);
   addEventListener('beforeprint', returnToPage);
 }
 

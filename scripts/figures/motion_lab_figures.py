@@ -1560,8 +1560,11 @@ def motion_lab_include_html() -> str:
 
 
 def check_no_blank_lines(text: str) -> None:
-    """Raise ValueError if the include has a blank line, which would end its HTML block."""
-    if '\n\n' in text:
+    """Raise ValueError if the include has a blank line, which would end its HTML block.
+
+    A line of only spaces or tabs counts as blank too.
+    """
+    if any(not line.strip(' \t') for line in text.splitlines()):
         raise ValueError('the include has a blank line, which would end its HTML block')
 
 

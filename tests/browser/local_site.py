@@ -13,6 +13,7 @@ from pathlib import Path
 import sys
 import threading
 from typing import Any
+from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import NamedTuple
@@ -41,6 +42,8 @@ SITE_HOSTS = {'pagead2.googlesyndication.com', 'api.github.com'}
 # How Chromium starts its console line about a resource that failed to load. For a request that
 # the test stopped, this line isn't the page's fault
 FAILED_RESOURCE = 'Failed to load resource'
+# The error of a request that the test stops: route.abort() without an error code
+STOPPED_REQUEST_ERROR = 'net::ERR_FAILED'
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -89,34 +92,47 @@ class PageLog:
         self.errors: List[str] = []
         self.other_hosts: List[str] = []
         self.blocked: List[str] = []
-        self.stopped_urls: Set[str] = set()
+        self.stopped_requests: Set[Request] = set()
+        # Per address, the browser's console lines still due for requests that the test stopped
+        self.stopped_console_lines: Dict[str, int] = {}
 
     def add_stopped_request(self, request: Request) -> None:
         """Note a request that the test stops on purpose: its failure is no error."""
-        self.stopped_urls.add(request.url)
+        self.stopped_requests.add(request)
+        due = self.stopped_console_lines.get(request.url, 0)
+        self.stopped_console_lines[request.url] = due + 1
 
     def add_page_error(self, error: Error) -> None:
         """Note an error that the page's scripts threw."""
         self.errors.append(str(error))
 
     def add_failed_request(self, request: Request) -> None:
-        """Note a request that failed, unless the test stopped it."""
-        if request.url not in self.stopped_urls:
-            self.errors.append(f'{request.url}: {request.failure}')
+        """Note a request that failed, unless the test stopped this very request.
+
+        Another request to the same address, a retry for example, is still an error.
+        """
+        if request in self.stopped_requests:
+            self.stopped_requests.discard(request)
+            return
+        self.errors.append(f'{request.url}: {request.failure}')
 
     def add_console_message(self, message: ConsoleMessage) -> None:
         """Note an error that the page wrote to the console.
 
-        The browser's own line about a resource that the test stopped isn't the page's fault.
+        The browser's own line about a request that the test stopped isn't the page's fault: each
+        stopped request excuses one such line at its address, with the error of route.abort().
         """
         if message.type not in ('error', 'assert'):
             return
+        url = message.location.get('url', '')
         about_stopped_request = (
-            message.text.startswith(FAILED_RESOURCE)
-            and message.location.get('url') in self.stopped_urls
+            message.text.startswith(f'{FAILED_RESOURCE}: {STOPPED_REQUEST_ERROR}')
+            and self.stopped_console_lines.get(url, 0) > 0
         )
-        if not about_stopped_request:
-            self.errors.append(message.text)
+        if about_stopped_request:
+            self.stopped_console_lines[url] -= 1
+            return
+        self.errors.append(message.text)
 
 
 class OpenedPage(NamedTuple):

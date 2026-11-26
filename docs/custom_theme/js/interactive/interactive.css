@@ -151,8 +151,7 @@
 /* Enlarged: the figure in a modal dialog over the whole window, the stage (question, drawing,
    play bar, answer, summary, caption) on the left and the side (values, tables) on the right,
    each scrolling on its own. Screens only: printing brings the figure back to the page.
-   The button shows from 60em on, the width that motion-lab.js's WIDE_MIN_EM names too */
-@media screen and (max-width: 59.9375em) { .ix .ix-enlarge { display: none; } }
+   motion-lab.js shows the button from its WIDE_MIN_EM on */
 @media screen {
   html.ix-wide-open { overflow: hidden; }
   .ix-dialog { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; color: var(--md-typeset-color); background: var(--md-default-bg-color); }
