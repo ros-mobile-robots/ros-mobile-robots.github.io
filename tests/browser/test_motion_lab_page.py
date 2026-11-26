@@ -35,6 +35,9 @@ from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page
 
 REMO = figures.ROBOTS[figures.EXAMPLE_ROBOT]
+# The configured wheel radius that ends the forward drive on the lower boundary of its check:
+# 0.6 m / 1.2 = 0.5 m
+BOUNDARY_RADIUS_PERCENT = 120
 # The motion table's rows, in its order: a drive's three views
 MOTION_TABLE_VIEWS = (
     figures.DrawingView.COMMAND, figures.DrawingView.ODOMETRY, figures.DrawingView.MODEL,
@@ -908,6 +911,22 @@ class TestMotionLabPage(SimulationTestPageCase):
         page.click(f'{FIGURE} .ix-play')
         row = next(row for row in shown_check_rows(page) if row.name == 'turned, true pose')
         self.assertEqual(row.value, f'{boundary:.3f} rad')
+        self.assertEqual(row.result, PASSES)
+
+    def test_a_value_that_rounding_puts_beyond_a_boundary_passes_as_in_the_script(self) -> None:
+        # A radius 20 % too big ends the drive at 0.5 m, a rounding error below 0.6 − 0.1 m. The
+        # script passes it with its rounding allowance, which the page takes from the include
+        kind = figures.CommandKind.FORWARD
+        radius = slider_for('radius_percent')
+        settings = figures.DEFAULT_SETTINGS._replace(radius_percent=BOUNDARY_RADIUS_PERCENT)
+        drive = figures.simulate(REMO, figures.COMMANDS[kind], settings)
+        self.assertNotIn('forward, true pose', figures.failing_checks(kind, drive))
+        page = self.open_live_figure(reduced_motion='reduce').page
+        open_settings(page)
+        set_slider(page, radius, BOUNDARY_RADIUS_PERCENT)
+        page.click(f'{FIGURE} .ix-play')
+        row = next(row for row in shown_check_rows(page) if row.name == 'forward, true pose')
+        self.assertEqual(row.value, f'{shown_decimal(drive.model.forward)} m')
         self.assertEqual(row.result, PASSES)
 
     def test_page_has_no_sideways_scrolling_on_a_320_px_screen(self) -> None:

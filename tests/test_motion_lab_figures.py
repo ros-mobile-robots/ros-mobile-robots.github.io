@@ -24,6 +24,8 @@ PLACES = 9
 REMO = figures.ROBOTS[figures.EXAMPLE_ROBOT]
 FORWARD = figures.COMMANDS[figures.CommandKind.FORWARD]
 TURN = figures.COMMANDS[figures.CommandKind.TURN]
+# The configured wheel radius that ends the forward drive on the lower boundary of its check
+BOUNDARY_RADIUS_PERCENT = 120
 
 
 def example_with_key(example_key: str) -> figures.Example:
@@ -248,6 +250,19 @@ class TestChecks(unittest.TestCase):
         drive = simulate_remo_with_settings(figures.CommandKind.TURN, tracking_percent=tracking)
         self.assertAlmostEqual(drive.model.turned, boundary, places=PLACES)
         self.assertEqual(figures.failing_checks(figures.CommandKind.TURN, drive), [])
+
+    def test_a_value_that_rounding_puts_beyond_a_boundary_passes(self) -> None:
+        # A radius 20 % too big ends the drive at 0.6 m / 1.2 = 0.5 m, the lower boundary of
+        # 0.6 ± 0.1 m. The expected distance is the product of 0.2 m/s and 3 s, a hair above 0.6,
+        # so the difference is a hair above the tolerance: only the rounding allowance passes it
+        kind = figures.CommandKind.FORWARD
+        forward = next(
+            check for check in figures.CHECKS[kind].each_view
+            if check.quantity is figures.Quantity.FORWARD
+        )
+        drive = simulate_remo_with_settings(kind, radius_percent=BOUNDARY_RADIUS_PERCENT)
+        self.assertGreater(abs(drive.model.forward - forward.expected), forward.tolerance)
+        self.assertNotIn('forward, true pose', figures.failing_checks(kind, drive))
 
     def test_the_turn_test_catches_a_separation_off_by_more_than_the_stated_share(self) -> None:
         share = int(figures.check_text_values(figures.CommandKind.TURN)['agreement_share'])
