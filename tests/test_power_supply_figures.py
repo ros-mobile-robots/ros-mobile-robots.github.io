@@ -129,6 +129,28 @@ class TestLayouts(unittest.TestCase):
         driver = figures.DRIVER_BOX
         self.assertTrue(driver.y < i2c_arrive < ground_arrive < driver.bottom)
 
+    def test_diffbots_encoder_supply_crosses_no_box_and_no_wire(self) -> None:
+        figures = power_supply_figures
+        leave_x, turn_y, down_x, approach_y = figures.DIFFBOT_ENCODER_RAIL
+        pi, mcu = figures.RASPBERRY_PI_BOX, figures.MCU_BOX
+        encoders = figures.RIGHT_SENSOR_BOX
+        # It leaves the Raspberry Pi's lower edge right of the MCU's USB cable and its label
+        self.assertTrue(pi.x + figures.LEFT_SUPPLY_OFFSET < leave_x < pi.right)
+        # It turns between the Raspberry Pi and the MCU, below the I2C and the ground wires' turns
+        self.assertTrue(pi.bottom < turn_y < mcu.y)
+        self.assertGreater(turn_y, max(figures.DIFFBOT_I2C[0], figures.DIFFBOT_GROUND[0]))
+        # It runs down between the MCU and the ground wire's lane
+        self.assertTrue(mcu.right < down_x < figures.DIFFBOT_GROUND[1])
+        # It turns again between the MCU and the encoders, and reaches the encoders' box
+        self.assertTrue(mcu.bottom < approach_y < encoders.y)
+        self.assertTrue(0 < figures.DIFFBOT_ENCODER_SUPPLY_OFFSET < encoders.width)
+
+    def test_each_robots_legend_gives_its_motor_packs_voltage(self) -> None:
+        for robot in (power_supply_figures.DIFFBOT, power_supply_figures.REMO):
+            meanings = [entry.meaning for entry in power_supply_figures.legend_entries(robot.pack)]
+            self.assertIn(f'supply from the motor battery ({robot.pack.voltage})', meanings,
+                          robot.name)
+
 
 if __name__ == '__main__':
     unittest.main()
