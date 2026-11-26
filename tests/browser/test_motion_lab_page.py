@@ -530,7 +530,7 @@ class TestMotionLabPage(unittest.TestCase):
         self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), '0')
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-summary'))
 
-    def test_values_other_than_the_examples_show_whole_under_the_play_bar(self) -> None:
+    def test_values_other_than_the_examples_show_whole_under_the_sliders(self) -> None:
         example = figures.EXAMPLES[0]
         radius = figures.CONFIGURATION_SLIDERS[0]
         offset = slider_for('offset_mm')
@@ -545,6 +545,9 @@ class TestMotionLabPage(unittest.TestCase):
                 page.select_option(f'{FIGURE} .ix-robot-select', 'diffbot')
                 set_slider(page, radius, 98)
                 self.assertTrue(page.is_visible(changes))
+                # Under the play bar, a note in the answer's place points to the list
+                self.assertTrue(page.is_visible(f'{FIGURE} .ix-differs'))
+                self.assertFalse(page.is_visible(f'{FIGURE} .ix-hint'))
                 text = page.inner_text(changes)
                 own = getattr(example.settings, radius.setting)
                 self.assertIn(f'98 {radius.unit} (the example: {own} {radius.unit})', text)
@@ -743,8 +746,8 @@ class TestMotionLabPage(unittest.TestCase):
             self.assertIn(value, at_end)
 
     def test_dragging_a_slider_through_the_examples_value_keeps_it_in_place(self) -> None:
-        # With many values changed, the comparison under the play bar is long. A slider that
-        # crosses the example's value takes one comparison away and back, and stays where it is
+        # With many values changed, the list of changed values is long. The wheel-speed slider
+        # stays where it is from before its first change, through the example's value and back
         separation = figures.EXAMPLES[1]
         changes = (('radius_percent', 98), ('separation_percent', 80), ('offset_mm', 60),
                    ('contact_percent', 100))
@@ -759,11 +762,11 @@ class TestMotionLabPage(unittest.TestCase):
                 page.select_option(f'{FIGURE} .ix-robot-select', 'diffbot')
                 for setting, value in changes:
                     set_slider(page, slider_for(setting), value)
-                places = []
+                places = [top_of(page, f'#{tracking.element_id}')]
                 for value in (own - 1, own, own + 1):
                     set_slider(page, tracking, value)
                     places.append(top_of(page, f'#{tracking.element_id}'))
-                self.assertEqual(places, [places[0]] * 3)
+                self.assertEqual(places, [places[0]] * 4)
 
     def test_a_replay_with_reduced_motion_hears_no_summary_of_the_values_before(self) -> None:
         example = figures.EXAMPLES[0]
@@ -772,10 +775,12 @@ class TestMotionLabPage(unittest.TestCase):
         page.click(f'{FIGURE} [data-example="{example.key}"]')
         open_settings(page)
         set_slider(page, slider, slider.lowest)
-        # The changed value's summary waits to be heard. The replay comes first, and no summary
-        # follows it into the live region
-        page.dispatch_event(f'#{slider.element_id}', 'change')
-        page.click(f'{FIGURE} [data-example="{example.key}"]')
+        # The changed value's summary waits to be heard, and the replay comes right after it, in
+        # the same task. No summary follows the replay into the live region
+        page.evaluate("""([figure, slider, example]) => {
+            document.querySelector(slider).dispatchEvent(new Event('change'));
+            document.querySelector(`${figure} [data-example="${example}"]`).click();
+        }""", [FIGURE, f'#{slider.element_id}', example.key])
         page.wait_for_timeout(1000)
         # textContent on both sides: the summary's hidden failing names make its innerText differ
         self.assertNotEqual(page.text_content(f'{FIGURE} .ix-announce'),

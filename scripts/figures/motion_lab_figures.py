@@ -655,12 +655,16 @@ NUMBER_WORDS = {3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven'}
 # The example's button, and its text while other values are set: it sets the example's values back
 SHOW_TEXT = 'Show what happens'
 REPLAY_TEXT = 'Play the example'
-# Under the play bar before the answer, and while other values are set
+# Under the play bar: before the answer, and while other values are set
 HINT_TEXT = (
     'The answer shows once the drive has reached its end: press Play or move the time slider.'
 )
+DIFFERS_TEXT = (
+    "Your values differ from the example's: the list is under the sliders."
+    f' "{REPLAY_TEXT}" sets the example\'s values back.'
+)
+# The list under the sliders: the values that differ from the example's
 CHANGES_LEAD = 'Your values:'
-CHANGES_END = f'"{REPLAY_TEXT}" sets the example\'s values back.'
 
 
 def changed_settings(settings: Settings) -> Dict[str, int]:
@@ -1230,7 +1234,6 @@ def figure_data() -> Dict[str, object]:
         'default': {'robot': EXAMPLE_ROBOT, 'command': first.command.value},
         'texts': {
             'show': SHOW_TEXT, 'replay': REPLAY_TEXT, 'changesLead': CHANGES_LEAD,
-            'changesEnd': CHANGES_END,
         },
         'examples': [
             {
@@ -1360,15 +1363,15 @@ def plot_html(drawing: StaticDrawing) -> str:
 def results_html() -> str:
     """Return the places of the answer and the summary, filled by the script.
 
-    The answer, the hint before it and the values that differ from the example's share one place
-    under the play bar, as high as the highest of them: changing a value moves nothing below.
+    The answer, the hint before it and the note that other values are set share one place under
+    the play bar, as high as the highest of them: none of them moves what lies below.
     """
     return ''.join([
         '<div class="ix-results" data-live hidden>',
         '<div class="ix-answer-area">',
         '<p class="ix-shown-answer" tabindex="-1"></p>',
         f'<p class="ix-hint">{HINT_TEXT}</p>',
-        '<p class="ix-changes"></p>',
+        f'<p class="ix-differs">{DIFFERS_TEXT}</p>',
         '</div>',
         '<p class="ix-summary" id="motion-lab-summary"></p>',
         '</div>',
@@ -1422,6 +1425,9 @@ def settings_html() -> str:
         *(slider_html(slider) for slider in CONFIGURATION_SLIDERS),
         '<p class="ix-group">What if</p>',
         *(slider_html(slider) for slider in WHAT_IF_SLIDERS),
+        # Under the sliders, the list of the values that differ from the example's: it grows and
+        # shrinks without moving a slider
+        '<p class="ix-changes" hidden></p>',
         '<div><button type="button" class="ix-reset">Reset to the robot\'s values</button>'
         ' <small>Double-click or double-tap a slider to reset only that one.</small></div>',
         '</div>',
