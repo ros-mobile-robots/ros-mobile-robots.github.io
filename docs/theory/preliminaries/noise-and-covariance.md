@@ -9,7 +9,7 @@ The sections build on each other, from one measured value to a vector of values 
 3. [The covariance of two values](#the-covariance-of-two-values): whether the errors of two values go up and down together, and why independent errors have the covariance 0.
 4. [The covariance matrix and its ellipsoid](#the-covariance-matrix-and-its-ellipsoid): all variances and covariances of a vector in one matrix, and the shape that the matrix describes.
 5. [How ROS messages store a covariance](#how-ros-messages-store-a-covariance): a matrix as an array of 9 or 36 numbers, and the arrays with a special meaning.
-6. [What the EKF does with a variance](#what-the-ekf-does-with-a-variance): a larger variance gives a measurement less weight.
+6. [What the EKF does with a variance](#what-the-ekf-does-with-a-variance): how a measurement's variance, compared with the prediction's, sets the measurement's weight.
 
 Each example says where its numbers come from: a setting in the robots' code, a measurement on Remo, or example values that make a formula easy to follow. The messages also carry a rotation as four numbers, which [Quaternions](quaternions.md) explains.
 
@@ -318,7 +318,7 @@ A [`nav_msgs/Odometry`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4
 
 ## What the EKF does with a variance
 
-The EKF on the robot fuses the wheel odometry's yaw rate and the IMU's yaw rate into one estimate, as [What the filter fuses](../../packages/imu/robot_localization.md#what-the-filter-fuses) on the Localization page explains. The variances decide how much each measurement counts. For one value, the filter's correction step has three formulas. The filter's estimate $\hat x$ has the variance $P$, and a measurement $z$ of the same value has the variance $R$:
+The robots' EKF configuration combines the wheel odometry's yaw rate and the IMU's yaw rate into one estimate, as [What the filter fuses](../../packages/imu/robot_localization.md#what-the-filter-fuses) on the Localization page explains. The variances decide how much each measurement counts. Consider a single value of the filter's state that a sensor measures directly. The filter's prediction $\hat x$ of the value has the variance $P$, and a measurement $z$ of the same value has the variance $R$. The two errors are independent, and both variances are positive. Then the filter's correction step has three formulas:
 
 $$
 \begin{aligned}
@@ -329,8 +329,8 @@ P^+ &= (1 - K)\,P
 $$
 
 - **The gain $K$:** a number between 0 and 1, the share of the difference $z - \hat x$ by which the estimate moves toward the measurement.
-- **A large variance $R$:** the measurement is uncertain. $K$ is small, and the estimate moves little.
-- **A small variance $R$:** the measurement is certain. $K$ is close to 1, and the estimate moves almost to the measurement.
+- **$R$ much larger than $P$:** the measurement is far less certain than the prediction. $K$ is small, and the estimate moves little.
+- **$R$ much smaller than $P$:** the measurement is far more certain than the prediction. $K$ is close to 1, and the estimate moves close to the measurement. Only the two variances' ratio counts, not the size of $R$ alone.
 - **The new variance $P^+$:** $P^+ = PR/(P + R)$, which is smaller than both $P$ and $R$. The fused estimate is more certain than each of its two inputs.
 
 **An example with the robots' variances:** take the wheel odometry's yaw rate as the estimate, $\hat x$ = 0.50 rad/s with its variance $P$ = 0.03 (rad/s)². Then the IMU measures $z$ = 0.46 rad/s, with the firmware's variance $R$ = 4 · 10⁻⁴ (rad/s)². The two yaw rates are example values:
@@ -347,19 +347,29 @@ $$
 
 The fused yaw rate lies close to the IMU's, because the IMU's variance is 75 times smaller than the wheels'. The order doesn't matter: starting from the IMU's yaw rate and fusing the wheels' gives $K$ = 0.013 and the same 0.4605 rad/s. In the simulation, the IMU's variance is 2.5 · 10⁻⁵ (rad/s)², and $K$ is 0.9992.
 
-The example leaves out the filter's other step. In the robot's filter, the estimate $\hat x$ and its variance $P$ come from the prediction, which moves the estimate forward in time with a model of the robot's motion. The prediction makes $P$ grow, so a measurement counts more after a longer time without one.
+The example leaves out the filter's other step, the prediction, which supplies $\hat x$ and $P$. The full filter predicts the state and propagates its covariance through the motion model. It adds process noise for the elapsed time. The excerpt shows this step in robot_localization 2.7.7, from [`ekf.cpp`, lines 379–383](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L379-L383). `transferFunctionJacobian_` is the motion model's matrix $J$, `delta` the elapsed time in s, and `processNoiseCovariance` the process noise $Q$:
+
+```cpp title="ekf.cpp: the covariance in the prediction" linenums="379"
+--8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp:379:383"
+```
+
+The added process noise grows with the time since the filter's last step. The product with $J$ can make a single variance larger or smaller.
 
 ??? quote "ekf.cpp, lines 159–197: the correction step in robot_localization"
-    robot_localization 2.7.7 computes the same three steps with matrices, because one measurement can carry several values. In the function [`correct()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L55), the estimate's covariance $P$ is `estimateErrorCovariance_`, the measurement's covariance $R$ is `measurementCovarianceSubset`, the gain $K$ is `kalmanGainSubset`, and the difference $z - \hat x$ is `innovationSubset`. `stateToMeasurementSubset`, $H$, picks the measured values out of the filter's state. When the state is one value that the sensor measures directly, $H$ is 1, and the formulas in the comments become the three formulas above. The update of the covariance in lines 191–197 is written in the Joseph form, which gives $(1 - K)\,P$ for one value with this gain and keeps the matrix symmetric despite rounding. Line 186 passes the difference and `hphrInv` to the rejection check. For this check, the deviation is the measurement minus its prediction, and the covariance of that difference is $S = H P H^\mathsf T + R$, the innovation covariance. `hphrInv` is its inverse $S^{-1}$, from line 161, so the check computes the Mahalanobis distance of [The covariance ellipsoid](#the-covariance-ellipsoid) with $S$ as the covariance matrix. The robots set no threshold. The default for the IMU's angular velocity is the largest number that a `double` holds ([line 1418 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1418)), so the check lets every finite distance pass:
+    robot_localization 2.7.7 computes the same three steps with matrices, because one measurement can carry several values. In the function [`correct()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp#L55), the estimate's covariance $P$ is `estimateErrorCovariance_`, the measurement's covariance $R$ is `measurementCovarianceSubset`, the gain $K$ is `kalmanGainSubset`, and the difference $z - \hat x$ is `innovationSubset`. `stateToMeasurementSubset`, $H$, picks the measured values out of the filter's state. When the state is one value that the sensor measures directly, $H$ is 1, and the formulas in the comments become the three formulas above. The update of the covariance in lines 191–197 is written in the Joseph form, which gives $(1 - K)\,P$ for one value with this gain and reduces numerical error in the covariance update. Line 186 passes the difference and `hphrInv` to the rejection check. For this check, the deviation is the measurement minus its prediction, and the covariance of that difference is $S = H P H^\mathsf T + R$, the innovation covariance. `hphrInv` is its inverse $S^{-1}$, from line 161, so the check computes the Mahalanobis distance of [The covariance ellipsoid](#the-covariance-ellipsoid) with $S$ as the covariance matrix. The robots set no threshold. The default for the IMU's angular velocity is the largest number that a `double` holds ([line 1418 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1418)), so the check lets every finite distance pass:
 
     ```cpp linenums="159"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp:159:197"
     ```
 
-**A variance of 0:** with $R$ = 0, $K$ is 1, and the filter would take the measurement as exact. If the estimate's variance $P$ were 0 as well, $K$ would be 0/0, which can't be computed. robot_localization's function `correct()` prevents both. The function first replaces a negative variance of a measurement with its absolute value, and then a variance below 10⁻⁹ with 10⁻⁹. So a covariance of all zeros, which `sensor_msgs/Imu` defines as unknown, reaches the filter as almost certain. The robots' [IMU sample validator](../../packages/imu/robot_localization.md#checks-1-to-3-the-samples-form) drops a sample whose three variances of the angular velocity aren't all positive, before the EKF gets the sample.
+**A variance of 0:** with $R$ = 0, $K$ is 1, and the filter would take the measurement as exact. If the prediction's variance $P$ were 0 as well, $K$ would be 0/0, which can't be computed. Three places in the robots' setup deal with such a variance:
+
+- **The message's meaning:** an angular-velocity covariance of all zeros means "unknown" in an IMU message, as [The IMU's message](#the-imus-message) explains. The −1 that marks a field as unavailable never reaches this arithmetic: robot_localization's message reader skips such a field.
+- **The robots' validator:** the [IMU sample validator](../../packages/imu/robot_localization.md#checks-1-to-3-the-samples-form) drops a sample whose three variances of the angular velocity aren't all positive, before the sample reaches the EKF.
+- **robot_localization's own guard:** if a measurement reaches an initialized filter, `correct()` takes the absolute value of each negative variance among the values that the measurement updates, and raises each of these variances that is below 10⁻⁹ to 10⁻⁹. The first measurement that the filter takes initializes the filter through a separate path, without `correct()`: [`processMeasurement()`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/filter_base.cpp#L205-L259) copies the measurement's values into the state and its covariances into the state's covariance, for the values that the measurement updates.
 
 ??? quote "ekf.cpp, lines 119–143: negative and very small variances"
-    The excerpt shows the two replacements in `correct()`, for each variance `measurementCovarianceSubset(i, i)` of the measurement:
+    The excerpt shows the two replacements in `correct()`, for each variance `measurementCovarianceSubset(i, i)` of the values that the measurement updates:
 
     ```cpp linenums="119"
     --8<-- "https://raw.githubusercontent.com/cra-ros-pkg/robot_localization/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ekf.cpp:119:143"
