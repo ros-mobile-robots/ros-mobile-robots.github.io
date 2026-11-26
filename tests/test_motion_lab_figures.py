@@ -36,6 +36,11 @@ def other_drive(example: figures.Example) -> figures.Drive:
     return figures.example_drive(example, figures.other_command(example.command))
 
 
+def formatted_answer(example: figures.Example) -> str:
+    """Return a guided example's answer for the drive it opens with, with its values filled in."""
+    return example.primary_prompt.answer.format(**figures.example_text_values(example))
+
+
 def turned_check() -> figures.Check:
     """Return the turn test's check of the angle turned, whatever its place in the test."""
     checks = figures.CHECKS[figures.CommandKind.TURN]
@@ -124,9 +129,50 @@ class TestGuidedExamples(unittest.TestCase):
         for example in figures.EXAMPLES:
             for kind in figures.CommandKind:
                 values = figures.example_text_values(example, kind)
-                for text in figures.example_prompt(example, kind):
+                prompt = figures.example_prompt(example, kind)
+                for text in (prompt.question, prompt.answer):
                     filled = text.format(**values)
                     self.assertNotRegex(filled, r'[{}]', f'{example.key}, {kind.value}')
+
+
+class TestAnswerTexts(unittest.TestCase):
+    """Each example's answer states the numbers worked out by hand, in the right sentence."""
+
+    def test_the_radius_answer_states_the_commanded_and_the_shortened_distance(self) -> None:
+        example = example_with_key('radius')
+        true_distance = FORWARD.distance / (example.settings.radius_percent / 100)
+        answer = formatted_answer(example)
+        self.assertIn(f'The odometry reports {FORWARD.distance:.3f} m.', answer)
+        self.assertIn(f'The robot drives {true_distance:.3f} m.', answer)
+
+    def test_the_separation_answer_states_both_angles_and_their_difference(self) -> None:
+        example = example_with_key('separation')
+        true_angle = TURN.angle * example.settings.separation_percent / 100
+        answer = formatted_answer(example)
+        self.assertIn(f'The odometry reports {TURN.angle:.3f} rad, and the robot turns'
+                      f' {true_angle:.3f} rad.', answer)
+        self.assertIn(f'The two differ by {TURN.angle - true_angle:.3f} rad', answer)
+
+    def test_the_offset_answer_states_the_chord_in_centimetres(self) -> None:
+        example = example_with_key('offset')
+        chord = 2 * example.settings.offset_mm / 1000 * math.sin(TURN.angle / 2)
+        self.assertIn(f'ends {chord * 100:.1f} cm from its start', formatted_answer(example))
+
+    def test_the_contact_answer_states_the_smaller_turn_and_both_separations(self) -> None:
+        example = example_with_key('contact')
+        wheels = REMO.wheels
+        contact_separation = wheels.separation + wheels.width
+        share = wheels.separation / contact_separation
+        answer = formatted_answer(example)
+        self.assertIn(f'The robot turns {TURN.angle * share:.3f} rad,'
+                      f' {(1 - share) * 100:.0f} % less', answer)
+        self.assertIn(f'{contact_separation:.3f} m apart instead of {wheels.separation:.3f} m',
+                      answer)
+
+    def test_the_tracking_answer_states_the_distance_that_both_views_show(self) -> None:
+        example = example_with_key('tracking')
+        reached = FORWARD.distance * example.settings.tracking_percent / 100
+        self.assertIn(f'Both show {reached:.3f} m', formatted_answer(example))
 
 
 class TestOtherDrives(unittest.TestCase):

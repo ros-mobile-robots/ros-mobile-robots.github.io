@@ -33,6 +33,7 @@ from playwright.sync_api import Browser
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page
 
+REMO = figures.ROBOTS[figures.EXAMPLE_ROBOT]
 PAGE = '/development/simulation-test/'
 FIGURE = 'figure[data-ix="motion-lab"]'
 # The figure starts within this time, also on a slow CI runner
@@ -44,6 +45,10 @@ SHOWN_ROUNDING = 0.5e-3 + 1e-9
 # The check table's two results, whole
 PASSES = '✔ passes'
 FAILS = '✖ fails'
+# The drawing's sample at the drive's start, its middle and its end
+FIRST_SAMPLE = 0
+MIDDLE_SAMPLE = figures.DRAWING.samples // 2
+LAST_SAMPLE = figures.DRAWING.samples
 # Both drawings write coordinates to a tenth of a pixel, the live one sometimes unrounded
 DRAWN_ROUNDING = 0.1 + 1e-9
 # The shapes of a drawing's robots and the command's cross: each with the view of its group, its
@@ -212,6 +217,54 @@ def call_model(page: Page, function: str, *arguments: Any) -> Any:
     return page.evaluate(MODEL_CALL, [function, list(arguments)])
 
 
+def shown_decimal(value: float) -> str:
+    """Return a value as the figure writes it: three decimals, a true minus, no negative zero."""
+    text = f'{value:.3f}'.replace('-', '−')
+    return text.lstrip('−') if float(f'{value:.3f}') == 0 else text
+
+
+def expected_description(drive: figures.Drive, kind: figures.CommandKind, sample: int) -> str:
+    """Return what the drawing's description must say at a sample of a drive.
+
+    Each view's displacement from the start, with its unit, at the sample's time.
+    """
+    start, shown = drive.samples[0], drive.samples[sample]
+    command = figures.relative_motion(start.command, shown.command)
+    odometry = figures.relative_motion(start.odometry, shown.odometry)
+    model = figures.relative_motion(start.frame, shown.frame)
+    duration = figures.COMMANDS[kind].duration
+    time = f'At {duration * sample / figures.DRAWING.samples:.1f} s of {duration:.1f} s, '
+    if kind is figures.CommandKind.FORWARD:
+        return (
+            f'{time}the commanded distance is {shown_decimal(command.forward)} m. The odometry'
+            f' reports {shown_decimal(odometry.forward)} m and the robot in the model has'
+            f' travelled {shown_decimal(model.forward)} m.'
+        )
+    distance = figures.motion_quantity_value(figures.Quantity.DISTANCE, model)
+    return (
+        f'{time}the commanded angle is {shown_decimal(command.turned)} rad. The odometry reports'
+        f' {shown_decimal(odometry.turned)} rad and the robot in the model has turned'
+        f' {shown_decimal(model.turned)} rad. Its base_footprint is {shown_decimal(distance)} m'
+        ' from its starting point.'
+    )
+
+
+def expected_marker_centers(
+    page: Page, drive: figures.Drive, inputs: figures.ModelInputs, sample: int
+) -> MarkerCenters:
+    """Return where the live drawing must show the two markers at a sample of a drive.
+
+    The script's scale for the live drawing's width maps the sample's poses to pixels.
+    """
+    width = page.eval_on_selector(f'{FIGURE} .ix-live-plot', 'svg => svg.viewBox.baseVal.width')
+    scale = figures.drawing_scale(width, drive.samples, figures.outline_reach_metres(inputs))
+    shown = drive.samples[sample]
+    return MarkerCenters(
+        odometry=scale.to_pixels(shown.odometry.position),
+        model=scale.to_pixels(shown.frame.position),
+    )
+
+
 def open_settings(page: Page) -> None:
     """Open the block of values, as a reader who clicks its summary."""
     page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
@@ -278,6 +331,25 @@ class TestMotionLabPage(SimulationTestPageCase):
                 page.click(f'{FIGURE} [data-command="{kind.value}"]')
                 page.click(f'{FIGURE} [data-example="{example.key}"]')
                 yield ShownDrive(page, example, kind, figures.example_drive(example, kind))
+
+    def assert_markers_at(self, page: Page, expected: MarkerCenters, message: str) -> None:
+        """Assert that the live drawing shows the two markers of base_footprint at their places."""
+        shown = marker_centers(page)
+        for marker, place in ((shown.odometry, expected.odometry), (shown.model, expected.model)):
+            self.assertAlmostEqual(marker.x, place.x, delta=DRAWN_ROUNDING, msg=message)
+            self.assertAlmostEqual(marker.y, place.y, delta=DRAWN_ROUNDING, msg=message)
+
+    def assert_drawing_shows_sample(
+        self, page: Page, drive: figures.Drive, kind: figures.CommandKind, sample: int
+    ) -> None:
+        """Assert the time under the drawing and the drawing's description at a sample."""
+        duration = figures.COMMANDS[kind].duration
+        elapsed = duration * sample / figures.DRAWING.samples
+        time = (f't = {duration:.1f} s, the end' if sample == LAST_SAMPLE
+                else f't = {elapsed:.1f} s of {duration:.1f} s')
+        self.assertEqual(page.inner_text(f'{FIGURE} .ix-time'), time)
+        self.assertEqual(page.evaluate(DESCRIPTION, FIGURE),
+                         expected_description(drive, kind, sample))
 
     def assert_shown_value(
         self, text: str, value: float, quantity: figures.Quantity, message: str
@@ -382,12 +454,17 @@ class TestMotionLabPage(SimulationTestPageCase):
     def test_the_time_slider_shows_the_examples_drive_before_its_answer(self) -> None:
         # The first example's configured wheel radius is too big: the odometry and the true pose
         # start together, and halfway through the drive the odometry is ahead
+        example = figures.EXAMPLES[0]
+        drive = figures.example_drive(example)
+        inputs = figures.model_inputs(REMO, example.settings)
         page = self.open_live_figure().page
-        at_start = marker_centers(page)
+        at_start = expected_marker_centers(page, drive, inputs, FIRST_SAMPLE)
         self.assertAlmostEqual(at_start.odometry.x, at_start.model.x, delta=DRAWN_ROUNDING)
+        self.assert_markers_at(page, at_start, 'at the start')
         set_time(page, figures.TIME_SLIDER_STEPS // 2)
-        halfway = marker_centers(page)
+        halfway = expected_marker_centers(page, drive, inputs, MIDDLE_SAMPLE)
         self.assertGreater(halfway.odometry.x, halfway.model.x + 1)
+        self.assert_markers_at(page, halfway, 'halfway')
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
     def test_a_changed_value_keeps_the_time_and_the_results_waiting(self) -> None:
@@ -401,15 +478,23 @@ class TestMotionLabPage(SimulationTestPageCase):
 
     def test_shown_results_follow_a_changed_value(self) -> None:
         slider = figures.CONFIGURATION_SLIDERS[0]
+        example = figures.EXAMPLES[0]
+        kind = example.command
+        changed = figures.simulate(
+            REMO, figures.COMMANDS[kind], example.settings._replace(radius_percent=slider.lowest)
+        )
+        rows = figures.check_rows(kind)
+        passing = len(rows) - len(figures.failing_checks(kind, changed))
         page = self.open_live_figure(reduced_motion='reduce').page
         page.click(f'{FIGURE} .ix-play')
-        before = page.inner_text(f'{FIGURE} .ix-summary')
-        page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
-        page.fill(f'#{slider.element_id}', str(slider.lowest))
-        page.dispatch_event(f'#{slider.element_id}', 'input')
+        open_settings(page)
+        set_slider(page, slider, slider.lowest)
         self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'), str(figures.TIME_SLIDER_STEPS))
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-summary'))
-        self.assertNotEqual(page.inner_text(f'{FIGURE} .ix-summary'), before)
+        summary = page.inner_text(f'{FIGURE} .ix-summary')
+        self.assertIn(f'In the model, the robot drives {shown_decimal(changed.model.forward)} m.',
+                      summary)
+        self.assertIn(f'{passing} of {len(rows)} checks pass.', summary)
 
     def test_another_value_hides_the_answer_and_show_what_happens_brings_it_back(self) -> None:
         example = figures.EXAMPLES[0]
@@ -790,17 +875,19 @@ class TestMotionLabPage(SimulationTestPageCase):
                                  len(figures.EXAMPLES))
 
     def test_play_jumps_to_the_end_without_animation_with_reduced_motion(self) -> None:
+        example = figures.EXAMPLES[0]
+        drive = figures.example_drive(example)
         page = self.open_live_figure(reduced_motion='reduce').page
         scrub = f'{FIGURE} .ix-scrub'
-        page.fill(scrub, str(figures.TIME_SLIDER_STEPS // 5))
-        page.dispatch_event(scrub, 'input')
+        set_time(page, figures.TIME_SLIDER_STEPS // 5)
         page.click(f'{FIGURE} .ix-play')
         self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
         self.assertEqual(page.inner_text(f'{FIGURE} .ix-play'), 'Play')
+        self.assert_drawing_shows_sample(page, drive, example.command, LAST_SAMPLE)
 
     def test_play_at_the_drives_end_shows_its_start_with_reduced_motion(self) -> None:
         # An example that was played opens at its drive's end. Play then has to show something:
-        # the start, and the next Play the end again
+        # the start, and the next Play the end again. The drawing follows the time slider
         page = self.open_live_figure(reduced_motion='reduce').page
         scrub = f'{FIGURE} .ix-scrub'
         last = len(figures.EXAMPLES) - 1
@@ -809,11 +896,16 @@ class TestMotionLabPage(SimulationTestPageCase):
             page.click(f'{FIGURE} .ix-next')
         page.click(f'{FIGURE} .ix-play')
         page.click(f'{FIGURE} .ix-previous')
+        example = figures.EXAMPLES[last - 1]
+        drive = figures.example_drive(example)
         self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
+        self.assert_drawing_shows_sample(page, drive, example.command, LAST_SAMPLE)
         page.click(f'{FIGURE} .ix-play')
         self.assertEqual(page.input_value(scrub), '0')
+        self.assert_drawing_shows_sample(page, drive, example.command, FIRST_SAMPLE)
         page.click(f'{FIGURE} .ix-play')
         self.assertEqual(page.input_value(scrub), str(figures.TIME_SLIDER_STEPS))
+        self.assert_drawing_shows_sample(page, drive, example.command, LAST_SAMPLE)
 
     def test_another_drives_end_never_answers_the_examples_question(self) -> None:
         # Reach the end with other values, go back to the middle, set the example's values again:
@@ -845,22 +937,39 @@ class TestMotionLabPage(SimulationTestPageCase):
         self.assertTrue(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
     def test_the_drawings_description_tells_what_it_shows_at_the_sliders_time(self) -> None:
-        # For a screen reader, the drawing describes the time that it shows: at the start, the
-        # end's numbers are not given away
+        # For a screen reader, the drawing describes the time that it shows: each view's
+        # displacement so far, on the straight drive and on the turn
+        example = figures.EXAMPLES[0]
+        steps = ((0, FIRST_SAMPLE), (figures.TIME_SLIDER_STEPS // 2, MIDDLE_SAMPLE),
+                 (figures.TIME_SLIDER_STEPS, LAST_SAMPLE))
+        page = self.open_live_figure().page
+        for kind in (example.command, figures.other_command(example.command)):
+            drive = figures.example_drive(example, kind)
+            page.click(f'{FIGURE} [data-command="{kind.value}"]')
+            for step, sample in steps:
+                with self.subTest(drive=kind.value, step=step):
+                    set_time(page, step)
+                    self.assert_drawing_shows_sample(page, drive, kind, sample)
+
+    def test_the_radius_drives_description_halfway_has_the_values_worked_out_by_hand(
+        self,
+    ) -> None:
+        # Halfway, the command and the odometry are at 0.2 m/s x 1.5 s = 0.300 m. The radius is
+        # 10 % too big, so the robot is at 0.300 m / 1.1 = 0.273 m
+        page = self.open_live_figure().page
+        set_time(page, figures.TIME_SLIDER_STEPS // 2)
+        self.assertEqual(
+            page.evaluate(DESCRIPTION, FIGURE),
+            'At 1.5 s of 3.0 s, the commanded distance is 0.300 m. The odometry reports 0.300 m'
+            ' and the robot in the model has travelled 0.273 m.',
+        )
+
+    def test_the_drawings_description_at_the_start_keeps_the_ends_numbers_back(self) -> None:
         example = figures.EXAMPLES[0]
         end = figures.example_drive(example)
-        end_values = [f'{end.odometry.forward:.3f}', f'{end.model.forward:.3f}']
-        page = self.open_live_figure().page
-        at_start = page.evaluate(DESCRIPTION, FIGURE)
-        self.assertIn('At 0.0 s', at_start)
-        for value in end_values:
-            self.assertNotIn(value, at_start)
-        set_time(page, figures.TIME_SLIDER_STEPS // 2)
-        self.assertIn('At 1.5 s', page.evaluate(DESCRIPTION, FIGURE))
-        set_time(page, figures.TIME_SLIDER_STEPS)
-        at_end = page.evaluate(DESCRIPTION, FIGURE)
-        for value in end_values:
-            self.assertIn(value, at_end)
+        at_start = self.open_live_figure().page.evaluate(DESCRIPTION, FIGURE)
+        for value in (end.odometry.forward, end.model.forward):
+            self.assertNotIn(shown_decimal(value), at_start)
 
     def test_dragging_a_slider_through_the_examples_value_keeps_it_in_place(self) -> None:
         # With many values changed, the list of changed values is long. The wheel-speed slider
@@ -923,9 +1032,16 @@ class TestMotionLabPage(SimulationTestPageCase):
         set_slider(page, slider, getattr(figures.DEFAULT_SETTINGS, slider.setting))
         self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'),
                          str(figures.TIME_SLIDER_STEPS // 2))
-        centers = marker_centers(page)
-        self.assertAlmostEqual(centers.odometry.x, centers.model.x, delta=DRAWN_ROUNDING)
-        self.assertIn('1.5 s', page.inner_text(f'{FIGURE} .ix-time'))
+        # With the robot's own values, both markers lie on each other, halfway along the drive
+        kind = figures.EXAMPLES[0].command
+        own_drive = figures.simulate(REMO, figures.COMMANDS[kind], figures.DEFAULT_SETTINGS)
+        inputs = figures.model_inputs(REMO, figures.DEFAULT_SETTINGS)
+        at_start = expected_marker_centers(page, own_drive, inputs, FIRST_SAMPLE)
+        halfway = expected_marker_centers(page, own_drive, inputs, MIDDLE_SAMPLE)
+        self.assertGreater(halfway.model.x, at_start.model.x + 1)
+        self.assertAlmostEqual(halfway.odometry.x, halfway.model.x, delta=DRAWN_ROUNDING)
+        self.assert_markers_at(page, halfway, 'halfway')
+        self.assert_drawing_shows_sample(page, own_drive, kind, MIDDLE_SAMPLE)
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
     def test_pause_holds_the_time_and_play_goes_on_from_there(self) -> None:
