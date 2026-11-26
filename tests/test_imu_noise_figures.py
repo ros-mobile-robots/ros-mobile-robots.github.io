@@ -237,7 +237,9 @@ class TestTraceLayouts(unittest.TestCase):
         for include_name in TWO_LAYOUT_INCLUDES:
             text = (ROOT / 'includes' / include_name).read_text(encoding='utf-8')
             root = ElementTree.fromstring(f'<root>{text}</root>')
-            drawings = root.findall("./div[@class='lv-space']/figure/svg")
+            wrapped_figures = root.findall("./div[@class='lv-space']/figure")
+            self.assertEqual(len(wrapped_figures), 1, include_name)
+            drawings = wrapped_figures[0].findall('svg')
             self.assertEqual([drawing.get('class') for drawing in drawings],
                              ['lv-fig lv-layout-narrow', 'lv-fig lv-layout-wide'], include_name)
 
