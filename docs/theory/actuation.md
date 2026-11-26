@@ -12,6 +12,11 @@ None of them is a measurement on a robot.
 
 ## The brushed DC motor
 
+<figure>
+  <img src="{{ asset_dir }}/hardware/encoder/DG01D-E_exposed_encoder.jpg" alt="DG01D-E seen from the encoder end, with the motor case visible through a side slot and the gearbox output shaft at the far end" width="480" height="431" loading="lazy">
+  <figcaption>Look through the side opening beside the green encoder board to find the silver case of the brushed DC motor. Follow the blue housing to the metal output shaft of the 1:48 gearbox.</figcaption>
+</figure>
+
 A voltage across the two terminals of a brushed DC motor drives a current through its windings.
 Current in the motor windings produces a magnetic field.
 Its interaction with the stator field produces torque on the shaft.
@@ -24,6 +29,24 @@ In such a motor, magnets make the stator field, and reversing the terminal volta
 The torque reverses as the current reverses.
 At the same load, a higher voltage gives a higher steady speed.
 Load, heat and wear change the speed too ([AN905, Feedback Mechanisms](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)).
+
+The figure follows a motor with a single winding through half a turn.
+It shows how the brushes and the commutator keep the torque in one direction while the winding turns.
+
+--8<-- "includes/actuation-commutator.html"
+
+A real motor has several windings and more commutator segments.
+The two photos show them in small brushed DC motors.
+
+<figure>
+  <img src="../images/brushed-dc-motor-assembly.jpg" alt="A small brushed DC motor: closed, taken apart into the end cap with the brushes, the rotor and the can with the magnets, the rotor close up, and the brushes in the end cap" width="640" height="464" loading="lazy">
+  <figcaption>Top left, the closed motor. Top right, its three parts: the end cap with the brushes, the rotor, and the can with the magnets on its inside. Bottom left, the rotor: copper windings on iron, and the commutator on the shaft. Bottom right, the two brushes in the end cap, which press on the commutator. Photo: Ilia Krivoruk, via <a href="https://commons.wikimedia.org/wiki/File:Brushed_dc_motor_assembly.jpg">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></figcaption>
+</figure>
+
+<figure>
+  <img src="../images/small-dc-motor-rotor.jpg" alt="The rotor of a small brushed DC motor: copper windings around laminated iron, and the commutator's copper segments on the shaft" width="480" height="360" loading="lazy">
+  <figcaption>The rotor of another small motor. Follow the thin wires from the copper windings to the commutator, the copper sleeve on the shaft that slots divide into segments. Photo: Jjmontero9, via <a href="https://commons.wikimedia.org/wiki/File:Small_DC_Motor_Rotor.JPG">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></figcaption>
+</figure>
 
 The DG01D-E's [datasheet](https://cdn.sparkfun.com/assets/8/3/b/e/4/DS-16413-DG01D-E_Motor_with_Encoder.pdf) lists a voltage of 3 V to 9 V, a gear ratio of 1:48 and a speed of 90 RPM at 4.5 V.
 It doesn't name the load for that speed.
