@@ -268,10 +268,18 @@ class TestInclude(unittest.TestCase):
     def test_include_has_no_blank_line_or_template_marker(self) -> None:
         figures.check_include(self.include)
 
-    def test_check_include_rejects_a_blank_line_and_a_template_marker(self) -> None:
-        for broken in ('<p>one</p>\n\n<p>two</p>', '<p>{{ value }}</p>', '<p>{% if %}</p>'):
-            with self.assertRaises(ValueError, msg=broken):
+    def test_check_include_rejects_a_blank_line(self) -> None:
+        with self.assertRaises(ValueError):
+            figures.check_include('<p>one</p>\n\n<p>two</p>')
+
+    def test_check_include_rejects_each_marker_that_starts_a_template_expression(self) -> None:
+        # Written out here, not taken from the script's list: a marker missing there fails
+        for broken in ('<p>{{ value }}</p>', '<p>{% if %}</p>', '<p>{# comment #}</p>'):
+            with self.subTest(broken=broken), self.assertRaises(ValueError):
                 figures.check_include(broken)
+
+    def test_check_include_accepts_single_braces_and_single_line_breaks(self) -> None:
+        figures.check_include('<p>{one}</p>\n<p>100 %</p>\n')
 
     def test_include_data_carries_the_drawing_sizes_and_the_check_rows(self) -> None:
         data = include_data(self.include)

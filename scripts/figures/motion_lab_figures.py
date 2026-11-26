@@ -1499,13 +1499,23 @@ def build() -> str:
     return '\n'.join(lines) + '\n'
 
 
-def check_include(text: str) -> None:
-    """Raise ValueError if the include has a blank line or a template marker."""
+def check_no_blank_lines(text: str) -> None:
+    """Raise ValueError if the include has a blank line, which would end its HTML block."""
     if '\n\n' in text:
         raise ValueError('the include has a blank line, which would end its HTML block')
+
+
+def check_no_template_markers(text: str) -> None:
+    """Raise ValueError if the include has a marker that starts a template expression."""
     markers = [marker for marker in TEMPLATE_MARKERS if marker in text]
     if markers:
         raise ValueError(f'the include has the template markers {markers}')
+
+
+def check_include(text: str) -> None:
+    """Run the include's checks. Each one raises ValueError for what MkDocs can't insert."""
+    check_no_blank_lines(text)
+    check_no_template_markers(text)
 
 
 def main() -> None:
