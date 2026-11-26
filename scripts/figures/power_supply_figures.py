@@ -11,9 +11,11 @@ as wide, for wider screens. CSS shows one of them, by the width of the page's te
 part is a box with a drawing of the part and its name.
 
 A thick line is a supply, in the color of its source, with its voltage next to it. A dashed line is
-a data connection, a thin line a ground wire. What the Teensy's 3.3 V supplies is from the bench
-check in ros-mobile-robots/diffbot#169, and the camera's 3.3 V through its cable from the boards'
-schematics: the Raspberry Pi 4's camera connector J3 and the Camera Module 2's J1.
+a data connection, a thin line a ground wire. On Remo, what the Teensy's 3.3 V supplies is from the
+bench check in ros-mobile-robots/diffbot#169. DiffBot's wiring is that of its Fritzing diagram,
+docs/fritzing/diffbot.fzz: the I2C through a Grove I2C hub, and the encoders on the Raspberry Pi's
+5 V. The camera's 3.3 V through its cable is from the boards' schematics: the Raspberry Pi 4's
+camera connector J3 and the Camera Module 2's J1.
 
 Run from the repository root after changing a figure:
 
@@ -135,8 +137,8 @@ RASPBERRY_PI_BOX = Box(10, 88, 140, 108)
 LIDAR_BOX = Box(184, 76, 136, 58)
 CAMERA_BOX = Box(184, 140, 136, 58)
 MCU_BOX = Box(10, 240, 140, 66)
-ENCODERS_BOX = Box(10, 360, 68, 70)
-IMU_BOX = Box(82, 360, 68, 70)
+LEFT_SENSOR_BOX = Box(10, 360, 68, 70)
+RIGHT_SENSOR_BOX = Box(82, 360, 68, 70)
 BATTERY_BOX = Box(206, 6, 144, 54)
 DRIVER_BOX = Box(206, 240, 144, 82)
 MOTORS_BOX = Box(206, 360, 144, 70)
@@ -149,6 +151,12 @@ LEFT_SUPPLY_OFFSET = 34
 BATTERY_LINE_INSET = 12
 # The motor driver's logic lines, 3.3 V, I2C and ground, are this far apart
 LOGIC_LINE_GAP = 15
+# On DiffBot, the encoders' 5 V leaves the Raspberry Pi's lower edge at this x position, turns
+# right at this height, runs down the gap between the columns at this x position, turns left at
+# this height and reaches the encoders this far right of their box's left edge. It stays left of
+# the I2C and the ground wires, below their turns
+DIFFBOT_ENCODER_RAIL = (140, 220, 158, 345)  # leaves at x, turns at y, runs down at x, turns at y
+DIFFBOT_ENCODER_SUPPLY_OFFSET = 50
 # On DiffBot, the I2C wire and the ground wire leave the Raspberry Pi's right edge at these
 # heights, run down the gap between the columns at these x positions, and reach the motor driver
 # at these heights. The I2C wire turns farther right and higher, so the two never cross
@@ -167,18 +175,6 @@ LABEL_GAP = 9
 
 USB_VOLTAGE = '5 V'
 LOGIC_VOLTAGE = '3.3 V'
-# Both robots run their motors on the same battery: eight NiMH AA cells of 1.2 V nominal
-CELL_COUNT = 'eight'
-BATTERY_VOLTAGE = '9.6 V'
-BATTERY_NAME = f'{CELL_COUNT.capitalize()} NiMH AA cells'
-
-LEGEND = (
-    LegendEntry(LineKind.BANK_SUPPLY,
-                f'supply from the power bank ({USB_VOLTAGE}, {LOGIC_VOLTAGE})'),
-    LegendEntry(LineKind.BATTERY_SUPPLY, f'supply from the motor battery ({BATTERY_VOLTAGE})'),
-    LegendEntry(LineKind.DATA, 'data connection'),
-    LegendEntry(LineKind.GROUND, 'ground wire (GND)'),
-)
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -311,7 +307,26 @@ def draw_power_bank_and_pi(figure: Figure) -> None:
     figure.part(RASPBERRY_PI_BOX, 'part', RASPBERRY_PI, [TextLine('Raspberry Pi 4 B', 'name')])
 
 
-def draw_lidar_and_camera(figure: Figure) -> None:
+class MotorPack(NamedTuple):
+    """A robot's motor battery: its name in the figure, its cell count in words and its voltage."""
+
+    name: str
+    cell_count: str
+    voltage: str  # nominal
+
+
+def legend_entries(pack: MotorPack) -> List[LegendEntry]:
+    """Return the legend's entries, with the motor battery's voltage."""
+    return [
+        LegendEntry(LineKind.BANK_SUPPLY,
+                    f'supply from the power bank ({USB_VOLTAGE}, {LOGIC_VOLTAGE})'),
+        LegendEntry(LineKind.BATTERY_SUPPLY, f'supply from the motor battery ({pack.voltage})'),
+        LegendEntry(LineKind.DATA, 'data connection'),
+        LegendEntry(LineKind.GROUND, 'ground wire (GND)'),
+    ]
+
+
+def draw_lidar_and_camera(figure: Figure, camera_name: str) -> None:
     """Add the LiDAR and the camera on the Raspberry Pi.
 
     The LiDAR's USB adapter gets the supply and the data over one USB cable, the camera over its
@@ -322,7 +337,7 @@ def draw_lidar_and_camera(figure: Figure) -> None:
             (LIDAR_BOX, USB_VOLTAGE, LIDAR,
              [TextLine('RPLidar A2 M8', 'name'), TextLine('USB adapter', 'note')]),
             (CAMERA_BOX, LOGIC_VOLTAGE, CAMERA,
-             [TextLine('Raspberry Pi Camera', 'name'), TextLine('camera connector', 'note')])):
+             [TextLine(camera_name, 'name'), TextLine('camera connector', 'note')])):
         box = figure.box_of(narrow_box)
         supply_y = box.y + box.height / 2 - PAIR_GAP / 2
         figure.supply(f'M{pi_edge},{supply_y} H{box.x - HEAD_TIP}', Source.BANK)
@@ -331,11 +346,10 @@ def draw_lidar_and_camera(figure: Figure) -> None:
         figure.part(narrow_box, 'part', pictogram, lines)
 
 
-def draw_mcu_and_sensors(figure: Figure, mcu_note: str) -> None:
-    """Add the microcontroller (MCU), a Teensy on a USB port of the Raspberry Pi, and its sensors.
+def draw_mcu(figure: Figure, mcu_note: str) -> None:
+    """Add the microcontroller (MCU), a Teensy on a USB port of the Raspberry Pi.
 
-    One USB cable carries the MCU's supply and its data. The MCU's 3.3 V supplies the encoders and
-    the IMU, each with its data line beside its supply. mcu_note names the MCU's board.
+    One USB cable carries the MCU's supply and its data. mcu_note names the MCU's board.
     """
     pi_box = figure.box_of(RASPBERRY_PI_BOX)
     mcu = figure.box_of(MCU_BOX)
@@ -343,36 +357,66 @@ def draw_mcu_and_sensors(figure: Figure, mcu_note: str) -> None:
     figure.supply(f'M{supply_x},{pi_box.bottom} V{mcu.y - HEAD_TIP}', Source.BANK)
     figure.wire(f'M{supply_x + PAIR_GAP},{pi_box.bottom} V{mcu.y}', LineKind.DATA)
     figure.text(supply_x + PAIR_GAP + LABEL_GAP, baseline_between(pi_box.bottom, mcu.y),
-                f'{USB_VOLTAGE} and data, USB', 'volt-bank')
+                f'{USB_VOLTAGE}, USB', 'volt-bank')
     figure.part(MCU_BOX, 'part', TEENSY,
                 [TextLine('Microcontroller (MCU)', 'name'), TextLine(mcu_note, 'note')])
-    for narrow_box, pictogram, lines in (
-            (ENCODERS_BOX, ENCODER, [TextLine('Encoders', 'name'),
-                                     TextLine('both wheels', 'note')]),
-            (IMU_BOX, IMU, [TextLine('IMU', 'name'), TextLine('BNO055', 'note')])):
-        box = figure.box_of(narrow_box)
-        sensor_x = box.x + 18
-        figure.supply(f'M{sensor_x},{mcu.bottom} V{box.y - HEAD_TIP}', Source.BANK)
-        figure.wire(f'M{sensor_x + PAIR_GAP},{mcu.bottom} V{box.y}', LineKind.DATA)
-        figure.text(sensor_x + PAIR_GAP + 6, baseline_between(mcu.bottom, box.y),
-                    LOGIC_VOLTAGE, 'volt-bank')
-        figure.part(narrow_box, 'part', pictogram, lines)
 
 
-def draw_battery_and_motors(figure: Figure, pictogram: Pictogram,
+def draw_sensor_on_mcu(figure: Figure, narrow_box: Box, pictogram: Pictogram,
+                       lines: Sequence[TextLine]) -> None:
+    """Add a sensor below the MCU, with its 3.3 V supply from the MCU and its data line."""
+    mcu = figure.box_of(MCU_BOX)
+    box = figure.box_of(narrow_box)
+    sensor_x = box.x + 18
+    figure.supply(f'M{sensor_x},{mcu.bottom} V{box.y - HEAD_TIP}', Source.BANK)
+    figure.wire(f'M{sensor_x + PAIR_GAP},{mcu.bottom} V{box.y}', LineKind.DATA)
+    figure.text(sensor_x + PAIR_GAP + 6, baseline_between(mcu.bottom, box.y), LOGIC_VOLTAGE,
+                'volt-bank')
+    figure.part(narrow_box, 'part', pictogram, lines)
+
+
+ENCODER_LINES = [TextLine('Encoders', 'name'), TextLine('both wheels', 'note')]
+IMU_LINES = [TextLine('IMU', 'name'), TextLine('BNO055', 'note')]
+
+
+def draw_sensors_on_mcu(figure: Figure) -> None:
+    """Add Remo's encoders and IMU, both on the MCU's 3.3 V."""
+    draw_sensor_on_mcu(figure, LEFT_SENSOR_BOX, ENCODER, ENCODER_LINES)
+    draw_sensor_on_mcu(figure, RIGHT_SENSOR_BOX, IMU, IMU_LINES)
+
+
+def draw_sensors_on_mcu_and_pi(figure: Figure) -> None:
+    """Add DiffBot's IMU on the MCU's 3.3 V, and its encoders on the Raspberry Pi's 5 V.
+
+    The encoders' data goes to the MCU. Their supply comes from the Raspberry Pi through the
+    breadboard's power rail, and runs down the gap between the columns.
+    """
+    draw_sensor_on_mcu(figure, LEFT_SENSOR_BOX, IMU, IMU_LINES)
+    mcu = figure.box_of(MCU_BOX)
+    box = figure.box_of(RIGHT_SENSOR_BOX)
+    figure.wire(f'M{box.x + 18},{mcu.bottom} V{box.y}', LineKind.DATA)
+    leave_x, turn_y, down_x, approach_y = DIFFBOT_ENCODER_RAIL
+    supply_x = box.x + figure.x(DIFFBOT_ENCODER_SUPPLY_OFFSET)
+    lane = figure.x(down_x)
+    figure.supply(f'M{figure.x(leave_x)},{figure.box_of(RASPBERRY_PI_BOX).bottom} V{turn_y} '
+                  f'H{lane} V{approach_y} H{supply_x} V{box.y - HEAD_TIP}', Source.BANK)
+    figure.text((supply_x + lane) / 2, approach_y - 5, USB_VOLTAGE, 'volt-bank', 'middle')
+    figure.part(RIGHT_SENSOR_BOX, 'part', ENCODER, ENCODER_LINES)
+
+
+def draw_battery_and_motors(figure: Figure, pack: MotorPack, pictogram: Pictogram,
                             driver: Sequence[TextLine]) -> None:
     """Add the motor battery, the motor driver on it and the motors.
 
     pictogram and driver are the motor driver's drawing and the lines of text in its box.
     """
     battery = figure.part(BATTERY_BOX, 'source battery', BATTERY_HOLDER,
-                          [TextLine(BATTERY_NAME, 'name')])
+                          [TextLine(pack.name, 'name')])
     driver_box = figure.box_of(DRIVER_BOX)
     motors = figure.box_of(MOTORS_BOX)
     line_x = battery.right - BATTERY_LINE_INSET
     figure.supply(f'M{line_x},{battery.bottom} V{driver_box.y - HEAD_TIP}', Source.BATTERY)
-    figure.text(line_x - 8, driver_box.y - 8, f'{BATTERY_VOLTAGE} nominal', 'volt-battery',
-                'end')
+    figure.text(line_x - 8, driver_box.y - 8, f'{pack.voltage} nominal', 'volt-battery', 'end')
     figure.part(DRIVER_BOX, 'part', pictogram, driver)
     motor_x = driver_box.x + driver_box.width / 2
     figure.supply(f'M{motor_x},{driver_box.bottom} V{motors.y - HEAD_TIP}', Source.BATTERY)
@@ -420,29 +464,35 @@ class Robot(NamedTuple):
 
     name: str  # the robot's name, also the include's name
     title: str  # the drawing's accessible name
+    pack: MotorPack
+    camera_name: str
     mcu_note: str
     driver_pictogram: Pictogram
     driver_lines: Sequence[TextLine]
+    draw_sensors: Callable[[Figure], None]  # the encoders and the IMU with their supplies
     draw_logic: Callable[[Figure], None]  # the motor driver's logic connection
 
 
 REMO = Robot(
     'remo',
-    "Remo's power flow: the power bank supplies the Raspberry Pi, the LiDAR, the camera, the "
-    f'Teensy and its sensors, and the {CELL_COUNT} NiMH cells supply the motors through the motor '
-    'driver, whose logic gets 3.3 V and I2C from the Teensy',
+    "Remo's power supplies and the Teensy's connections to the FeatherWing",
+    MotorPack('Eight NiMH AA cells', 'eight', '9.6 V'),
+    'Raspberry Pi Camera',
     'Teensy 4.0', FEATHERWING,
     [TextLine('Motor driver', 'name'), TextLine('Adafruit FeatherWing', 'note'),
      TextLine('joins battery − and GND', 'note')],
+    draw_sensors_on_mcu,
     draw_logic_from_mcu)
 DIFFBOT = Robot(
     'diffbot',
-    "DiffBot's power flow: the power bank supplies the Raspberry Pi, the LiDAR, the camera, the "
-    f'Teensy and its sensors, and the {CELL_COUNT} NiMH cells supply the motors through the motor '
-    'driver, which gets I2C from the Raspberry Pi and makes 5 V for its logic',
+    "DiffBot's power supplies, the optional camera and the I2C from the Raspberry Pi through a "
+    'Grove I2C hub',
+    MotorPack('Four alkaline AA cells', 'four', '6.0 V'),
+    'Optional Pi camera',
     'Teensy 3.2 or 4.0', GROVE_DRIVER,
     [TextLine('Motor driver', 'name'), TextLine('Grove I2C Motor Driver', 'note'),
-     TextLine('makes 5 V for its logic', 'note')],
+     TextLine('I2C via a Grove hub', 'note')],
+    draw_sensors_on_mcu_and_pi,
     draw_i2c_from_pi)
 
 
@@ -450,11 +500,12 @@ def power_flow_figure(robot: Robot, stretch: float, css_class: str) -> Figure:
     """Return one layout of a robot's figure."""
     figure = Figure(f'pf-{robot.name}-{css_class}', stretch, robot.title, css_class)
     draw_power_bank_and_pi(figure)
-    draw_lidar_and_camera(figure)
-    draw_battery_and_motors(figure, robot.driver_pictogram, robot.driver_lines)
-    draw_mcu_and_sensors(figure, robot.mcu_note)
+    draw_lidar_and_camera(figure, robot.camera_name)
+    draw_battery_and_motors(figure, robot.pack, robot.driver_pictogram, robot.driver_lines)
+    draw_mcu(figure, robot.mcu_note)
+    robot.draw_sensors(figure)
     robot.draw_logic(figure)
-    figure.legend(LEGEND_Y, LEGEND)
+    figure.legend(LEGEND_Y, legend_entries(robot.pack))
     return figure
 
 
@@ -479,16 +530,17 @@ def main() -> None:
     """Write both includes."""
     write_include('includes/power-supply-flow-diffbot.html', DIFFBOT,
                   "DiffBot's two supplies. Follow each color from its source at the top. The "
-                  'Raspberry Pi sends the motor commands to the motor driver over I2C. The '
-                  f'{CELL_COUNT} cells feed the motor driver, which makes the 5 V for its logic '
-                  'from them and switches their power to the motors.',
+                  'Raspberry Pi sends the motor commands to the motor driver over I2C, through '
+                  f'a Grove I2C hub, and its {USB_VOLTAGE} supplies the encoders. The '
+                  f'{DIFFBOT.pack.cell_count} cells feed the motor driver, which makes the supply '
+                  'for its logic from them and switches their power to the motors.',
                   style_element(RULES) + '\n')
     write_include('includes/power-supply-flow-remo.html', REMO,
                   "Remo's two supplies. Follow each color from its source at the top. The motor "
                   f'driver is the only part on both supplies. Its logic gets {LOGIC_VOLTAGE} from '
                   'the power bank through the Raspberry Pi and the Teensy. '
-                  f'The {CELL_COUNT} cells feed its motor supply, and the driver switches that '
-                  'power to the motors.')
+                  f'The {REMO.pack.cell_count} cells feed its motor supply, and the driver '
+                  'switches that power to the motors.')
 
 
 if __name__ == '__main__':

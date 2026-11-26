@@ -145,8 +145,10 @@ def supply_part_rules(scope: str) -> Tuple[Tuple[str, str], ...]:
         (f'{scope} .case', 'fill:#3b3f45;stroke:#1f2226;stroke-width:0.8'),
         (f'[data-md-color-scheme=slate] {scope} .case', 'fill:#4a4f57;stroke:#a0a6ae'),
         (f'{scope} .led', 'fill:#4fc3f7'),
-        (f'{scope} .cell', 'fill:#5d8fd6;stroke:#2f5a96;stroke-width:0.6'),
-        (f'{scope} .cell-pole', 'fill:#c8ccd2'),
+        (f'{scope} .holder-lid', 'fill:none;stroke:#6b7078;stroke-width:0.8'),
+        (f'{scope} .lead-plus', 'fill:none;stroke:#d32f2f;stroke-width:1.6'),
+        (f'{scope} .lead-minus', 'fill:none;stroke:#222;stroke-width:1.6'),
+        (f'[data-md-color-scheme=slate] {scope} .lead-minus', 'stroke:#d0d4da'),
         (f'{scope} .lidar-window', 'fill:#8a1c1c'),
         (f'{scope} .lens', 'fill:#1b3f6b;stroke:#c8ccd2;stroke-width:0.6'),
         (f'{scope} .ribbon', 'fill:#e9d8a6;stroke:#b39a55;stroke-width:0.6'),
@@ -254,17 +256,17 @@ def draw_power_bank(drawing: Drawing, x: float, y: float) -> None:
 
 
 def draw_battery_holder(drawing: Drawing, x: float, y: float) -> None:
-    """Add a battery holder with eight AA cells at (x, y), from above.
+    """Add the series motor pack at (x, y): a closed holder with its two leads.
 
-    The cells lie side by side, each the other way round than its neighbor, as in the holder's
-    series connection. The plus pole is the small cap at one end of each cell.
+    The drawing shows no cells, so that it fits any number of cells and any holder. The red lead
+    is the plus pole, the black one the minus pole.
     """
-    drawing.rect(x, y, 58, 28, 'case', 2)
-    for index in range(8):
-        cell_x = x + 3 + index * 6.6
-        drawing.rect(cell_x, y + 4, 5.6, 20, 'cell', 1.2)
-        pole_y = y + 2.6 if index % 2 == 0 else y + 23.6
-        drawing.rect(cell_x + 1.6, pole_y, 2.4, 1.8, 'cell-pole')
+    drawing.rect(x, y + 2, 48, 24, 'case', 3)
+    drawing.rect(x + 5, y + 7, 38, 14, 'holder-lid', 2)
+    drawing.line(f'M{x + 48},{y + 9} H{x + 52} Q{x + 56},{y + 9} {x + 56},{y + 5} V{y + 2}',
+                 'lead-plus')
+    drawing.line(f'M{x + 48},{y + 19} H{x + 52} Q{x + 56},{y + 19} {x + 56},{y + 23} V{y + 26}',
+                 'lead-minus')
 
 
 def draw_lidar(drawing: Drawing, x: float, y: float) -> None:
@@ -283,13 +285,18 @@ def draw_camera(drawing: Drawing, x: float, y: float) -> None:
 
 
 def draw_grove_motor_driver(drawing: Drawing, x: float, y: float) -> None:
-    """Add the Grove I2C Motor Driver V1.3 at (x, y): board, terminals, L298 and controller.
+    """Add the Grove I2C Motor Driver V1.3 at (x, y), from above, as the board's photo shows it.
 
-    The L298 sits on its heatsink, the board's microcontroller beside it.
+    Two motor terminals on the left, the power terminal at the top right, the flat L298 with its
+    pins, the square microcontroller, the jumper J4 and the white Grove socket below it.
     """
     drawing.rect(x, y, 46, 26, 'driver-board', 2)
-    for index in range(3):
-        drawing.rect(x + 3 + index * 14, y + 2, 12, 7, 'terminal')
-    drawing.rect(x + 5, y + 12, 20, 11, 'metal', 1)
-    drawing.rect(x + 9, y + 15, 12, 5, 'chip')
-    drawing.rect(x + 31, y + 14, 8, 8, 'chip')
+    for terminal_x, terminal_y in ((x + 1.5, y + 2), (x + 1.5, y + 16), (x + 37.5, y + 2)):
+        drawing.rect(terminal_x, terminal_y, 7, 8, 'terminal')
+    for index in range(6):
+        drawing.rect(x + 12 + index * 2.2, y + 7, 1.2, 1.6, 'metal')
+        drawing.rect(x + 12 + index * 2.2, y + 18.4, 1.2, 1.6, 'metal')
+    drawing.rect(x + 11, y + 8.5, 14, 10, 'chip', 0.8)
+    drawing.rect(x + 28, y + 11, 6.5, 6.5, 'chip')
+    drawing.rect(x + 38.5, y + 11, 5, 2, 'chip')
+    drawing.rect(x + 38.5, y + 14, 6, 10, 'connector', 0.6)
