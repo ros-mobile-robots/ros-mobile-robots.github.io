@@ -22,7 +22,6 @@ and that the include is the output of this script.
 """
 
 from enum import Enum
-import html
 import json
 import math
 from pathlib import Path
@@ -1360,32 +1359,13 @@ def legend_html(drawing: StaticDrawing) -> str:
     return f'<ul class="ix-legend">{entries}</ul>'
 
 
-def example_expected(example: Example, kind: CommandKind) -> Dict[str, object]:
-    """Return an example's expected results on the drive of kind, for the browser tests.
-
-    The odometry's and the true pose's motion, the failing checks, and each check's allowed
-    range and value.
-    """
-    drive = example_drive(example, kind)
-    rows = check_rows(kind)
-    return {
-        'odometry': list(drive.odometry),
-        'model': list(drive.model),
-        'failing': failing_checks(kind, drive),
-        'allowed': [row.allowed for row in rows],
-        'values': [row_value(row, drive) for row in rows],
-    }
-
-
 def example_item_html(example: Example) -> str:
     """Return an example's list item: its questions, its button and its answers, one per drive.
 
     The question and the answer of the drive that the example opens with show without
-    JavaScript, the other drive's only in the live figure. The item carries each drive's expected
-    results for the browser tests.
+    JavaScript, the other drive's only in the live figure.
     """
     kinds = (example.command, other_command(example.command))
-    expected = {kind.value: example_expected(example, kind) for kind in kinds}
     questions, answers = [], []
     for kind in kinds:
         texts = example_text_values(example, kind)
@@ -1396,8 +1376,7 @@ def example_item_html(example: Example) -> str:
         answers.append(f'<span class="ix-answer" data-drive="{kind.value}"{live}>'
                        f'{prompt.answer.format(**texts)}</span>')
     return (
-        f'<li data-example-item="{example.key}"'
-        f' data-expected="{html.escape(json.dumps(expected))}"><span'
+        f'<li data-example-item="{example.key}"><span'
         f' class="ix-prompts">{"".join(questions)}</span> <button type="button" class="ix-show"'
         f' data-example="{example.key}" data-live hidden>{SHOW_TEXT}</button>'
         f'{"".join(answers)}</li>'

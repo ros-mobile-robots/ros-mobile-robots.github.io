@@ -337,14 +337,43 @@ class TestInclude(unittest.TestCase):
             'roundingAllowance': figures.ROUNDING_ALLOWANCE,
         })
 
-    def test_include_data_carries_the_drawing_sizes_and_the_check_rows(self) -> None:
+    def test_include_data_carries_the_drawing_sizes(self) -> None:
         data = include_data(self.include)
         self.assertEqual(data['drawing'], json.loads(json.dumps({
             figures.camel_case(name): value for name, value in figures.DRAWING._asdict().items()
         })))
+
+    def test_include_data_carries_each_check_row_whole_in_the_tests_order(self) -> None:
+        data = include_data(self.include)
         for kind in figures.CommandKind:
-            self.assertEqual([row['name'] for row in data['checks'][kind.value]],
-                             [row.name for row in figures.check_rows(kind)])
+            expected = [
+                {
+                    'view': row.view.value,
+                    'quantity': row.check.quantity.value,
+                    'expected': row.check.expected,
+                    'tolerance': row.check.tolerance,
+                    'unit': figures.UNITS[row.check.quantity],
+                    'name': row.name,
+                    'nameInSentence': row.name_in_sentence,
+                    'allowed': row.allowed,
+                }
+                for row in figures.check_rows(kind)
+            ]
+            self.assertEqual(data['checks'][kind.value], expected, kind.value)
+
+    def test_the_forward_tests_first_check_row_has_the_values_of_test_drive_py(self) -> None:
+        # Written out from test_drive.py: assertAlmostEqual(odometry.forward, 0.6, delta=0.1).
+        # The expected distance is the product of 0.2 m/s and 3 s, which rounding takes off 0.6
+        first = include_data(self.include)['checks'][figures.CommandKind.FORWARD.value][0]
+        self.assertAlmostEqual(first.pop('expected'), 0.6, places=PLACES)
+        self.assertEqual(first, {
+            'view': 'odometry', 'quantity': 'forward', 'tolerance': 0.1, 'unit': 'm',
+            'name': 'forward, odometry', 'nameInSentence': 'forward (odometry)',
+            'allowed': '0.6 ± 0.1 m',
+        })
+
+    def test_include_carries_no_expected_results_for_the_tests(self) -> None:
+        self.assertNotIn('data-expected', self.include)
 
 
 if __name__ == '__main__':

@@ -6,13 +6,16 @@ Build the site first, then run from the repository root:
     python -m unittest discover -s tests/browser -v
 
 The tests take the figure's values from scripts/figures/motion_lab_figures.py, which writes the
-figure's include, and compare the page's numbers with the ones that the script computed.
+figure's include. They compute each expected number with the script's model in the test's own
+process and compare the page's numbers with it. The page carries no expected results.
 """
 
 import contextlib
-import json
+import html
+import re
 from typing import Any
 from typing import Dict
+from typing import Iterator
 from typing import List
 from typing import Literal
 from typing import NamedTuple
@@ -38,8 +41,9 @@ MILLISECONDS_PER_SECOND = 1000
 # The tables show three decimals: a shown value lies within half of its last digit of the value,
 # plus floating-point slack
 SHOWN_ROUNDING = 0.5e-3 + 1e-9
-# The check table's text of a failing check
-FAILS = 'fails'
+# The check table's two results, whole
+PASSES = '✔ passes'
+FAILS = '✖ fails'
 # Both drawings write coordinates to a tenth of a pixel, the live one sometimes unrounded
 DRAWN_ROUNDING = 0.1 + 1e-9
 # The shapes of a drawing's robots and the command's cross: each with the view of its group, its
@@ -95,7 +99,7 @@ PRINT: Media = 'print'
 BOTH_MEDIA: Tuple[Media, ...] = ('screen', PRINT)
 
 
-class MotionRow(NamedTuple):
+class ShownMotionRow(NamedTuple):
     """A row of the motion table, as its cells show it: the view and its three values."""
 
     view: str
@@ -104,13 +108,34 @@ class MotionRow(NamedTuple):
     turned: str
 
 
-class CheckRow(NamedTuple):
+class ShownCheckRow(NamedTuple):
     """A row of the check table, as its cells show it."""
 
     name: str
     allowed: str
     value: str
     result: str
+
+
+class ShownValue(NamedTuple):
+    """A table cell's value such as '−0.020 m': its number and its unit."""
+
+    number: float
+    unit: str
+
+
+class ShownDrive(NamedTuple):
+    """An example's drive at its end in the page, and the same drive computed by the script."""
+
+    page: Page
+    example: figures.Example
+    kind: figures.CommandKind
+    drive: figures.Drive
+
+    @property
+    def name(self) -> str:
+        """Return the example's key and the drive's kind, for an assertion's message."""
+        return f'{self.example.key}, {self.kind.value}'
 
 
 def table_cells(page: Page, selector: str) -> List[List[str]]:
@@ -121,35 +146,26 @@ def table_cells(page: Page, selector: str) -> List[List[str]]:
     return cells
 
 
-def motion_rows(page: Page) -> List[MotionRow]:
+def shown_motion_rows(page: Page) -> List[ShownMotionRow]:
     """Return the motion table's rows."""
-    return [MotionRow(*cells) for cells in table_cells(page, f'{FIGURE} .ix-motion-rows tr')]
+    return [ShownMotionRow(*cells) for cells in table_cells(page, f'{FIGURE} .ix-motion-rows tr')]
 
 
-def check_rows(page: Page) -> List[CheckRow]:
+def shown_check_rows(page: Page) -> List[ShownCheckRow]:
     """Return the check table's rows."""
-    return [CheckRow(*cells) for cells in table_cells(page, f'{FIGURE} .ix-check-rows tr')]
+    return [ShownCheckRow(*cells) for cells in table_cells(page, f'{FIGURE} .ix-check-rows tr')]
 
 
-def failing_checks(page: Page) -> List[str]:
-    """Return the names of the checks that the check table shows as failing."""
-    return [row.name for row in check_rows(page) if FAILS in row.result]
+def parse_shown_value(text: str) -> ShownValue:
+    """Return the number and the unit of a cell such as '−0.020 m'."""
+    number, unit = text.split()
+    return ShownValue(float(number.replace('−', '-')), unit)
 
 
-def shown_number(text: str) -> float:
-    """Return the number at the start of a cell such as '−0.020 m'."""
-    return float(text.split()[0].replace('−', '-'))
-
-
-def expected_results(
-    page: Page, example: figures.Example, kind: figures.CommandKind
-) -> Dict[str, Any]:
-    """Return the results that the script wrote into an example's item for a drive."""
-    text = page.get_attribute(f'{FIGURE} [data-example-item="{example.key}"]', 'data-expected')
-    if text is None:
-        raise ValueError(f'the example {example.key} has no expected results')
-    results: Dict[str, Any] = json.loads(text)[kind.value]
-    return results
+def html_text(markup: str) -> str:
+    """Return the text that a reader sees of the script's HTML, with single spaces."""
+    without_tags = re.sub(r'<[^>]+>', '', markup)
+    return ' '.join(html.unescape(without_tags).split())
 
 
 def top_of(page: Page, selector: str) -> float:
@@ -249,28 +265,64 @@ class SimulationTestPageCase(unittest.TestCase):
 class TestMotionLabPage(SimulationTestPageCase):
     """The figure in the page: it starts, shows the script's numbers, and falls back."""
 
-    def assert_motion_table_shows(
-        self, page: Page, expected: Dict[str, Any], example: figures.Example
+    def shown_example_drives(self) -> Iterator[ShownDrive]:
+        """Open the figure once and show each example's two drives at their end, in turn.
+
+        With reduced motion, the example's button shows its drive's end and its answer at once.
+        """
+        page = self.open_live_figure(reduced_motion='reduce').page
+        for index, example in enumerate(figures.EXAMPLES):
+            if index:
+                page.click(f'{FIGURE} .ix-next')
+            for kind in (example.command, figures.other_command(example.command)):
+                page.click(f'{FIGURE} [data-command="{kind.value}"]')
+                page.click(f'{FIGURE} [data-example="{example.key}"]')
+                yield ShownDrive(page, example, kind, figures.example_drive(example, kind))
+
+    def assert_shown_value(
+        self, text: str, value: float, quantity: figures.Quantity, message: str
     ) -> None:
-        """Assert that the motion table shows the odometry's and the true pose's motion."""
-        names = {entry.view.value: entry.text for entry in figures.LEGEND}
-        rows = {row.view: row for row in motion_rows(page)}
-        for view in ('odometry', 'model'):
-            row = rows[names[view]]
-            for shown, value in zip((row.forward, row.left, row.turned), expected[view]):
-                self.assertAlmostEqual(shown_number(shown), value, delta=SHOWN_ROUNDING,
-                                       msg=f'{example.key}, {view}')
+        """Assert that a cell shows a value rounded to the table's decimals, with its unit."""
+        shown = parse_shown_value(text)
+        self.assertAlmostEqual(shown.number, value, delta=SHOWN_ROUNDING, msg=message)
+        self.assertEqual(shown.unit, figures.UNITS[quantity], message)
+
+    def assert_motion_table_shows(self, page: Page, drive: figures.Drive, message: str) -> None:
+        """Assert that the motion table shows a drive's three views, each with its motion."""
+        names = {entry.view: entry.text for entry in figures.LEGEND}
+        expected = (
+            (names[figures.DrawingView.COMMAND], drive.command),
+            (names[figures.DrawingView.ODOMETRY], drive.odometry),
+            (names[figures.DrawingView.MODEL], drive.model),
+        )
+        rows = shown_motion_rows(page)
+        self.assertEqual([row.view for row in rows], [name for name, _ in expected], message)
+        for row, (name, motion) in zip(rows, expected, strict=True):
+            self.assert_shown_value(row.forward, motion.forward, figures.Quantity.FORWARD,
+                                    f'{message}, {name}, forward')
+            self.assert_shown_value(row.left, motion.left, figures.Quantity.LEFT,
+                                    f'{message}, {name}, left')
+            self.assert_shown_value(row.turned, motion.turned, figures.Quantity.TURNED,
+                                    f'{message}, {name}, turned')
 
     def assert_check_table_shows(
-        self, page: Page, expected: Dict[str, Any], example: figures.Example
+        self, page: Page, kind: figures.CommandKind, drive: figures.Drive, message: str
     ) -> None:
-        """Assert the check table's allowed ranges and values, and which checks fail."""
-        rows = check_rows(page)
-        self.assertEqual([row.allowed for row in rows], expected['allowed'], example.key)
-        for row, value in zip(rows, expected['values']):
-            self.assertAlmostEqual(shown_number(row.value), value, delta=SHOWN_ROUNDING,
-                                   msg=f'{example.key}, {row.name}')
-        self.assertEqual(failing_checks(page), expected['failing'], example.key)
+        """Assert that the check table shows each check of a drive whole, in the test's order.
+
+        A row has the check's name, its allowed range, the drive's value with its unit, and the
+        result that the script predicts for the value.
+        """
+        rows = shown_check_rows(page)
+        expected = figures.check_rows(kind)
+        self.assertEqual([row.name for row in rows], [row.name for row in expected], message)
+        for shown, row in zip(rows, expected, strict=True):
+            value = figures.row_value(row, drive)
+            self.assertEqual(shown.allowed, row.allowed, f'{message}, {row.name}')
+            self.assert_shown_value(shown.value, value, row.check.quantity,
+                                    f'{message}, {row.name}')
+            result = PASSES if figures.passes(row.check, value) else FAILS
+            self.assertEqual(shown.result, result, f'{message}, {row.name}')
 
     def test_figure_starts_without_page_errors(self) -> None:
         log = self.open_live_figure().log
@@ -540,23 +592,22 @@ class TestMotionLabPage(SimulationTestPageCase):
         page = self.open_live_figure(**PHONE).page
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-enlarge'))
 
-    def test_each_answer_shows_under_the_drawing_with_the_scripts_numbers(self) -> None:
-        # With reduced motion, the changed drive and its answer show at once. Each example has
-        # an answer for both drives
-        page = self.open_live_figure(reduced_motion='reduce').page
-        for index, example in enumerate(figures.EXAMPLES):
-            if index:
-                page.click(f'{FIGURE} .ix-next')
-            for kind in (example.command, figures.other_command(example.command)):
-                page.click(f'{FIGURE} [data-command="{kind.value}"]')
-                page.click(f'{FIGURE} [data-example="{example.key}"]')
-                answer = page.text_content(f'{FIGURE} [data-example-item="{example.key}"]'
-                                           f' .ix-answer[data-drive="{kind.value}"]')
-                self.assertIn(answer or '', page.inner_text(f'{FIGURE} .ix-shown-answer'),
-                              f'{example.key}, {kind.value}')
-                expected = expected_results(page, example, kind)
-                self.assert_motion_table_shows(page, expected, example)
-                self.assert_check_table_shows(page, expected, example)
+    def test_each_drive_shows_its_example_answer(self) -> None:
+        for shown in self.shown_example_drives():
+            prompt = figures.example_prompt(shown.example, shown.kind)
+            values = figures.example_text_values(shown.example, shown.kind)
+            answer = html_text(prompt.answer.format(**values))
+            self.assertTrue(answer, shown.name)
+            self.assertEqual(html_text(shown.page.inner_text(f'{FIGURE} .ix-shown-answer')),
+                             f'What happens: {answer}', shown.name)
+
+    def test_motion_table_matches_the_three_predicted_views(self) -> None:
+        for shown in self.shown_example_drives():
+            self.assert_motion_table_shows(shown.page, shown.drive, shown.name)
+
+    def test_check_table_shows_each_predicted_check(self) -> None:
+        for shown in self.shown_example_drives():
+            self.assert_check_table_shows(shown.page, shown.kind, shown.drive, shown.name)
 
     def test_the_other_drive_asks_its_own_question_from_its_start(self) -> None:
         example = figures.EXAMPLES[0]
@@ -686,9 +737,9 @@ class TestMotionLabPage(SimulationTestPageCase):
         page.fill(f'#{slider.element_id}', str(tracking))
         page.dispatch_event(f'#{slider.element_id}', 'input')
         page.click(f'{FIGURE} .ix-play')
-        row = next(row for row in check_rows(page) if row.name == 'turned, true pose')
+        row = next(row for row in shown_check_rows(page) if row.name == 'turned, true pose')
         self.assertEqual(row.value, f'{boundary:.3f} rad')
-        self.assertIn('passes', row.result)
+        self.assertEqual(row.result, PASSES)
 
     def test_page_has_no_sideways_scrolling_on_a_320_px_screen(self) -> None:
         page = self.open_live_figure(**SMALL_PHONE).page
