@@ -73,7 +73,11 @@ function scaleFor(width, samples, reach, sizes) {
   const pixelsPerMetre = Math.min((width - 2 * sizes.paddingPx) / (right - left),
     (height - 2 * sizes.paddingPx) / (top - bottom));
   const centerX = (left + right) / 2, centerY = (bottom + top) / 2;
-  const toPixels = ({ x, y }) => [width / 2 + (x - centerX) * pixelsPerMetre, height / 2 - (y - centerY) * pixelsPerMetre];
+  // A point on the ground (m) as the drawing's point (px): x to the right and y down
+  const toPixels = (point) => ({
+    x: width / 2 + (point.x - centerX) * pixelsPerMetre,
+    y: height / 2 - (point.y - centerY) * pixelsPerMetre,
+  });
   return { width, height, centerX, centerY, pixelsPerMetre, toPixels };
 }
 
@@ -88,17 +92,18 @@ function drawGrid(scale, step) {
   const grid = svgElement('g', { class: 'ix-grid' });
   const halfWidth = scale.width / 2 / scale.pixelsPerMetre, halfHeight = scale.height / 2 / scale.pixelsPerMetre;
   for (let index = Math.ceil((scale.centerX - halfWidth) / step); index * step < scale.centerX + halfWidth; index++) {
-    const [x] = scale.toPixels({ x: index * step, y: 0 });
+    const { x } = scale.toPixels({ x: index * step, y: 0 });
     grid.append(svgElement('line', { x1: x, y1: 0, x2: x, y2: scale.height }));
   }
   for (let index = Math.ceil((scale.centerY - halfHeight) / step); index * step < scale.centerY + halfHeight; index++) {
-    const [, y] = scale.toPixels({ x: 0, y: index * step });
+    const { y } = scale.toPixels({ x: 0, y: index * step });
     grid.append(svgElement('line', { x1: 0, y1: y, x2: scale.width, y2: y }));
   }
   return grid;
 }
 
-const pointsAttribute = (points) => points.map((point) => point.map((value) => value.toFixed(1)).join(',')).join(' ');
+/** Points of the drawing as an SVG points attribute, to a tenth of a pixel. */
+const pointsAttribute = (points) => points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ');
 
 /** A view's path through its poses, or null before the path has two poses. */
 function drawPath(scale, poses, cssClass) {
@@ -117,10 +122,10 @@ function drawRobotOutline(scale, pose, wheels, cssClass, title, sizes) {
       at(-wheels.radius, middle - halfWidth), at(-wheels.radius, middle + halfWidth)];
     group.append(svgElement('polygon', { class: 'ix-wheel', points: pointsAttribute(corners) }));
   }
-  const [leftX, leftY] = at(0, wheels.separation / 2), [rightX, rightY] = at(0, -wheels.separation / 2);
-  group.append(svgElement('line', { x1: leftX, y1: leftY, x2: rightX, y2: rightY }));
-  const [axleX, axleY] = at(0, 0), [noseX, noseY] = at(sizes.nose, 0);
-  group.append(svgElement('line', { x1: axleX, y1: axleY, x2: noseX, y2: noseY }));
+  const leftEnd = at(0, wheels.separation / 2), rightEnd = at(0, -wheels.separation / 2);
+  group.append(svgElement('line', { x1: leftEnd.x, y1: leftEnd.y, x2: rightEnd.x, y2: rightEnd.y }));
+  const middle = at(0, 0), nose = at(sizes.nose, 0);
+  group.append(svgElement('line', { x1: middle.x, y1: middle.y, x2: nose.x, y2: nose.y }));
   const head = [at(sizes.nose + sizes.headLength, 0), at(sizes.nose, sizes.headHalfWidth), at(sizes.nose, -sizes.headHalfWidth)];
   group.append(svgElement('polygon', { class: 'ix-head', points: pointsAttribute(head) }));
   return group;
@@ -128,35 +133,35 @@ function drawRobotOutline(scale, pose, wheels, cssClass, title, sizes) {
 
 /** The model's markers: a dot at base_footprint, and with an offset the axle's midpoint joined to it. */
 function drawTruePoseMarkers(group, scale, axle, frameOffset, sizes) {
-  const [frameX, frameY] = scale.toPixels(onRobot(axle, -frameOffset, 0));
+  const frame = scale.toPixels(onRobot(axle, -frameOffset, 0));
   if (frameOffset > 0) {
-    const [axleX, axleY] = scale.toPixels(axle);
-    group.append(svgElement('line', { class: 'ix-link', x1: axleX, y1: axleY, x2: frameX, y2: frameY }));
-    const axleDot = svgElement('circle', { class: 'ix-dot ix-axle', cx: axleX, cy: axleY, r: sizes.axleDotRadiusPx });
+    const middle = scale.toPixels(axle);
+    group.append(svgElement('line', { class: 'ix-link', x1: middle.x, y1: middle.y, x2: frame.x, y2: frame.y }));
+    const axleDot = svgElement('circle', { class: 'ix-dot ix-axle', cx: middle.x, cy: middle.y, r: sizes.axleDotRadiusPx });
     axleDot.append(svgElement('title', {}, 'The axle’s midpoint'));
     group.append(axleDot);
   }
-  const frameDot = svgElement('circle', { class: 'ix-dot', cx: frameX, cy: frameY, r: sizes.dotRadiusPx });
+  const frameDot = svgElement('circle', { class: 'ix-dot', cx: frame.x, cy: frame.y, r: sizes.dotRadiusPx });
   frameDot.append(svgElement('title', {}, 'base_footprint, true'));
   group.append(frameDot);
 }
 
 /** The odometry's marker: a ring at its base_footprint. */
 function drawOdometryMarker(group, scale, pose, sizes) {
-  const [x, y] = scale.toPixels(pose);
-  group.append(svgElement('circle', { class: 'ix-ring', cx: x, cy: y, r: sizes.ringRadiusPx }));
+  const ring = scale.toPixels(pose);
+  group.append(svgElement('circle', { class: 'ix-ring', cx: ring.x, cy: ring.y, r: sizes.ringRadiusPx }));
 }
 
 /** The command's end: a cross where the command alone puts the robot, with a line in its heading. */
 function drawCommandMarker(scale, pose, sizes) {
-  const [crossX, crossY] = scale.toPixels(pose);
-  const [headingX, headingY] = scale.toPixels(onRobot(pose, sizes.commandHeading, 0));
+  const cross = scale.toPixels(pose);
+  const heading = scale.toPixels(onRobot(pose, sizes.commandHeading, 0));
   const half = sizes.crossHalfPx;
   const group = svgElement('g', { class: 'ix-robot ix-command' });
   group.append(svgElement('title', {}, 'Command'));
-  group.append(svgElement('line', { x1: crossX, y1: crossY, x2: headingX, y2: headingY }));
+  group.append(svgElement('line', { x1: cross.x, y1: cross.y, x2: heading.x, y2: heading.y }));
   group.append(svgElement('path', {
-    class: 'ix-cross', d: `M${crossX - half},${crossY - half} l${2 * half},${2 * half} m0,${-2 * half} l${-2 * half},${2 * half}`,
+    class: 'ix-cross', d: `M${cross.x - half},${cross.y - half} l${2 * half},${2 * half} m0,${-2 * half} l${-2 * half},${2 * half}`,
   }));
   return group;
 }

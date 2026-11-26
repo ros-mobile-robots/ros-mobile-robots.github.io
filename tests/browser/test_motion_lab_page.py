@@ -41,20 +41,33 @@ SHOWN_ROUNDING = 0.5e-3 + 1e-9
 FAILS = 'fails'
 # Both drawings write coordinates to a tenth of a pixel, the live one sometimes unrounded
 DRAWN_ROUNDING = 0.1 + 1e-9
-# The shapes of a drawing's robots and the command's cross: the group's view, the shape's kind,
-# and its numbers (a polygon's points, a circle's center, the cross's path)
+# The shapes of a drawing's robots and the command's cross: each with the view of its group, its
+# kind, and its coordinates (a polygon's points, a circle's center and radius, a line's ends, the
+# numbers of the cross's path)
 SHAPES = """svg => [...svg.querySelectorAll(
     '.ix-robot polygon, .ix-robot circle, .ix-robot line, .ix-cross')].map((shape) => {
   const views = ['ix-start', 'ix-model', 'ix-odometry', 'ix-command'];
   const view = views.find((name) => shape.closest('.ix-robot').classList.contains(name));
-  const numbers = {
+  const coordinates = {
     polygon: () => shape.getAttribute('points').split(/[ ,]/),
     circle: () => ['cx', 'cy', 'r'].map((name) => shape.getAttribute(name)),
     line: () => ['x1', 'y1', 'x2', 'y2'].map((name) => shape.getAttribute(name)),
     path: () => shape.getAttribute('d').match(/-?[0-9.]+/g),
   }[shape.tagName]();
-  return [view, shape.tagName, ...numbers.map(Number)];
+  return { view, kind: shape.tagName, coordinates: coordinates.map(Number) };
 })"""
+# The centers (px) of the live drawing's two markers of base_footprint, each found by its role:
+# the odometry's ring, and the true pose's dot, which is not the dot of the axle's midpoint
+MARKER_CENTERS = """figure => {
+  const center = (selector) => {
+    const marker = document.querySelector(`${figure} .ix-live-plot ${selector}`);
+    return { x: Number(marker.getAttribute('cx')), y: Number(marker.getAttribute('cy')) };
+  };
+  return {
+    odometry: center('.ix-odometry .ix-ring'),
+    model: center('.ix-model .ix-dot:not(.ix-axle)'),
+  };
+}"""
 # The texts of the tables' cells that are wider than their cell
 CUT_CELLS = """figure => [...document.querySelectorAll(
     `${figure} .ix-table td, ${figure} .ix-table th`)]
@@ -146,19 +159,35 @@ def top_of(page: Page, selector: str) -> float:
     return top
 
 
-def shapes_by_kind(shapes: List[List[Any]]) -> Dict[Tuple[str, str], List[List[float]]]:
-    """Return a drawing's shapes grouped by their view and kind, each as its numbers."""
-    groups: Dict[Tuple[str, str], List[List[float]]] = {}
-    for view, kind, *numbers in shapes:
-        groups.setdefault((view, kind), []).append(numbers)
+class ShapeKey(NamedTuple):
+    """What groups a drawing's shapes: the view of their robot and their kind of SVG element."""
+
+    view: str
+    kind: str
+
+
+class MarkerCenters(NamedTuple):
+    """The centers (px) of the odometry's ring and of the true pose's dot in the live drawing."""
+
+    odometry: figures.PixelPoint
+    model: figures.PixelPoint
+
+
+def shapes_by_kind(page: Page, drawing: str) -> Dict[ShapeKey, List[List[float]]]:
+    """Return a drawing's shapes grouped by their view and kind, each as its coordinates."""
+    groups: Dict[ShapeKey, List[List[float]]] = {}
+    for shape in page.eval_on_selector(f'{FIGURE} {drawing}', SHAPES):
+        groups.setdefault(ShapeKey(shape['view'], shape['kind']), []).append(shape['coordinates'])
     return groups
 
 
-def marker_centers(page: Page) -> Dict[str, float]:
-    """Return the x of the odometry's ring and of the true pose's dot in the live drawing."""
-    shapes = page.eval_on_selector(f'{FIGURE} .ix-live-plot', SHAPES)
-    circles = shapes_by_kind(shapes)
-    return {view: circles[(view, 'circle')][-1][0] for view in ('ix-odometry', 'ix-model')}
+def marker_centers(page: Page) -> MarkerCenters:
+    """Return where the live drawing shows the odometry's and the true pose's base_footprint."""
+    centers = page.evaluate(MARKER_CENTERS, FIGURE)
+    return MarkerCenters(
+        odometry=figures.PixelPoint(centers['odometry']['x'], centers['odometry']['y']),
+        model=figures.PixelPoint(centers['model']['x'], centers['model']['y']),
+    )
 
 
 def call_model(page: Page, function: str, *arguments: Any) -> Any:
@@ -223,7 +252,7 @@ class TestMotionLabPage(SimulationTestPageCase):
         self, page: Page, expected: Dict[str, Any], example: figures.Example
     ) -> None:
         """Assert that the motion table shows the odometry's and the true pose's motion."""
-        names = {entry.view: entry.text for entry in figures.LEGEND}
+        names = {entry.view.value: entry.text for entry in figures.LEGEND}
         rows = {row.view: row for row in motion_rows(page)}
         for view in ('odometry', 'model'):
             row = rows[names[view]]
@@ -273,17 +302,15 @@ class TestMotionLabPage(SimulationTestPageCase):
             '.viewBox.baseVal.width === width',
             arg=[FIGURE, width],
         )
-        static = shapes_by_kind(page.eval_on_selector(f'{FIGURE} .ix-static', SHAPES))
-        live = shapes_by_kind(page.eval_on_selector(f'{FIGURE} .ix-live-plot', SHAPES))
+        static = shapes_by_kind(page, '.ix-static')
+        live = shapes_by_kind(page, '.ix-live-plot')
         self.assertTrue(static, 'the static drawing has no robot')
         self.assertEqual(sorted(live), sorted(static))
-        for kind, static_shapes in static.items():
-            self.assertEqual([len(shape) for shape in live[kind]],
-                             [len(shape) for shape in static_shapes], kind)
-            for live_shape, static_shape in zip(live[kind], static_shapes):
-                for live_value, static_value in zip(live_shape, static_shape):
+        for key, static_shapes in static.items():
+            for live_shape, static_shape in zip(live[key], static_shapes, strict=True):
+                for live_value, static_value in zip(live_shape, static_shape, strict=True):
                     self.assertAlmostEqual(live_value, static_value, delta=DRAWN_ROUNDING,
-                                           msg=kind)
+                                           msg=str(key))
 
     def test_every_example_opens_at_the_start_of_its_drive_with_its_results_waiting(
         self,
@@ -304,10 +331,10 @@ class TestMotionLabPage(SimulationTestPageCase):
         # start together, and halfway through the drive the odometry is ahead
         page = self.open_live_figure().page
         at_start = marker_centers(page)
-        self.assertAlmostEqual(at_start['ix-odometry'], at_start['ix-model'], delta=DRAWN_ROUNDING)
+        self.assertAlmostEqual(at_start.odometry.x, at_start.model.x, delta=DRAWN_ROUNDING)
         set_time(page, figures.TIME_SLIDER_STEPS // 2)
         halfway = marker_centers(page)
-        self.assertGreater(halfway['ix-odometry'], halfway['ix-model'] + 1)
+        self.assertGreater(halfway.odometry.x, halfway.model.x + 1)
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 
     def test_a_changed_value_keeps_the_time_and_the_results_waiting(self) -> None:
@@ -642,14 +669,14 @@ class TestMotionLabPage(SimulationTestPageCase):
             page.click(f'{FIGURE} [data-command="{example.command.value}"]')
 
     def test_a_value_on_a_tolerance_boundary_passes(self) -> None:
-        turned = figures.CHECKS[figures.CommandKind.TURN].each_view[0]
+        turned = next(
+            check for check in figures.CHECKS[figures.CommandKind.TURN].each_view
+            if check.quantity is figures.Quantity.TURNED
+        )
         boundary = turned.expected - turned.tolerance
         # The wheels reach the share of their speed that ends the turn exactly on the boundary
         tracking = round(boundary / figures.COMMANDS[figures.CommandKind.TURN].angle * 100)
-        slider = next(
-            candidate for candidate in figures.WHAT_IF_SLIDERS
-            if candidate.setting == 'tracking_percent'
-        )
+        slider = slider_for('tracking_percent')
         # With reduced motion, Play shows the drive's end and its results at once
         page = self.open_live_figure(reduced_motion='reduce').page
         page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
@@ -845,7 +872,7 @@ class TestMotionLabPage(SimulationTestPageCase):
         self.assertEqual(page.input_value(f'{FIGURE} .ix-scrub'),
                          str(figures.TIME_SLIDER_STEPS // 2))
         centers = marker_centers(page)
-        self.assertAlmostEqual(centers['ix-odometry'], centers['ix-model'], delta=DRAWN_ROUNDING)
+        self.assertAlmostEqual(centers.odometry.x, centers.model.x, delta=DRAWN_ROUNDING)
         self.assertIn('1.5 s', page.inner_text(f'{FIGURE} .ix-time'))
         self.assertFalse(page.is_visible(f'{FIGURE} .ix-shown-answer'))
 

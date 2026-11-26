@@ -10,6 +10,7 @@ import re
 import sys
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Tuple
 import unittest
 
@@ -25,16 +26,25 @@ FORWARD = figures.COMMANDS[figures.CommandKind.FORWARD]
 TURN = figures.COMMANDS[figures.CommandKind.TURN]
 
 
-def drive_of(example_key: str) -> Tuple[figures.Example, figures.Drive]:
-    """Return the guided example with this key and its drive."""
-    example = next(example for example in figures.EXAMPLES if example.key == example_key)
-    return example, figures.example_drive(example)
+def example_with_key(example_key: str) -> figures.Example:
+    """Return the guided example with this key."""
+    return next(example for example in figures.EXAMPLES if example.key == example_key)
 
 
-def other_drive_of(example_key: str) -> Tuple[figures.Example, figures.Drive]:
-    """Return the guided example with this key and its drive on the test's other command."""
-    example = next(example for example in figures.EXAMPLES if example.key == example_key)
-    return example, figures.example_drive(example, figures.other_command(example.command))
+def other_drive(example: figures.Example) -> figures.Drive:
+    """Return a guided example's drive on the test's other command."""
+    return figures.example_drive(example, figures.other_command(example.command))
+
+
+def turned_check() -> figures.Check:
+    """Return the turn test's check of the angle turned, whatever its place in the test."""
+    checks = figures.CHECKS[figures.CommandKind.TURN]
+    return next(check for check in checks.each_view if check.quantity is figures.Quantity.TURNED)
+
+
+def pixel_points(*pairs: Tuple[float, float]) -> List[figures.PixelPoint]:
+    """Return the drawing's points of (x, y) pairs in px."""
+    return [figures.PixelPoint(x, y) for x, y in pairs]
 
 
 def drive_with(command: figures.CommandKind, **settings: int) -> figures.Drive:
@@ -49,7 +59,8 @@ class TestGuidedExamples(unittest.TestCase):
     """
 
     def test_a_radius_too_big_shortens_only_the_true_drive(self) -> None:
-        example, drive = drive_of('radius')
+        example = example_with_key('radius')
+        drive = figures.example_drive(example)
         factor = example.settings.radius_percent / 100
         # The controller commands 1 / factor of the wheel turns, and the odometry multiplies them
         # by the factor again
@@ -60,14 +71,16 @@ class TestGuidedExamples(unittest.TestCase):
         )
 
     def test_a_separation_too_small_turns_the_robot_less_and_every_check_passes(self) -> None:
-        example, drive = drive_of('separation')
+        example = example_with_key('separation')
+        drive = figures.example_drive(example)
         factor = example.settings.separation_percent / 100
         self.assertAlmostEqual(drive.odometry.turned, TURN.angle, places=PLACES)
         self.assertAlmostEqual(drive.model.turned, TURN.angle * factor, places=PLACES)
         self.assertEqual(figures.failing_checks(example.command, drive), [])
 
     def test_a_frame_behind_the_axle_ends_a_chord_away_and_fails_the_distance_check(self) -> None:
-        example, drive = drive_of('offset')
+        example = example_with_key('offset')
+        drive = figures.example_drive(example)
         offset = example.settings.offset_mm / 1000
         # A point at the distance d from the pivot moves along a chord of 2 d sin(angle / 2)
         chord = 2 * offset * math.sin(TURN.angle / 2)
@@ -80,7 +93,8 @@ class TestGuidedExamples(unittest.TestCase):
         )
 
     def test_contact_at_the_outer_edges_turns_the_robot_less_than_its_odometry(self) -> None:
-        example, drive = drive_of('contact')
+        example = example_with_key('contact')
+        drive = figures.example_drive(example)
         wheels = REMO.wheels
         # At 100 % the wheels push at their outer edges, a wheel's width further apart
         contact_separation = wheels.separation + wheels.width
@@ -92,7 +106,8 @@ class TestGuidedExamples(unittest.TestCase):
         )
 
     def test_slow_wheels_shorten_both_views_alike(self) -> None:
-        example, drive = drive_of('tracking')
+        example = example_with_key('tracking')
+        drive = figures.example_drive(example)
         share = example.settings.tracking_percent / 100
         self.assertAlmostEqual(drive.odometry.forward, FORWARD.distance * share, places=PLACES)
         self.assertAlmostEqual(drive.model.forward, FORWARD.distance * share, places=PLACES)
@@ -118,7 +133,8 @@ class TestOtherDrives(unittest.TestCase):
     """On the other drive, each example's results equal values worked out by hand too."""
 
     def test_a_radius_too_big_turns_the_robot_less_and_fails_the_comparison(self) -> None:
-        example, drive = other_drive_of('radius')
+        example = example_with_key('radius')
+        drive = other_drive(example)
         factor = example.settings.radius_percent / 100
         # Both wheels get 1 / factor of their turns: the robot turns 1 / factor of the angle
         self.assertAlmostEqual(drive.odometry.turned, TURN.angle, places=PLACES)
@@ -127,26 +143,27 @@ class TestOtherDrives(unittest.TestCase):
                          ['odometry and true pose, turned'])
 
     def test_a_separation_too_small_changes_nothing_on_a_straight_drive(self) -> None:
-        _, drive = other_drive_of('separation')
+        drive = other_drive(example_with_key('separation'))
         self.assertAlmostEqual(drive.odometry.forward, FORWARD.distance, places=PLACES)
         self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
         self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
 
     def test_a_frame_behind_the_axle_drives_as_far_as_the_axle(self) -> None:
-        _, drive = other_drive_of('offset')
+        drive = other_drive(example_with_key('offset'))
         self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
         self.assertAlmostEqual(drive.model.left, 0.0, places=PLACES)
         self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
 
     def test_contact_at_the_outer_edges_changes_nothing_on_a_straight_drive(self) -> None:
-        _, drive = other_drive_of('contact')
+        drive = other_drive(example_with_key('contact'))
         self.assertAlmostEqual(drive.model.forward, FORWARD.distance, places=PLACES)
         self.assertEqual(figures.failing_checks(figures.CommandKind.FORWARD, drive), [])
 
     def test_wheels_at_part_of_their_speed_turn_exactly_to_the_tolerance_boundary(self) -> None:
-        example, drive = other_drive_of('tracking')
+        example = example_with_key('tracking')
+        drive = other_drive(example)
         share = example.settings.tracking_percent / 100
-        turned = figures.CHECKS[figures.CommandKind.TURN].each_view[0]
+        turned = turned_check()
         self.assertAlmostEqual(drive.odometry.turned, TURN.angle * share, places=PLACES)
         self.assertAlmostEqual(drive.model.turned, TURN.angle * share, places=PLACES)
         self.assertAlmostEqual(drive.model.turned, turned.expected - turned.tolerance,
@@ -173,7 +190,7 @@ class TestChecks(unittest.TestCase):
         ])
 
     def test_a_value_on_a_tolerance_boundary_passes(self) -> None:
-        turned = figures.CHECKS[figures.CommandKind.TURN].each_view[0]
+        turned = turned_check()
         boundary = turned.expected - turned.tolerance
         # The wheels reach the share of their speed that ends the turn exactly on the boundary
         tracking = round(boundary / TURN.angle * 100)
@@ -237,25 +254,26 @@ class TestDrawing(unittest.TestCase):
     """The static drawing's helpers: straight runs, the reach and the grid."""
 
     def test_a_straight_run_keeps_only_its_ends(self) -> None:
-        points = [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (3.0, 1.0)]
+        points = pixel_points((0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (3.0, 1.0))
         self.assertEqual(
-            figures.without_straight_runs(points), [(0.0, 0.0), (2.0, 0.0), (3.0, 1.0)]
+            figures.without_straight_runs(points), pixel_points((0.0, 0.0), (2.0, 0.0), (3.0, 1.0))
         )
 
     def test_a_point_off_the_line_by_more_than_a_tenth_of_a_pixel_stays(self) -> None:
-        points = [(0.0, 0.0), (1.0, 0.2), (2.0, 0.0)]
+        points = pixel_points((0.0, 0.0), (1.0, 0.2), (2.0, 0.0))
         self.assertEqual(figures.without_straight_runs(points), points)
 
     def test_a_path_that_turns_back_keeps_its_turning_point(self) -> None:
-        points = [(0.0, 0.0), (2.0, 0.0), (1.0, 0.0)]
+        points = pixel_points((0.0, 0.0), (2.0, 0.0), (1.0, 0.0))
         self.assertEqual(figures.without_straight_runs(points), points)
 
     def test_a_path_that_returns_to_its_start_keeps_its_far_point(self) -> None:
-        points = [(0.0, 0.0), (1.0, 0.0), (0.0, 0.0)]
+        points = pixel_points((0.0, 0.0), (1.0, 0.0), (0.0, 0.0))
         self.assertEqual(figures.without_straight_runs(points), points)
 
     def test_a_single_point_stays_a_single_point(self) -> None:
-        self.assertEqual(figures.without_straight_runs([(0.0, 0.0)]), [(0.0, 0.0)])
+        point = pixel_points((0.0, 0.0))
+        self.assertEqual(figures.without_straight_runs(point), point)
 
     def test_the_reach_takes_in_the_wider_configured_outline(self) -> None:
         own = figures.model_inputs(REMO, figures.DEFAULT_SETTINGS)
