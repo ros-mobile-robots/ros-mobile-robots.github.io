@@ -24,8 +24,9 @@ with its section when the page is split, and the script changes only in this lis
 Every drawing is 300 units wide, so that its text is readable on a phone. The wide layout of the
 scatter figure is two such drawings wide, and the CSS of LAYOUT_RULES in localization_figures.py
 shows it where the text column has room for it. Explanations are HTML text in the caption.
-Figure, the CSS rules, the colors BG, FG and FG_LIGHT and bell() come from
-localization_figures.py, and escape(), style_element(), Point and Box from board_drawings.py.
+Figure, the CSS rules, the colors BG, FG and FG_LIGHT, bell() and the functions that write an
+include come from localization_figures.py. escape(), Point, Box and normal_values(), the random
+values of the example pairs, come from board_drawings.py.
 
 Run from the repository root after changing a figure:
 
@@ -33,7 +34,6 @@ Run from the repository root after changing a figure:
 """
 
 import math
-import random
 import statistics
 from typing import List
 from typing import NamedTuple
@@ -41,23 +41,22 @@ from typing import Sequence
 
 from board_drawings import Box
 from board_drawings import escape
+from board_drawings import normal_values
 from board_drawings import Point
-from board_drawings import style_element
 from localization_figures import bell
 from localization_figures import BG
 from localization_figures import DRAWING_RULES
 from localization_figures import FG
 from localization_figures import FG_LIGHT
 from localization_figures import Figure
-from localization_figures import figure_element
 from localization_figures import LARGE_RULES
-from localization_figures import LAYOUT_RULES
-from localization_figures import LAYOUT_SPACE
 from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
 from localization_figures import Span
 from localization_figures import SYMBOL_RULES
 from localization_figures import WIDE_LAYOUT
+from localization_figures import write_layout_parts
+from localization_figures import write_parts
 
 DRAWING_WIDTH = 300
 # The size of the drawings' text, as in LARGE_RULES, of a variable, as in DRAWING_RULES, and of
@@ -312,22 +311,17 @@ def write_figure(path: str, figure: Figure, caption: str) -> None:
 
     The include starts with a comment that names this script.
     """
-    with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES)}\n'
-                      f'{figure_element([figure.svg()], caption, FIGURE_CLASSES)}\n')
+    write_parts(path, [figure.svg()], caption, FIGURE_RULES, FIGURE_CLASSES, INCLUDE_COMMENT)
 
 
 def write_layout_figure(path: str, layouts: Sequence[Figure], caption: str) -> None:
     """Write an include with a drawing's narrow and wide layout and its caption.
 
-    The include starts with a comment that names this script. The figure stands in a block of
-    the class LAYOUT_SPACE, whose width decides which layout shows.
+    The include starts with a comment that names this script. write_layout_parts() puts the
+    figure into the block whose width decides which layout shows.
     """
-    figure = figure_element([layout.svg() for layout in layouts], caption,
-                            f'{FIGURE_CLASSES} lv-layouts')
-    with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES + LAYOUT_RULES)}\n'
-                      f'<div class="{LAYOUT_SPACE}">\n{figure}\n</div>\n')
+    write_layout_parts(path, [layout.svg() for layout in layouts], caption, FIGURE_RULES,
+                       FIGURE_CLASSES, INCLUDE_COMMENT)
 
 
 def bell_band(standard_deviations: float) -> str:
@@ -648,20 +642,6 @@ def write_covariance_axes() -> None:
         f'{length_text(math.sqrt(axes.minor))}. The dashed circle with the radius '
         f'√{covariance.xx:g} cm = {length_text(math.sqrt(covariance.xx))} is the ellipse that '
         'the matrix would have without its covariance.')
-
-
-def normal_values(seed: int, count: int) -> List[float]:
-    """Return count values of a standard normal distribution, the same for the same seed.
-
-    Box and Muller's transform of the uniform values of Python's generator, whose sequence for
-    a seed doesn't change between Python versions.
-    """
-    generator = random.Random(seed)
-    values = []
-    for _ in range(count):
-        radius = math.sqrt(-2.0 * math.log(1.0 - generator.random()))
-        values.append(radius * math.cos(2.0 * math.pi * generator.random()))
-    return values
 
 
 def example_pairs(covariance: Covariance, seed: int, count: int) -> List[Deviation]:

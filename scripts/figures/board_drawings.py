@@ -11,10 +11,12 @@ svg_subscript(), svg_element() with its arrowhead markers, Point and Box for a p
 rectangle in a drawing, and Drawing, which collects the elements of one layout and draws its
 rectangles, circles, lines, text, boxes with text and numbers in discs. For the HTML around a
 drawing it has figure_element(), the figure with its panels and its caption, and tab_set(), a set
-of content tabs.
+of content tabs. normal_values() makes the random values of a figure's example, the same in every
+run.
 """
 
 import math
+import random
 from typing import List
 from typing import NamedTuple
 from typing import Optional
@@ -210,6 +212,20 @@ def tab_set(name: str, css_class: str, tabs: Sequence[Tab]) -> str:
     return (f'<div class="tabbed-set tabbed-alternate {css_class}" '
             f'data-tabs="{name}:{len(tabs)}">{inputs}<div class="tabbed-labels">{labels}</div>\n'
             f'<div class="tabbed-content">\n{blocks}</div>\n</div>')
+
+
+def normal_values(seed: int, count: int) -> List[float]:
+    """Return count values of a standard normal distribution, the same for the same seed.
+
+    Box and Muller's transform of the uniform values of Python's generator, whose sequence for
+    a seed doesn't change between Python versions.
+    """
+    generator = random.Random(seed)
+    values = []
+    for _ in range(count):
+        radius = math.sqrt(-2.0 * math.log(1.0 - generator.random()))
+        values.append(radius * math.cos(2.0 * math.pi * generator.random()))
+    return values
 
 
 def board_rules(scope: str) -> Tuple[Tuple[str, str], ...]:

@@ -31,7 +31,9 @@ Every drawing is 300 units wide and carries short labels only, so that its text 
 phone. The trace figure, the flow figure and the two stamp figures also have a wide layout
 of 540 units, which the CSS of LAYOUT_RULES in
 localization_figures.py shows where the text column has room for it. Explanations are HTML text
-below a drawing. Figure, the CSS rules and the helpers come from localization_figures.py.
+below a drawing. Figure, the CSS rules and the functions that write an include come from
+localization_figures.py, and normal_values(), the random values of the synthetic recording, from
+board_drawings.py.
 
 The tests' values are copied here, each with the name of its constant in
 diffbot_bringup/test/test_imu_noise_at_rest.py, because this repository can't import the tests.
@@ -44,28 +46,25 @@ Run from the repository root after changing a figure:
 
 from enum import Enum
 import math
-import random
 import statistics
 from typing import Callable
-from typing import List
 from typing import NamedTuple
 from typing import Sequence
 
 from board_drawings import Drawing
-from board_drawings import style_element
+from board_drawings import normal_values
 from localization_figures import arrow_head
 from localization_figures import DRAWING_RULES
 from localization_figures import Figure
-from localization_figures import figure_element
 from localization_figures import LARGE_RULES
-from localization_figures import LAYOUT_RULES
-from localization_figures import LAYOUT_SPACE
 from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
 from localization_figures import Span
 from localization_figures import SYMBOL_RULES
 from localization_figures import WIDE_LAYOUT
 from localization_figures import WIDE_WIDTH
+from localization_figures import write_layout_parts
+from localization_figures import write_parts
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -275,22 +274,17 @@ def write_figure(path: str, figure: Figure, caption: str) -> None:
 
     The include starts with a comment that names this script.
     """
-    with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES)}\n'
-                      f'{figure_element([figure.svg()], caption, FIGURE_CLASSES)}\n')
+    write_parts(path, [figure.svg()], caption, FIGURE_RULES, FIGURE_CLASSES, INCLUDE_COMMENT)
 
 
 def write_layout_figure(path: str, layouts: Sequence[Figure], caption: str) -> None:
     """Write an include with a drawing's narrow and wide layout and its caption.
 
-    The include starts with a comment that names this script. The figure stands in a block of
-    the class LAYOUT_SPACE, whose width decides which layout shows.
+    The include starts with a comment that names this script. write_layout_parts() puts the
+    figure into the block whose width decides which layout shows.
     """
-    figure = figure_element([layout.svg() for layout in layouts], caption,
-                            f'{FIGURE_CLASSES} lv-layouts')
-    with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{INCLUDE_COMMENT}\n{style_element(FIGURE_RULES + LAYOUT_RULES)}\n'
-                      f'<div class="{LAYOUT_SPACE}">\n{figure}\n</div>\n')
+    write_layout_parts(path, [layout.svg() for layout in layouts], caption, FIGURE_RULES,
+                       FIGURE_CLASSES, INCLUDE_COMMENT)
 
 
 class Trace(NamedTuple):
@@ -300,20 +294,6 @@ class Trace(NamedTuple):
     mean: float  # rad/s
     standard_deviation: float  # rad/s, the root of the sample variance
     distinct_value_count: int
-
-
-def normal_values(seed: int, count: int) -> List[float]:
-    """Return count values of a standard normal distribution, the same for the same seed.
-
-    Box and Muller's transform of the uniform values of Python's generator, whose sequence for
-    a seed doesn't change between Python versions.
-    """
-    generator = random.Random(seed)
-    values = []
-    for _ in range(count):
-        radius = math.sqrt(-2.0 * math.log(1.0 - generator.random()))
-        values.append(radius * math.cos(2.0 * math.pi * generator.random()))
-    return values
 
 
 def synthetic_trace() -> Trace:
