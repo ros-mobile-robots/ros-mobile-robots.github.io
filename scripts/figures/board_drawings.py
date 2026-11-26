@@ -28,15 +28,6 @@ ENCODER_BOARD_OFFSET = 76
 NUMBER_DISC_RADIUS = 8
 
 
-class Box(NamedTuple):
-    """A rectangle in a drawing: its top left corner, its width and its height, in px."""
-
-    x: float
-    y: float
-    width: float
-    height: float
-
-
 def escape(text: str) -> str:
     """Return text with the characters escaped that have a meaning in SVG."""
     return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
@@ -53,6 +44,15 @@ class Point(NamedTuple):
 
     x: float
     y: float
+
+
+class Box(NamedTuple):
+    """A rectangle on a drawing: its upper left corner, its width and its height, in SVG units."""
+
+    x: float
+    y: float
+    width: float
+    height: float
 
 
 def svg_subscript(symbol: str, index: str, *, restore_baseline: bool = False) -> str:
