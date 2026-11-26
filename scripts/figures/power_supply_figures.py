@@ -162,6 +162,8 @@ DIFFBOT_ENCODER_SUPPLY_OFFSET = 50
 # at these heights. The I2C wire turns farther right and higher, so the two never cross
 DIFFBOT_I2C = (182, 176, 270)  # leaves at y, runs down at x, arrives at y
 DIFFBOT_GROUND = (189, 168, 286)
+# DiffBot's Grove I2C hub sits on the two wires' lanes, below the Raspberry Pi
+DIFFBOT_HUB_BOX = Box(161, 226, 22, 16)
 # The baselines of two legend rows are this far apart
 LEGEND_ROW_GAP = 15
 # A text's baseline is this far below the middle of the text's line
@@ -448,7 +450,7 @@ def draw_i2c_from_pi(figure: Figure) -> None:
     """Add DiffBot's I2C and ground wires from the Raspberry Pi to the motor driver.
 
     They leave the Raspberry Pi's right edge below the camera's cable, run down the gap between
-    the columns and reach the motor driver beside the MCU.
+    the columns through the Grove I2C hub and reach the motor driver beside the MCU.
     """
     pi_edge = figure.box_of(RASPBERRY_PI_BOX).right
     driver_x = figure.box_of(DRIVER_BOX).x
@@ -457,6 +459,10 @@ def draw_i2c_from_pi(figure: Figure) -> None:
         lane = figure.x(down_x)
         figure.wire(f'M{pi_edge},{leave_y} H{lane} V{arrive_y} H{driver_x}', kind)
         figure.text((lane + driver_x) / 2, arrive_y - 4, label, 'note', 'middle')
+    hub = figure.box_of(DIFFBOT_HUB_BOX)
+    figure.rect(hub.x, hub.y, hub.width, hub.height, 'part', 3)
+    figure.text(hub.x + hub.width / 2, baseline_between(hub.y, hub.bottom), 'hub', 'note',
+                'middle')
 
 
 class Robot(NamedTuple):
@@ -485,13 +491,12 @@ REMO = Robot(
     draw_logic_from_mcu)
 DIFFBOT = Robot(
     'diffbot',
-    "DiffBot's power supplies, the optional camera and the I2C from the Raspberry Pi through a "
-    'Grove I2C hub',
+    "DiffBot's motor supply, Grove I2C hub and wheel encoder supply",
     MotorPack('Four alkaline AA cells', 'four', '6.0 V'),
     'Optional Pi camera',
     'Teensy 3.2 or 4.0', GROVE_DRIVER,
     [TextLine('Motor driver', 'name'), TextLine('Grove I2C Motor Driver', 'note'),
-     TextLine('I2C via a Grove hub', 'note')],
+     TextLine('makes its logic supply', 'note')],
     draw_sensors_on_mcu_and_pi,
     draw_i2c_from_pi)
 
@@ -529,11 +534,12 @@ def write_include(path: str, robot: Robot, caption: str, style: str = '') -> Non
 def main() -> None:
     """Write both includes."""
     write_include('includes/power-supply-flow-diffbot.html', DIFFBOT,
-                  "DiffBot's two supplies. Follow each color from its source at the top. The "
-                  'Raspberry Pi sends the motor commands to the motor driver over I2C, through '
-                  f'a Grove I2C hub, and its {USB_VOLTAGE} supplies the encoders. The '
-                  f'{DIFFBOT.pack.cell_count} cells feed the motor driver, which makes the supply '
-                  'for its logic from them and switches their power to the motors.',
+                  "DiffBot's two supplies. Trace the "
+                  f'{DIFFBOT.pack.cell_count} alkaline cells to the Grove driver and the motors. '
+                  'The Raspberry Pi sends the motor commands '
+                  "through the Grove I2C hub. The Raspberry Pi's "
+                  f'{USB_VOLTAGE} supplies the hub and both wheel encoders. The encoders send '
+                  'their signals to the Teensy.',
                   style_element(RULES) + '\n')
     write_include('includes/power-supply-flow-remo.html', REMO,
                   "Remo's two supplies. Follow each color from its source at the top. The motor "

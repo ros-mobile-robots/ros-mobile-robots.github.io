@@ -145,6 +145,19 @@ class TestLayouts(unittest.TestCase):
         self.assertTrue(mcu.bottom < approach_y < encoders.y)
         self.assertTrue(0 < figures.DIFFBOT_ENCODER_SUPPLY_OFFSET < encoders.width)
 
+    def test_diffbots_hub_sits_on_both_lanes_between_the_raspberry_pi_and_the_driver(self) -> None:
+        figures = power_supply_figures
+        hub = figures.DIFFBOT_HUB_BOX
+        i2c_leave, i2c_lane, i2c_arrive = figures.DIFFBOT_I2C
+        ground_leave, ground_lane, ground_arrive = figures.DIFFBOT_GROUND
+        # Both wires run down through the hub, below their turns and above their arrivals
+        self.assertTrue(hub.x < ground_lane < i2c_lane < hub.right)
+        self.assertTrue(max(i2c_leave, ground_leave) < hub.y)
+        self.assertTrue(hub.bottom < min(i2c_arrive, ground_arrive))
+        # It stays clear of the encoders' supply lane and of the camera
+        self.assertTrue(figures.DIFFBOT_ENCODER_RAIL[2] < hub.x)
+        self.assertTrue(hub.right < figures.CAMERA_BOX.x)
+
     def test_each_robots_legend_gives_its_motor_packs_voltage(self) -> None:
         for robot in (power_supply_figures.DIFFBOT, power_supply_figures.REMO):
             meanings = [entry.meaning for entry in power_supply_figures.legend_entries(robot.pack)]
