@@ -11,9 +11,9 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
 // Screen readers hear the result once a change is complete: this long after the last change
 const ANNOUNCE_DELAY_MS = 400;
-// Two taps on a slider within this time reset it: touch screens send no double click. A tap is a
-// touch shorter than TAP_MAX_MS that moves less than TAP_SLOP_PX, and the second one lands that
-// close to the first.
+// Touch screens send no double click. A tap lasts less than TAP_MAX_MS and stays within
+// TAP_SLOP_PX of its starting point. Two taps reset the slider when their releases are less than
+// DOUBLE_TAP_MS apart and less than DOUBLE_TAP_DISTANCE_PX apart on screen.
 const DOUBLE_TAP_MS = 350;
 const TAP_MAX_MS = 300;
 const TAP_SLOP_PX = 10;
@@ -389,10 +389,12 @@ function mount(root) {
     return state.robot === data.default.robot
       && Object.entries(sliders).every(([name, input]) => Number(input.value) === Number(own[name]));
   }
-  // While other values are set: the values that differ from the example's, with the example's
+  // Under the sliders, while other values are set: the values that differ from the example's, with
+  // the example's. Below the last slider, the list grows and shrinks without moving a slider.
   function renderChanges(own) {
     const line = find('.ix-changes');
     line.textContent = '';
+    line.hidden = own;
     if (own) return;
     const values = exampleValues(), robots = data.robots;
     const lowerFirst = (text) => text.charAt(0).toLowerCase() + text.slice(1);
@@ -406,23 +408,14 @@ function mount(root) {
     }
     const lead = document.createElement('b');
     lead.textContent = data.texts.changesLead;
-    line.append(lead, ` ${changes.join(', ')}. ${data.texts.changesEnd}`);
-  }
-  // The place under the play bar only grows while an example is open, and at one width: a value
-  // that crosses the example's own takes its comparison away, and the controls below stay put
-  let areaHeight = 0;
-  function holdAreaHeight() {
-    const area = find('.ix-answer-area');
-    area.style.minHeight = '';
-    areaHeight = Math.max(areaHeight, area.offsetHeight);
-    area.style.minHeight = `${areaHeight}px`;
+    line.append(lead, ` ${changes.join(', ')}.`);
   }
   // The summary and the tables show the drive's end: they wait until a drive has reached its end
   // since the example opened, then follow every change. A question is answered the first time the
   // controls hold the example's own drive at its end: another drive's end shows its results but
   // answers nothing. The answer then shows while the example's own values are set.
-  // Under the play bar, one place holds the answer, the hint before it, or the values that differ
-  // from the example's. It is as high as the highest of them, so nothing below moves.
+  // Under the play bar, one place holds the answer, the hint before it, or the note that other
+  // values are set. It is as high as the highest of them, so nothing below moves.
   // Returns what has just appeared: 'answer', 'results' or null.
   function showResults() {
     const key = questionKey();
@@ -434,14 +427,13 @@ function mount(root) {
     const showAnswer = own && answered.has(key);
     find('.ix-shown-answer').classList.toggle('ix-off', !showAnswer);
     find('.ix-hint').classList.toggle('ix-off', !own || showAnswer);
-    find('.ix-changes').classList.toggle('ix-off', own);
+    find('.ix-differs').classList.toggle('ix-off', own);
     renderChanges(own);
     // While the answer shows, the example's button keeps its place, invisible, so the questions'
     // height stays. With other values it shows again and sets the example's values back.
     const item = find('.ix-current');
     item.classList.toggle('ix-revealed', showAnswer);
     item.querySelector('.ix-show').textContent = own ? data.texts.show : data.texts.replay;
-    holdAreaHeight();
     root.classList.toggle('ix-waiting', !reachedEnd);
     if (answerAppears) return 'answer';
     return resultsAppear ? 'results' : null;
@@ -641,7 +633,6 @@ function mount(root) {
     reachedEnd = false;
     setTime(time ?? (answered.has(questionKey()) ? 1 : 0));
     update();
-    areaHeight = 0;
     showResults();
   }
   for (const button of findAll('[data-example]')) {
@@ -681,13 +672,7 @@ function mount(root) {
   previousButton.addEventListener('click', () => stepTo(state.step - 1, previousButton, nextButton));
   nextButton.addEventListener('click', () => stepTo(state.step + 1, nextButton, previousButton));
 
-  // Another width redraws the drawing and measures the place under the play bar anew
-  new ResizeObserver(() => {
-    if (!drive) return;
-    draw();
-    areaHeight = 0;
-    holdAreaHeight();
-  }).observe(plot);
+  new ResizeObserver(() => { if (drive) draw(); }).observe(plot);
 
   // First drawing: the first example's question and its own drive at the start. Only when it has
   // succeeded does the figure switch from the static version to the controls.

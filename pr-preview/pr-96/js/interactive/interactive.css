@@ -87,7 +87,8 @@
 .md-typeset .ix .ix-answer-area { display: grid; grid-template-columns: minmax(0, 1fr); margin: .8em 0 0; }
 .md-typeset .ix .ix-answer-area > p { grid-area: 1 / 1; margin: 0; }
 .ix .ix-answer-area > .ix-off { visibility: hidden; }
-.md-typeset .ix .ix-hint, .md-typeset .ix .ix-changes { font-size: .7rem; color: var(--md-default-fg-color--light); }
+.md-typeset .ix .ix-hint, .md-typeset .ix .ix-differs, .md-typeset .ix .ix-changes { font-size: .7rem; color: var(--md-default-fg-color--light); }
+.md-typeset .ix .ix-changes { margin: .2em 0 0; }
 /* An example's two questions, one per drive, share one place: switching the drive moves nothing */
 .md-typeset .ix.ix-is-live .ix-prompts { display: grid; grid-template-columns: minmax(0, 1fr); }
 .md-typeset .ix.ix-is-live .ix-prompts > .ix-question { grid-area: 1 / 1; }
