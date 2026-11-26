@@ -66,6 +66,12 @@ DESCRIPTION = """figure => document.getElementById(document.querySelector(
 IN_DIALOG = 'figure => Boolean(figure.closest("dialog"))'
 # Whether the keyboard's place is inside the figure
 FOCUS_IN_FIGURE = 'figure => document.querySelector(figure).contains(document.activeElement)'
+# Call a function of diffdrive.js, the module that motion-lab.js imports from its own folder
+MODEL_CALL = """async ([name, parameters]) => {
+  const figureScript = document.querySelector('script[src$="/motion-lab.js"]');
+  const model = await import(new URL('diffdrive.js', figureScript.src));
+  return model[name](...parameters);
+}"""
 PHONE = {'width': 390, 'height': 844, 'is_mobile': True, 'has_touch': True}
 SMALL_PHONE = {**PHONE, 'width': 320, 'height': 700}
 FULL_HD = {'width': 1920, 'height': 1080}
@@ -155,6 +161,11 @@ def marker_centers(page: Page) -> Dict[str, float]:
     return {view: circles[(view, 'circle')][-1][0] for view in ('ix-odometry', 'ix-model')}
 
 
+def call_model(page: Page, function: str, *arguments: Any) -> Any:
+    """Return what a function of diffdrive.js returns in the page for the arguments."""
+    return page.evaluate(MODEL_CALL, [function, list(arguments)])
+
+
 def open_settings(page: Page) -> None:
     """Open the block of values, as a reader who clicks its summary."""
     page.eval_on_selector(f'{FIGURE} .ix-settings', 'details => { details.open = true; }')
@@ -178,8 +189,8 @@ def slider_for(setting: str) -> figures.Slider:
                 if slider.setting == setting)
 
 
-class TestMotionLabPage(unittest.TestCase):
-    """The figure in the page: it starts, shows the script's numbers, and falls back."""
+class SimulationTestPageCase(unittest.TestCase):
+    """A test case that serves the built site and opens the Simulation Test page in Chromium."""
 
     base: str
     browser: Browser
@@ -203,6 +214,10 @@ class TestMotionLabPage(unittest.TestCase):
         opened = self.open_simulation_test_page(**options)
         opened.page.wait_for_selector(f'{FIGURE}.ix-is-live', timeout=START_TIMEOUT_MS)
         return opened
+
+
+class TestMotionLabPage(SimulationTestPageCase):
+    """The figure in the page: it starts, shows the script's numbers, and falls back."""
 
     def assert_motion_table_shows(
         self, page: Page, expected: Dict[str, Any], example: figures.Example
@@ -925,6 +940,52 @@ class TestMotionLabPage(unittest.TestCase):
         shown = 'parts => parts.filter(part => part.checkVisibility()).length'
         self.assertEqual(page.eval_on_selector_all(f'{FIGURE} .ix-answer:not([data-live])', shown),
                          len(figures.EXAMPLES))
+
+
+class TestDiffDriveModule(SimulationTestPageCase):
+    """diffdrive.js computes with the limits it is given, as the script does with its constants.
+
+    The cases and their expected results are those of TestModelLimits in
+    tests/test_motion_lab_figures.py. Each test calls the module's function in the page.
+    """
+
+    # Values that floating-point numbers hold exactly, so the boundary is the boundary
+    EXPECTED = 1.0
+    TOLERANCE = 0.25
+    BOUNDARY = EXPECTED + TOLERANCE
+    SPEED = 1.0
+    DURATION = 1.0
+
+    def within(self, value: float) -> bool:
+        """Return whether a value is within the tolerance, with the script's rounding allowance."""
+        page = self.open_simulation_test_page().page
+        result: bool = call_model(page, 'within', value, self.EXPECTED, self.TOLERANCE,
+                                  figures.ROUNDING_ALLOWANCE)
+        return result
+
+    def pose_after(self, angular_velocity: float) -> Dict[str, float]:
+        """Return the pose after DURATION at SPEED and an angular velocity."""
+        page = self.open_simulation_test_page().page
+        pose: Dict[str, float] = call_model(page, 'poseAfter', self.SPEED, angular_velocity,
+                                            self.DURATION, figures.STRAIGHT_ANGULAR_VELOCITY)
+        return pose
+
+    def test_a_value_on_the_tolerance_boundary_passes(self) -> None:
+        self.assertIs(self.within(self.BOUNDARY), True)
+
+    def test_a_value_beyond_the_boundary_by_less_than_the_allowance_passes(self) -> None:
+        self.assertIs(self.within(self.BOUNDARY + figures.ROUNDING_ALLOWANCE / 2), True)
+
+    def test_a_value_beyond_the_boundary_by_more_than_the_allowance_fails(self) -> None:
+        self.assertIs(self.within(self.BOUNDARY + 2 * figures.ROUNDING_ALLOWANCE), False)
+
+    def test_an_angular_velocity_below_the_straight_limit_drives_straight(self) -> None:
+        pose = self.pose_after(figures.STRAIGHT_ANGULAR_VELOCITY / 2)
+        self.assertEqual(pose, {'x': self.SPEED * self.DURATION, 'y': 0, 'theta': 0})
+
+    def test_an_angular_velocity_above_the_straight_limit_turns(self) -> None:
+        angular = 2 * figures.STRAIGHT_ANGULAR_VELOCITY
+        self.assertEqual(self.pose_after(angular)['theta'], angular * self.DURATION)
 
 
 if __name__ == '__main__':

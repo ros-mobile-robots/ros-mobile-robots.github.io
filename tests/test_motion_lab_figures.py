@@ -190,6 +190,37 @@ class TestChecks(unittest.TestCase):
         self.assertIn(agreement, figures.failing_checks(figures.CommandKind.TURN, outside))
 
 
+class TestModelLimits(unittest.TestCase):
+    """The model's two numerical limits decide as their constants say."""
+
+    # Values that floating-point numbers hold exactly, so the boundary is the boundary
+    CHECK = figures.Check(figures.Quantity.FORWARD, expected=1.0, tolerance=0.25)
+    BOUNDARY = CHECK.expected + CHECK.tolerance
+    SPEED = 1.0
+    DURATION = 1.0
+
+    def test_a_value_on_the_tolerance_boundary_passes(self) -> None:
+        self.assertTrue(figures.passes(self.CHECK, self.BOUNDARY))
+
+    def test_a_value_beyond_the_boundary_by_less_than_the_allowance_passes(self) -> None:
+        value = self.BOUNDARY + figures.ROUNDING_ALLOWANCE / 2
+        self.assertTrue(figures.passes(self.CHECK, value))
+
+    def test_a_value_beyond_the_boundary_by_more_than_the_allowance_fails(self) -> None:
+        value = self.BOUNDARY + 2 * figures.ROUNDING_ALLOWANCE
+        self.assertFalse(figures.passes(self.CHECK, value))
+
+    def test_an_angular_velocity_below_the_straight_limit_drives_straight(self) -> None:
+        velocity = figures.Velocity(self.SPEED, figures.STRAIGHT_ANGULAR_VELOCITY / 2)
+        self.assertEqual(figures.pose_after(velocity, self.DURATION),
+                         figures.Pose(self.SPEED * self.DURATION, 0.0, 0.0))
+
+    def test_an_angular_velocity_above_the_straight_limit_turns(self) -> None:
+        angular = 2 * figures.STRAIGHT_ANGULAR_VELOCITY
+        pose = figures.pose_after(figures.Velocity(self.SPEED, angular), self.DURATION)
+        self.assertEqual(pose.theta, angular * self.DURATION)
+
+
 class TestRobotsOwnValues(unittest.TestCase):
     """With each robot's own values, the three views agree and every check passes."""
 
@@ -280,6 +311,12 @@ class TestInclude(unittest.TestCase):
 
     def test_check_include_accepts_single_braces_and_single_line_breaks(self) -> None:
         figures.check_include('<p>{one}</p>\n<p>100 %</p>\n')
+
+    def test_include_data_carries_the_models_two_limits(self) -> None:
+        self.assertEqual(include_data(self.include)['modelLimits'], {
+            'straightAngularVelocity': figures.STRAIGHT_ANGULAR_VELOCITY,
+            'roundingAllowance': figures.ROUNDING_ALLOWANCE,
+        })
 
     def test_include_data_carries_the_drawing_sizes_and_the_check_rows(self) -> None:
         data = include_data(self.include)

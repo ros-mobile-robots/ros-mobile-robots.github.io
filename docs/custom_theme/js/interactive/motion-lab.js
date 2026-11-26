@@ -1,6 +1,6 @@
 // "Three views of one drive": the interactive figure on the Simulation Test page.
 // The markup, its texts and its numbers (robots, commands, the checks with their texts, the
-// examples and the drawing's sizes) come from includes/motion-lab.html, which
+// model's limits, the examples and the drawing's sizes) come from includes/motion-lab.html, which
 // scripts/figures/motion_lab_figures.py writes. This file adds the behavior. The figure shows its
 // static version until the first drawing here has succeeded. The drawing's functions follow the
 // script's functions that draw the static version: scaleFor() is drawing_scale(), drawGrid() is
@@ -207,6 +207,7 @@ function mount(root) {
       radius: inputs.wheels.radius, separation: inputs.wheels.separation,
       configuredRadius: inputs.configured.radius, configuredSeparation: inputs.configured.separation,
       contactSeparation: inputs.contactSeparation, frameOffset: inputs.frameOffset, tracking: inputs.tracking,
+      straightAngularVelocity: data.modelLimits.straightAngularVelocity,
     });
     const samples = [];
     for (let index = 0; index <= sizes.samples; index++) samples.push(views.posesAt(command.duration * index / sizes.samples));
@@ -216,7 +217,8 @@ function mount(root) {
       odometry: relativePose(start.odometry, end.odometry),
       model: relativePose(start.frame, end.frame),
     };
-    const checks = predictChecks(data.checks[state.command], motion.odometry, motion.model);
+    const checks = predictChecks(data.checks[state.command], motion.odometry, motion.model,
+      data.modelLimits.roundingAllowance);
     return { kind: state.command, inputs, samples, motion, checks, reach: reachAround(inputs, sizes) };
   }
 

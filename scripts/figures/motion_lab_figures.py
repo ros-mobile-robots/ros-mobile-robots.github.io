@@ -4,8 +4,8 @@ The figure is on docs/development/simulation-test.md. Its include holds everythi
 needs:
 
 - the data for docs/custom_theme/js/interactive/motion-lab.js: the robots' wheel geometry, the
-  test's two commands, the rows of its checks with their texts, the guided examples and the
-  drawing's sizes;
+  test's two commands, the rows of its checks with their texts, the model's limits, the guided
+  examples and the drawing's sizes;
 - a static drawing of the first example and the answers of all examples, computed here. They are
   what the page shows without JavaScript, and until the script has drawn the figure;
 - the controls, which the script shows once the figure works.
@@ -43,11 +43,12 @@ SOURCE_COMMIT = 'f5f282eed7b6a2b146d40c7d5fd641b8a339a77d'
 SOURCE_URL = f'https://github.com/ros-mobile-robots/diffbot/blob/{SOURCE_COMMIT}'
 
 # Below this angular velocity (rad/s), a drive counts as straight: the radius of its circle,
-# linear / angular velocity, would overflow. diffdrive.js has the same limit
+# linear / angular velocity, would overflow
 STRAIGHT_ANGULAR_VELOCITY = 1e-12
 # A value on a tolerance's boundary can miss it by floating-point rounding: 1.5 - 1.2 gives
-# 0.30000000000000004. This small allowance keeps such a value inside its range, as in
-# diffdrive.js. It is a choice of the figure only. The ROS test compares without it
+# 0.30000000000000004. This small allowance keeps such a value inside its range. It is a choice
+# of the figure only. The ROS test compares without it. Both limits travel to diffdrive.js in
+# the include's data (model_limits_data()), so the script and the page compute with one value
 ROUNDING_ALLOWANCE = 1e-9
 # MkDocs inserts the include into a Markdown page: a blank line would end its HTML block, and
 # these character pairs would start an expression of the macros plugin
@@ -1240,6 +1241,14 @@ def checks_data() -> Dict[str, List[Dict[str, object]]]:
     }
 
 
+def model_limits_data() -> Dict[str, float]:
+    """Return the model's two numerical limits, which diffdrive.js computes with too."""
+    return {
+        'straightAngularVelocity': STRAIGHT_ANGULAR_VELOCITY,
+        'roundingAllowance': ROUNDING_ALLOWANCE,
+    }
+
+
 def figure_data() -> Dict[str, object]:
     """Return the data that motion-lab.js reads from the include."""
     first = EXAMPLES[0]
@@ -1248,6 +1257,7 @@ def figure_data() -> Dict[str, object]:
         'robots': robots_data(),
         'commands': commands_data(),
         'checks': checks_data(),
+        'modelLimits': model_limits_data(),
         'viewNames': {entry.view: entry.text for entry in LEGEND if entry.view != 'axle'},
         'drawing': {camel_case(name): value for name, value in DRAWING._asdict().items()},
         'default': {'robot': EXAMPLE_ROBOT, 'command': first.command.value},

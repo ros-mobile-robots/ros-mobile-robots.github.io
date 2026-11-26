@@ -6,10 +6,14 @@
 // Symbols: v (m/s) and w (rad/s) are the robot's linear and angular velocity, r the wheel radius
 // (m), L the wheel separation (m, between the wheels' center planes). The wheels' angular
 // velocities are in rad/s.
-
-// Below this angular velocity (rad/s), a drive counts as straight: the radius of its circle, v / w,
-// would overflow. motion_lab_figures.py has the same limit
-const STRAIGHT_ANGULAR_VELOCITY = 1e-12;
+//
+// The model's two limits come with the include's data (modelLimits), from the script's constants,
+// so both languages compute with the same values:
+// - straightAngularVelocity (rad/s): below it, a drive counts as straight, because the radius of
+//   its circle, v / w, would overflow.
+// - roundingAllowance: a value on a tolerance's boundary can miss it by floating-point rounding,
+//   as 1.5 - 1.2 gives 0.30000000000000004. This small allowance keeps such a value inside its
+//   range. It is a choice of the figures only. The ROS test compares without it.
 
 /** The same angle in -pi..pi, as wrap() in diffbot's test_drive.py. */
 export function wrap(angle) {
@@ -31,11 +35,12 @@ export function velocityFromWheelSpeeds(left, right, radius, separation) {
 
 /**
  * The pose after driving with a constant velocity for the time t, starting at x = 0, y = 0 with
- * the heading 0. With w = 0 the robot drives straight. Otherwise it drives on a circle of radius
- * v / w. The heading isn't wrapped, so a path can be drawn through more than half a turn.
+ * the heading 0. With |w| below straightAngularVelocity the robot drives straight. Otherwise it
+ * drives on a circle of radius v / w. The heading isn't wrapped, so a path can be drawn through
+ * more than half a turn.
  */
-export function poseAfter(v, w, t) {
-  if (Math.abs(w) < STRAIGHT_ANGULAR_VELOCITY) return { x: v * t, y: 0, theta: 0 };
+export function poseAfter(v, w, t, straightAngularVelocity) {
+  if (Math.abs(w) < straightAngularVelocity) return { x: v * t, y: 0, theta: 0 };
   const theta = w * t, circleRadius = v / w;
   return { x: circleRadius * Math.sin(theta), y: circleRadius * (1 - Math.cos(theta)), theta };
 }
@@ -60,35 +65,41 @@ export function relativePose(start, end) {
  *   which its wheels push on the ground (ideal rolling). `axle` is the axle's midpoint, and
  *   `frame` the reported frame, `frameOffset` behind the axle's midpoint along the heading.
  *
+ * straightAngularVelocity is the model's limit below which a drive counts as straight.
+ *
  * Returns the wheel speeds, the three velocities and posesAt(t), the poses at a time.
  */
 export function threeViews({ v, w, radius, separation, configuredRadius, configuredSeparation,
-  contactSeparation = separation, frameOffset = 0, tracking = 1 }) {
+  contactSeparation = separation, frameOffset = 0, tracking = 1, straightAngularVelocity }) {
   const commanded = wheelSpeedsForCommand(v, w, configuredRadius, configuredSeparation);
   const left = tracking * commanded.left, right = tracking * commanded.right;
   const odometry = velocityFromWheelSpeeds(left, right, configuredRadius, configuredSeparation);
   const model = velocityFromWheelSpeeds(left, right, radius, contactSeparation);
   const posesAt = (t) => {
-    const axle = poseAfter(model.v, model.w, t);
+    const axle = poseAfter(model.v, model.w, t, straightAngularVelocity);
     axle.x += frameOffset;  // The reported frame starts at 0, 0, so the axle starts ahead of it
     const frame = {
       x: axle.x - frameOffset * Math.cos(axle.theta),
       y: axle.y - frameOffset * Math.sin(axle.theta),
       theta: axle.theta,
     };
-    return { t, command: poseAfter(v, w, t), odometry: poseAfter(odometry.v, odometry.w, t), axle, frame };
+    return {
+      t,
+      command: poseAfter(v, w, t, straightAngularVelocity),
+      odometry: poseAfter(odometry.v, odometry.w, t, straightAngularVelocity),
+      axle,
+      frame,
+    };
   };
   return { wheelSpeeds: { left, right }, velocities: { command: { v, w }, odometry, model }, posesAt };
 }
 
-// A value on a tolerance's boundary can miss it by floating-point rounding: 1.5 - 1.2 gives
-// 0.30000000000000004. This small allowance keeps such a value inside its range in the figures,
-// as in motion_lab_figures.py. It is a choice of the figures only. The ROS test compares without it.
-const ROUNDING_ALLOWANCE = 1e-9;
-
-/** Whether a value lies within expected +- tolerance, as assertAlmostEqual(..., delta=tolerance). */
-export function within(value, expected, tolerance) {
-  return Math.abs(value - expected) <= tolerance + ROUNDING_ALLOWANCE;
+/**
+ * Whether a value lies within expected +- tolerance, as assertAlmostEqual(..., delta=tolerance),
+ * with the figures' rounding allowance on top of the tolerance.
+ */
+export function within(value, expected, tolerance, roundingAllowance) {
+  return Math.abs(value - expected) <= tolerance + roundingAllowance;
 }
 
 /** The value of a quantity ('forward', 'left', 'turned' or 'distance' from the start) in a motion. */
@@ -101,14 +112,14 @@ export function measured(quantity, motion) {
  * relative motion. `rows` are the test's checks in its order, as the include's data has them:
  * each with the view it measures ('odometry', 'model', or 'agreement' for how far apart the two
  * are), the quantity, the expected value and the tolerance. Each result is its row with the
- * measured value and whether it passes.
+ * measured value and whether it passes, with the rounding allowance.
  */
-export function predictChecks(rows, odometry, model) {
+export function predictChecks(rows, odometry, model, roundingAllowance) {
   const motions = { odometry, model };
   return rows.map((row) => {
     const value = row.view === 'agreement'
       ? Math.abs(measured(row.quantity, odometry) - measured(row.quantity, model))
       : measured(row.quantity, motions[row.view]);
-    return { ...row, value, passes: within(value, row.expected, row.tolerance) };
+    return { ...row, value, passes: within(value, row.expected, row.tolerance, roundingAllowance) };
   });
 }
