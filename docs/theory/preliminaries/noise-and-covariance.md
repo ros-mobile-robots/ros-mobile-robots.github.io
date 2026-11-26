@@ -184,6 +184,8 @@ Two limits apply:
 
 ## The covariance matrix and its ellipsoid
 
+The covariance matrix $\boldsymbol\Sigma$ records how the components of a vector vary together. Its diagonal gives the variance of each component. Its eigenvectors give the directions of the axes of an ellipsoid, a shape that shows the vector's spread. [The 3 × 3 matrix](#the-3-3-matrix) writes the matrix out for the gyroscope's three axes, and [The covariance ellipsoid](#the-covariance-ellipsoid) draws the shape for an example.
+
 ### The 3 × 3 matrix
 
 A vector of three values, such as the angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$, has three variances, one for each value, and three covariances, one for each pair. The **covariance matrix** $\boldsymbol\Sigma_{\boldsymbol\omega}$ holds all of them. The element in row $i$ and column $j$ is the covariance of the $i$-th and the $j$-th value:

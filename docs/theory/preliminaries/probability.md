@@ -7,12 +7,12 @@
 
 ### Normal Distribution and Gaussian Function
 
-[The normal distribution](noise-and-covariance.md#the-normal-distribution) on the Noise and Covariance page explains the normal distribution with its two numbers, the mean and the variance, and with the noise of the robots' simulated IMU as the example.
+The simulated gyroscope illustrates the [normal distribution](noise-and-covariance.md#the-normal-distribution): the Noise and Covariance page explains the distribution with its two numbers, the mean and the variance, and draws the density of the noise that the robots' simulated IMU adds.
 
 
 ### Multivariate Distribution
 
-[The covariance matrix and its ellipsoid](noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid) on the Noise and Covariance page explains the covariance matrix of a vector of normally distributed values.
+The [covariance matrix](noise-and-covariance.md#the-3-3-matrix) records the variances of a vector and the covariances between its components.
 
 ### Joint Distribution
 

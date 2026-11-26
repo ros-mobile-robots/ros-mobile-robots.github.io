@@ -18,7 +18,7 @@ The robot uses one value from it: the **yaw rate** $\omega_z$, the angular veloc
 
 To measure how far your robot's IMU is off at rest and how much its readings scatter, go to [Bias and noise at rest](#bias-and-noise-at-rest). One command measures both on a recording of the IMU's messages.
 
-[Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF. In the Gazebo simulation, a simulated IMU publishes on the same topic, with the same message type and frame and with the orientation marked unavailable, as [IMU: Simulation](simulation/index.md) shows. Its noise and its variances are settings of the simulation, not the firmware's, as [the simulation and the real robot](simulation/index.md#the-simulation-and-the-real-robot) explains.
+[Localization: Wheel Odometry and IMU (EKF)](robot_localization.md) explains the EKF. In the Gazebo simulation, a simulated IMU publishes on the same topic, with the same message type and frame and with the orientation marked unavailable, as [IMU: Simulation](simulation/index.md) shows. Its noise and its [variances](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) are settings of the simulation, not the firmware's, as [the simulation and the real robot](simulation/index.md#the-simulation-and-the-real-robot) explains.
 
 !!! info "Checked on Remo"
     The firmware passed the [bench checks](#bench-checks) on Remo with the wheels off the ground, using both a Teensy 3.2 and Remo's own Teensy 4.0 ([Teensy 4.0 results](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). A tilt test established the board's orientation. Remo's model includes that orientation and the separately checked position on the breadboard ([Remo's mounting](simulation/position-and-axes.md#the-mounting-on-each-robot)). On DiffBot, the IMU's mounting still needs to be measured, and the firmware checked on DiffBot itself. The EKF still needs a test with the real IMU.
@@ -47,8 +47,8 @@ The firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbo
 | `header.stamp` | ROS time before the read |
 | `angular_velocity` | rad/s, from the gyroscope |
 | `linear_acceleration` | m/s², the specific force, including gravity |
-| `orientation` | not provided: `orientation_covariance[0]` is −1, which [REP 145](https://www.ros.org/reps/rep-0145.html) defines as "no data" for a field |
-| covariances | diagonal starting values: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)². At rest, the [bench checks](#bench-checks) measured much less. [The variance and the standard deviation](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) on the Noise and Covariance page explains the variance and why the gyroscope's starting value is larger, and [The covariance matrix and its ellipsoid](../../theory/preliminaries/noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid) explains the matrix |
+| `orientation` | Not provided. The first element, `orientation_covariance[0]`, is −1 because the [orientation is unavailable](../../theory/preliminaries/noise-and-covariance.md#the-imus-message). [REP 145](https://www.ros.org/reps/rep-0145.html) defines the −1 as "no data" for a field |
+| covariances | The [diagonal of the covariance matrix](../../theory/preliminaries/noise-and-covariance.md#the-3-3-matrix) holds the starting variances for the angular velocity and the acceleration: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)². At rest, the [bench checks](#bench-checks) measured much less, but driving adds vibration and drift |
 
 The chip's own orientation estimate isn't read: the EKF uses only the angular velocity. The topic's name is REP 145's for accelerometer and gyroscope data without an orientation.
 

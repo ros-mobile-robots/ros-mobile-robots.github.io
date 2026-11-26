@@ -23,7 +23,7 @@ The IMU's gyroscope measures the turn directly. The gyroscope's yaw rate $\omega
 With [`ekf:=true`](#what-the-launch-files-do-with-ekf), an **extended Kalman filter (EKF)** from the [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) package combines both sensors:
 
 - **The forward speed $v_x$:** the filter takes the forward speed from the wheels.
-- **The yaw rate $\omega_z$:** the filter takes the yaw rate mostly from the gyroscope, because the gyroscope's variance $\sigma^2$ is far smaller than the wheels'. A variance says how far a value's errors spread. The smaller the variance, the more the filter trusts the value.
+- **The yaw rate $\omega_z$:** the filter takes the yaw rate mostly from the gyroscope. A [variance](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) $\sigma^2$ measures how far the readings spread around their mean. The filter gives the gyroscope more weight because its yaw-rate variance is smaller than the wheels'.
 
 The filter publishes its estimate in two forms, which navigation and RViz use:
 
@@ -78,7 +78,7 @@ $$
 \mathbf{z}_\text{IMU} = (\,\omega_z\,)
 $$
 
-The topic carries the estimated pose in the `odom` frame and the estimated velocities in the frame `base_footprint`. With [`two_d_mode`](#what-two_d_mode-does), the height, roll, pitch and their velocities stay at 0. The message stores the orientation as a quaternion, which here holds the heading $\theta$. The six values that can differ from 0 form this vector:
+The topic carries the estimated pose in the `odom` frame and the estimated velocities in the frame `base_footprint`. With [`two_d_mode`](#what-two_d_mode-does), the height, roll, pitch and their velocities stay at 0. The message stores the heading $\theta$ as a [yaw-only quaternion](../../theory/preliminaries/quaternions.md#roll-pitch-and-yaw). The six values that can differ from 0 form this vector:
 
 $$
 \hat{\mathbf{x}}_\text{published} = (\,x,\ y,\ \theta,\ v_x,\ v_y,\ \omega_z\,)
@@ -93,7 +93,7 @@ The list says more about each part:
 
 ### The two outputs
 
-- **The topic `/diffbot/odometry/filtered`:** carries the pose and the velocities of the filter's estimate, with their covariances, as a [`nav_msgs/Odometry`](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/Odometry.html) message. The message has the pose $x$, $y$, $\theta$ in the `odom` frame and the velocities $v_x$, $v_y$, $\omega_z$ in the robot's frame `base_footprint`. The message has no field for the accelerations of the filter's state. A node that needs the velocities or the uncertainty subscribes to this topic.
+- **The topic `/diffbot/odometry/filtered`:** carries the pose and the velocities of the filter's estimate, with their [covariances](../../theory/preliminaries/noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid), as a [`nav_msgs/Odometry`](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/Odometry.html) message. The message has the pose $x$, $y$, $\theta$ in the `odom` frame and the velocities $v_x$, $v_y$, $\omega_z$ in the robot's frame `base_footprint`. The message has no field for the accelerations of the filter's state. A node that needs the velocities or the uncertainty subscribes to this topic.
 - **The transform `odom → base_footprint` on the topic `/tf`:** carries only the pose, as a translation and a rotation. A transform has no velocity and no covariance. TF, ROS's transform library, joins this transform with the robot's other transforms. So a node can ask TF where any frame of the robot is in the `odom` frame, without knowing which node estimated the pose.
 
 The two forms hold the same pose. Each time the filter publishes, the filter builds the odometry message `filteredPosition` from its state and copies the message's pose into the transform `worldBaseLinkTransMsg_`, as [lines 1955–1965 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1955-L1965) in robot_localization 2.7.7 show:

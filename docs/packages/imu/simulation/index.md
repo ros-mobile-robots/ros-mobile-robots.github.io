@@ -1,6 +1,6 @@
 # IMU: Simulation
 
-In the Gazebo simulation, DiffBot and Remo have an IMU too. The simulated IMU publishes on the same topic as the [BNO055 firmware on the real robot](../driver-bno055.md#what-the-firmware-publishes), with the same message type, the same frame and no orientation. So the nodes that read the IMU run with the same configuration in the simulation as on the robot. The noise and the covariances are the simulation's own, as [the simulation and the real robot](#the-simulation-and-the-real-robot) explains.
+In the Gazebo simulation, DiffBot and Remo have an IMU too. The simulated IMU publishes on the same topic as the [BNO055 firmware on the real robot](../driver-bno055.md#what-the-firmware-publishes), with the same message type, the same frame and no orientation. So the nodes that read the IMU run with the same configuration in the simulation as on the robot. The simulation sets its own noise and [covariance matrices](../../../theory/preliminaries/noise-and-covariance.md#the-3-3-matrix), as [the simulation and the real robot](#the-simulation-and-the-real-robot) explains.
 
 ## One left turn, one message
 
@@ -82,7 +82,7 @@ Both robots publish [`/diffbot/imu/data_raw`]({{ imu_sim_src_url }}/diffbot_gaze
 The comments at the top are the message's contract for every publisher:
 
 - Angular velocities are in rad/s, accelerations in m/s².
-- Each of the three measurements, the orientation $\mathbf q$, the angular velocity $\boldsymbol\omega$ in rad/s and the linear acceleration $\mathbf f$ in m/s², comes with a covariance, which says how uncertain the measurement is. A publisher that knows only the variances puts them on the diagonal.
+- Each of the three measurements, the orientation $\mathbf q$, the angular velocity $\boldsymbol\omega$ in rad/s and the linear acceleration $\mathbf f$ in m/s², comes with a covariance, which says how uncertain the measurement is. A publisher that knows only the [variances](../../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) puts them on the diagonal.
 - A covariance of all zeros means that the covariance is unknown, not that the value has no uncertainty.
 - −1 as a covariance's first element means that the publisher has no estimate for that field.
 
@@ -91,7 +91,7 @@ The comments at the top are the message's contract for every publisher:
 The fields in order, and what the simulated IMU puts into them:
 
 - **[`header`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L15):** [`header.stamp`](https://docs.ros.org/en/noetic/api/std_msgs/html/msg/Header.html) is the message's time. In the simulation, the stamp is the simulation time at which Gazebo ran the IMU sensor's measurement, the sensor's update time. The motion data that the measurement uses has a time of its own, which can be a little earlier, as [two times of a measurement](measurement-to-message.md#part-1-gazebos-imu-sensor-measures) explains. `header.frame_id` names the frame whose axes the values use, here [`imu_link`](position-and-axes.md#the-two-frames-and-their-fixed-joint), the IMU's frame.
-- **[`orientation`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L17) and [`orientation_covariance`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L18):** the IMU's orientation $\mathbf q$ and its covariance. The orientation is a **quaternion**: four numbers, x, y, z and w, that together describe a rotation in space. The ROS wiki's [quaternion basics](http://wiki.ros.org/tf2/Tutorials/Quaternions) explain them. Like the firmware, the simulated IMU has no orientation estimate. So the field is marked unavailable: [`orientation_covariance[0]`](#how-the-message-stores-a-covariance) is −1, and the quaternion's four numbers are 0. Four zeros don't describe a rotation, because a quaternion that does has the length 1. The −1 tells a node that reads the message not to use them.
+- **[`orientation`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L17) and [`orientation_covariance`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L18):** the IMU's orientation $\mathbf q$ and its covariance. The orientation is a **quaternion**. A [unit quaternion](../../../theory/preliminaries/quaternions.md#a-rotation-as-four-numbers) describes a rotation with four numbers, $x$, $y$, $z$ and $w$. Like the firmware, the simulated IMU has no orientation estimate. So the field is marked unavailable: [`orientation_covariance[0]`](#how-the-message-stores-a-covariance) is −1, and the quaternion's four numbers are 0. Four zeros don't describe a rotation, because a quaternion that does has the length 1. The −1 tells a node that reads the message not to use them.
 - **[`angular_velocity`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L20):** $\boldsymbol\omega$, how fast the sensor turns about each of `imu_link`'s three axes, in rad/s. [The angular velocity](#the-angular-velocity) shows the three rotations. The simulated IMU publishes $\tilde{\boldsymbol\omega}$, the angular velocity with noise.
 - **[`angular_velocity_covariance`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L21):** $\Sigma_\omega$, in (rad/s)². The noise's standard deviation is $\sigma = 0.005$ rad/s on each axis, so each variance is $\sigma^2 = 2.5 \cdot 10^{-5}$ (rad/s)².
 - **[`linear_acceleration`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L23):** despite its name, what an accelerometer measures: the specific force $\mathbf f$, the acceleration minus gravity, along the same axes, in m/s². [The linear acceleration](#the-linear-acceleration) explains it. The simulated IMU publishes $\tilde{\mathbf f}$, the specific force with noise.
@@ -175,7 +175,7 @@ $$
 
 The linear acceleration's matrix is built the same way, for its three components along the x, y and z axes. The orientation's matrix has three rows and three columns too, although a quaternion has four numbers. Its rows and columns stand for the rotation's errors about the x, y and z axes, not for three of the quaternion's four numbers. [`Imu.msg`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L18) says so in the comment of its line 18: "about x, y, z axes".
 
-Wikipedia's article on the [covariance matrix](https://en.wikipedia.org/wiki/Covariance_matrix) gives the definition.
+[The 3 × 3 matrix](../../../theory/preliminaries/noise-and-covariance.md#the-3-3-matrix) on the Noise and Covariance page explains the matrix, starting from the variance of one value.
 
 A ROS message has no type for a matrix. `Imu.msg` declares each covariance as [`float64[9]`]({{ common_msgs_src_url }}/sensor_msgs/msg/Imu.msg#L18-L24), an array of nine numbers, with the comment "Row major", in the definition's lines 18, 21 and 24. Row major means row by row: the matrix's first row, then its second, then its third.
 
