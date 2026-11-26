@@ -12,11 +12,15 @@ None of them is a measurement on a robot.
 
 ## The brushed DC motor
 
-A brushed DC motor turns when a voltage is applied to its two terminals.
+A voltage across the two terminals of a brushed DC motor drives a current through its windings.
+Current in the motor windings produces a magnetic field.
+Its interaction with the stator field produces torque on the shaft.
+The shaft starts turning when that torque overcomes the load and friction.
+The stator is the fixed part of the motor, around the windings that turn with the shaft.
 Brushes make contact with a rotating switch called a commutator.
 The commutator directs the current through successive windings as the shaft turns ([Microchip's application note AN905, Brushed DC Motor Fundamentals](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf), Principles of Operation).
-Most brushed DC motors get their magnetic field from permanent magnets ([AN905, Permanent Magnet](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=2)).
-In such a motor, reversing the terminal voltage drives the current in the opposite direction.
+Permanent-magnet motors are the most common type of brushed DC motor ([AN905, Permanent Magnet](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=2)).
+In such a motor, magnets make the stator field, and reversing the terminal voltage drives the current in the opposite direction.
 The torque reverses as the current reverses.
 At the same load, a higher voltage gives a higher steady speed.
 Load, heat and wear change the speed too ([AN905, Feedback Mechanisms](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)).
@@ -72,8 +76,8 @@ To lower the average voltage, a motor driver doesn't make a lower voltage.
 It switches the full supply voltage $V_\text{supply}$ on and off many times per second.
 This is called pulse-width modulation (PWM).
 
-Take a motor that is driven forward through ideal switches.
-The voltage across the motor alternates between $V_\text{supply}$ and 0 V.
+In the example below, the bridge alternates between Forward and low-side Brake.
+With ideal switches, the voltage across the motor is the supply voltage during the drive pulse and 0 V while both terminals are connected to ground.
 The on-time is $t_\text{on}$.
 One full cycle takes the time $T$, the period, so the duty cycle $D$ is
 
@@ -95,7 +99,7 @@ The figure's supply of 9.6 V is the nominal voltage of Remo's eight NiMH cells (
 The plot shows voltage, not speed.
 A wheel at a duty cycle of 50 % need not turn at half of its full speed, because the speed also depends on the load ([AN905, Feedback Mechanisms](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)).
 
-On Remo, each wheel's PID controller produces a signed motor command $u$ from −255 to 255 in every control step.
+On Remo, while driving is enabled, each wheel's PID controller produces a signed motor command $u$ from −255 to 255 on each scheduled control step.
 [The feedback loop of one wheel](../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) follows one such command.
 The sign selects forward or reverse, and the magnitude $\lvert u \rvert$ sets the duty cycle.
 For each step of the magnitude, Adafruit's library switches the voltage on for 16 of the 4096 counts of a PWM period ([`Adafruit_DCMotor::setSpeed()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256), version 1.1.4):
@@ -115,7 +119,7 @@ The table gives the three commands of the figure and the highest command:
 
 ??? example "How Remo sets direction, duty cycle and frequency"
     Remo's microcontroller (MCU), a Teensy, commands the FeatherWing over I2C.
-    In every control step, the firmware's `BaseController::write()` passes each wheel's command to [`AdafruitMotorController::setSpeed()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) as `value`.
+    When the wheel command is valid and a control step is due, [`BaseController::write()`](../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) passes each wheel's command to [`AdafruitMotorController::setSpeed()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) as `value`.
     In the excerpt, follow the sign of `value` to the call of `pMotor_->run()`, and its magnitude to the call of `pMotor_->setSpeed()`:
 
     ```cpp title="adafruit_feather_wing.cpp: setSpeed()" linenums="16"
@@ -134,7 +138,9 @@ The table gives the three commands of the figure and the highest command:
 
     These statements come from the code, the library and the datasheets.
     The frequency is a calculation: the frequency of the PCA9685's clock on Remo isn't measured.
-    No automated test covers `AdafruitMotorController::setSpeed()` or the driver's outputs. The firmware's [unit tests](../packages/diffbot_base/low-level.md#the-unit-tests) on the PC run without the motor driver.
+    The PC [unit tests](../packages/diffbot_base/low-level.md#the-unit-tests) run without the motor driver.
+    A Teensy [test sketch]({{ pid_src_url }}/diffbot_firmware/test/motor_controller/test_adafruit_motor_controller.cpp#L17-L74) sends positive, negative and zero commands to the FeatherWing.
+    It has no assertion about the signals at the motor terminals.
 
 DiffBot's Grove driver is wired to the Raspberry Pi instead, [through the Grove I2C hub](../power-supply.md#diffbot-four-alkaline-cells-and-the-grove-i2c-motor-driver).
 The node for that path, `motor_driver.py` of the `grove_motor_driver` package, is commented out as deprecated in [`minimal.launch`]({{ pid_src_url }}/diffbot_bringup/launch/minimal.launch#L20-L23).
