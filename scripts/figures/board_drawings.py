@@ -48,10 +48,11 @@ class Point(NamedTuple):
 def svg_subscript(symbol: str, index: str, *, restore_baseline: bool = False) -> str:
     """Return SVG markup for a symbol with a subscript of the CSS class sub.
 
-    The subscript lowers the baseline of the text line. With restore_baseline, the markup moves
-    the baseline back up, for a line that goes on after the subscript.
+    symbol and index are text, which the markup holds escaped. The subscript lowers the baseline
+    of the text line. With restore_baseline, the markup moves the baseline back up, for a line
+    that goes on after the subscript.
     """
-    lowered = f'{symbol}<tspan class="sub" dy="3">{index}</tspan>'
+    lowered = f'{escape(symbol)}<tspan class="sub" dy="3">{escape(index)}</tspan>'
     # A shift applies to a character, so the second tspan holds one that has no width: U+200B
     return lowered + '<tspan dy="-3">\u200b</tspan>' if restore_baseline else lowered
 
@@ -115,7 +116,7 @@ class Drawing:
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
-        """Add one line of text. anchor is start, middle or end."""
+        """Add one line of escaped text at the requested anchor."""
         self.text_markup(x, y, escape(text), css_class, anchor)
 
     def text_markup(self, x: float, y: float, markup: str, css_class: str = '',

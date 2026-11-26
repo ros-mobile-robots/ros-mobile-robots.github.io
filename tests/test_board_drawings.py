@@ -9,6 +9,7 @@ import sys
 from typing import Callable
 from typing import Set
 import unittest
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
@@ -106,6 +107,12 @@ class TestSvgSubscript(unittest.TestCase):
     def test_svg_subscript_restores_the_baseline_for_the_text_after_it(self) -> None:
         self.assertEqual(board_drawings.svg_subscript('f', 'z', restore_baseline=True),
                          'f<tspan class="sub" dy="3">z</tspan><tspan dy="-3">\u200b</tspan>')
+
+    def test_svg_subscript_escapes_its_symbol_and_its_index(self) -> None:
+        markup = board_drawings.svg_subscript('I & Q', 'x<y')
+        text = ElementTree.fromstring(f'<text>{markup}</text>')
+        self.assertEqual(text.text, 'I & Q')
+        self.assertEqual([(span.get('class'), span.text) for span in text], [('sub', 'x<y')])
 
 
 class TestText(unittest.TestCase):
