@@ -793,6 +793,8 @@ DRAWING = DrawingSizes(
 DRAWING_TITLE = 'One drive from above: the command, the odometry and the true pose'
 # A point of the drawing in px, x to the right and y down
 Point = Tuple[float, float]
+# A path leaves out a point that lies at most this far (px) from the line between its neighbors
+PATH_SIMPLIFICATION_TOLERANCE_PX = 0.1
 
 
 class DrawingScale(NamedTuple):
@@ -899,19 +901,36 @@ def points_attribute(points: Sequence[Point]) -> str:
     return ' '.join(f'{x:.1f},{y:.1f}' for x, y in points)
 
 
-def without_straight_runs(points: Sequence[Point]) -> List[Point]:
-    """Return the points without each one that lies on the line between the kept one and the next.
+def distance_to_segment(point: Point, start: Point, end: Point) -> float:
+    """Return the distance (px) from a point to the segment between two points.
 
-    A straight path keeps its two ends. A tenth of a pixel counts as on the line.
+    A segment whose two ends are one point is that point.
     """
-    kept = list(points[:1])
+    (x, y), (start_x, start_y), (end_x, end_y) = point, start, end
+    along_x, along_y = end_x - start_x, end_y - start_y
+    length_squared = along_x ** 2 + along_y ** 2
+    if length_squared == 0:
+        return math.hypot(x - start_x, y - start_y)
+    # Where the point's foot lies on the segment: 0 at its start, 1 at its end, clamped to both
+    share = ((x - start_x) * along_x + (y - start_y) * along_y) / length_squared
+    share = max(0.0, min(1.0, share))
+    return math.hypot(x - (start_x + share * along_x), y - (start_y + share * along_y))
+
+
+def without_straight_runs(points: Sequence[Point]) -> List[Point]:
+    """Return the points without each one that lies between the kept one before and the next.
+
+    A straight path keeps its two ends. A point stays when it lies more than
+    PATH_SIMPLIFICATION_TOLERANCE_PX from the segment between its neighbors, so a path that turns
+    back keeps its turning point.
+    """
+    if len(points) < 3:
+        return list(points)
+    kept = [points[0]]
     for point, following in zip(points[1:-1], points[2:]):
-        (x0, y0), (x1, y1), (x2, y2) = kept[-1], point, following
-        # Twice the area of the triangle, divided by its base: the distance from the line
-        cross = abs((x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0))
-        if cross > 0.1 * math.hypot(x2 - x0, y2 - y0):
+        if distance_to_segment(point, kept[-1], following) > PATH_SIMPLIFICATION_TOLERANCE_PX:
             kept.append(point)
-    return kept + list(points[-1:])
+    return kept + [points[-1]]
 
 
 def path_line(scale: DrawingScale, poses: Sequence[Pose], css_class: str) -> str:

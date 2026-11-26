@@ -215,6 +215,17 @@ class TestDrawing(unittest.TestCase):
         points = [(0.0, 0.0), (1.0, 0.2), (2.0, 0.0)]
         self.assertEqual(figures.without_straight_runs(points), points)
 
+    def test_a_path_that_turns_back_keeps_its_turning_point(self) -> None:
+        points = [(0.0, 0.0), (2.0, 0.0), (1.0, 0.0)]
+        self.assertEqual(figures.without_straight_runs(points), points)
+
+    def test_a_path_that_returns_to_its_start_keeps_its_far_point(self) -> None:
+        points = [(0.0, 0.0), (1.0, 0.0), (0.0, 0.0)]
+        self.assertEqual(figures.without_straight_runs(points), points)
+
+    def test_a_single_point_stays_a_single_point(self) -> None:
+        self.assertEqual(figures.without_straight_runs([(0.0, 0.0)]), [(0.0, 0.0)])
+
     def test_the_reach_takes_in_the_wider_configured_outline(self) -> None:
         own = figures.model_inputs(REMO, figures.DEFAULT_SETTINGS)
         wider = figures.model_inputs(REMO, figures.Settings(separation_percent=120))
