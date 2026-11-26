@@ -25,7 +25,7 @@ $$
 
 The four numbers are the parts of a quaternion, a number with one real and three imaginary parts, as a complex number has one real and one imaginary part. Wikipedia's [Quaternions and spatial rotation](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation) shows how the products of quaternions rotate vectors. This page uses a quaternion only as the four numbers of a rotation.
 
-Three angles, the roll, the pitch and the yaw, can describe a rotation too, and [Roll, pitch and yaw](#roll-pitch-and-yaw) converts between the two forms. Three angles have special cases. At a pitch of ±90°, the roll and the yaw turn about the same axis, and several sets of angles describe the same rotation ([gimbal lock](https://en.wikipedia.org/wiki/Gimbal_lock)). A quaternion has no such special case. ROS's convention REP 103 prefers quaternions to the other forms of a rotation, for their compact form and because they have no such special cases ([REP 103: rotation representation](https://www.ros.org/reps/rep-0103.html#rotation-representation)). ROS messages and tf2, ROS's library for coordinate frames, store every rotation as a quaternion.
+Three angles, the roll, the pitch and the yaw, can describe a rotation too, and [Roll, pitch and yaw](#roll-pitch-and-yaw) converts between the two forms. Three angles have special cases. At a pitch of ±90°, the roll and the yaw turn about the same axis, and several sets of angles describe the same rotation ([gimbal lock](https://en.wikipedia.org/wiki/Gimbal_lock)). A quaternion has no such special case. ROS's convention REP 103 prefers quaternions to the other forms of a rotation, for their compact form and because they have no such special cases ([REP 103: rotation representation](https://www.ros.org/reps/rep-0103.html#rotation-representation)). ROS's pose and transform messages carry their orientation or rotation as a quaternion.
 
 ## The length 1 and the rotation that does nothing
 
@@ -41,12 +41,12 @@ $$
 
 Four properties follow:
 
-- **Only the length 1 is a rotation:** a quaternion with another length describes no rotation. A rotation's quaternion is also called a unit quaternion.
+- **A unit quaternion:** a quaternion of the length 1 is called a unit quaternion, and ROS expects one for a rotation. A nonzero quaternion can be normalized by dividing its four numbers by its length. Four zeros can't be normalized.
 - **Three degrees of freedom:** four numbers with one condition leave three free numbers. So a rotation has three degrees of freedom, and the covariance of an orientation is a 3 × 3 matrix, as in [the IMU's message](noise-and-covariance.md#the-imus-message).
 - **The identity:** the angle $\alpha$ = 0 gives $\mathbf q = (0, 0, 0, 1)$, the rotation that does nothing. DiffBot's URDF model mounts its IMU's frame `imu_link` without a rotation, with [`imu_rpy`]({{ ekf_src_url }}/diffbot_description/urdf/diffbot.urdf.xacro#L4-L10) = `0 0 0`, so that frame's quaternion is the identity. The mounting on DiffBot itself still needs to be measured, as the comment above the setting says.
 - **Two quaternions for each rotation:** $\mathbf q$ and $-\mathbf q$ describe the same rotation. $-\mathbf q$ belongs to the angle $\alpha$ + 360° about the same axis.
 
-**Four zeros:** $(0, 0, 0, 0)$ has the length 0, so the four zeros are no rotation at all. Yet the robots' IMU messages carry four zeros as their orientation. The firmware never sets the orientation, so its message keeps the four zeros that a new message starts with: the constructor of rosserial's [`geometry_msgs::Quaternion`](https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/geometry_msgs/Quaternion.h#L24-L30) sets all four numbers to 0. In the simulation, the adapter sets the four numbers to 0 in its function [`callback()`]({{ ekf_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py#L29-L36). A new `geometry_msgs/Quaternion` of ROS Noetic on the robot's computer starts as four zeros too. The −1 in `orientation_covariance[0]` says that the field holds no data, so a node that reads an orientation checks the −1 before it uses the four numbers. In ROS 2, the [definition of `geometry_msgs/Quaternion`](https://github.com/ros2/common_interfaces/blob/4.9.2/geometry_msgs/msg/Quaternion.msg) gives $q_w$ the default 1, so a new quaternion is the identity there.
+**Four zeros:** $(0, 0, 0, 0)$ has the length 0, so the four zeros are no rotation at all. Yet on the topic `/diffbot/imu/data_raw`, the firmware and the simulation's adapter both publish four zeros in `orientation` and mark the field unavailable. The firmware never sets the orientation, so its message keeps the four zeros that a new message starts with: the constructor of rosserial's [`geometry_msgs::Quaternion`](https://github.com/frankjoshua/rosserial_arduino_lib/blob/0.9.1/src/geometry_msgs/Quaternion.h#L24-L30) sets all four numbers to 0. In the simulation, the IMU plugin's message on `/diffbot/imu/gazebo` does carry an orientation. The adapter sets the four numbers to 0 in its function [`callback()`]({{ ekf_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py#L29-L36) before it publishes the message on `/diffbot/imu/data_raw`. A new `geometry_msgs/Quaternion` of ROS Noetic on the robot's computer starts as four zeros too. The −1 in `orientation_covariance[0]` says that the field holds no data, so a node that reads an orientation checks the −1 before it uses the four numbers. In ROS 2, the [definition of `geometry_msgs/Quaternion`](https://github.com/ros2/common_interfaces/blob/4.9.2/geometry_msgs/msg/Quaternion.msg) gives $q_w$ the default 1, so a new quaternion is the identity there.
 
 ## Roll, pitch and yaw
 
@@ -58,7 +58,15 @@ $$
 \mathbf q = \left(0,\ 0,\ \sin\frac{\psi}{2},\ \cos\frac{\psi}{2}\right)
 $$
 
-Back from a yaw-only quaternion, the yaw is $\psi = 2\,\operatorname{atan2}(q_z, q_w)$, up to a full turn of 360°. For any quaternion of the length 1, the yaw is $\psi = \operatorname{atan2}\big(2\,(q_w q_z + q_x q_y),\ 1 - 2\,(q_y^2 + q_z^2)\big)$, between −180° and +180°. A roll alone has only $q_x$ and $q_w$, and a pitch alone only $q_y$ and $q_w$.
+Back from a yaw-only quaternion, the yaw is $\psi = 2\,\operatorname{atan2}(q_z, q_w)$, up to a full turn of 360°. A roll alone has only $q_x$ and $q_w$, and a pitch alone only $q_y$ and $q_w$.
+
+For a unit quaternion whose pitch is strictly between −90° and +90° in this convention of fixed axes, the yaw is:
+
+$$
+\psi = \operatorname{atan2}\big(2\,(q_w q_z + q_x q_y),\ 1 - 2\,(q_y^2 + q_z^2)\big)
+$$
+
+The result lies between −180° and +180°. At either pitch limit, the orientation is still defined, but the roll and the yaw aren't individually unique. For a pitch of +90° alone, $\mathbf q = (0, \sqrt{1/2}, 0, \sqrt{1/2})$, both arguments of $\operatorname{atan2}$ are 0.
 
 **The heading on the floor:** a robot on a flat floor turns only about the z axis. Its heading $\theta$, the angle of [the robot's pose](../modeling-control/robot-representations.md#robot-pose), is the yaw $\psi$ of its orientation. So the orientation in the robots' odometry messages is a yaw-only quaternion. The drive controller turns its heading into a quaternion with [`tf::createQuaternionMsgFromYaw()`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L434-L435) in ros_controllers 0.22.0. The simulation test turns the quaternion back into the heading with `euler_from_quaternion()`, as [Connecting to the robot](../../development/simulation-test.md#3-connecting-to-the-robot) on the Simulation Test page shows.
 
@@ -89,11 +97,12 @@ Remo's IMU board lies flat on the breadboard, turned so that the board's y axis 
 $$
 \begin{aligned}
 \mathbf q &= \big(0,\ 0,\ \sin(-45°),\ \cos(-45°)\big) \\
-&= (0,\ 0,\ -0.7071,\ 0.7071)
+&= \left(0,\ 0,\ -\frac{1}{\sqrt 2},\ \frac{1}{\sqrt 2}\right) \\
+&\approx (0,\ 0,\ -0.7071,\ 0.7071)
 \end{aligned}
 $$
 
-The length is 1, because $0.7071^2 + 0.7071^2 = 0.5 + 0.5 = 1$.
+The two nonzero components each have the square 1/2, so the exact quaternion has the length 1. The rounded decimals don't: their squares add up to 0.99998.
 
 **What the rotation does:** a rotation by $\psi$ about the z axis has the rotation matrix $R$. Its columns are the axes of `imu_link`, written in the axes of `chassis_link`:
 
@@ -121,7 +130,7 @@ $$
 
 The forward acceleration appears in the board's $f_y$ and in the robot's $f_x$. The angular velocity turns the same way: $(\omega_x, \omega_y, \omega_z)$ of `imu_link` becomes $(\omega_y, -\omega_x, \omega_z)$ of `chassis_link`. The yaw rate $\omega_z$ stays the same, because both z axes point up. The EKF turns the IMU's measurement into the robot's frame in this way, as [The frames](../../packages/imu/robot_localization.md#the-frames) on the Localization page explains. The same rotation takes the angular velocity's covariance into chassis coordinates as $R\,\boldsymbol\Sigma\,R^\mathsf T$. Here $\boldsymbol\Sigma = \sigma^2 I_3$, so the [covariance sphere](noise-and-covariance.md#the-covariance-ellipsoid) has the same radius in both frames.
 
-**In tf:** robot_state_publisher publishes the transform of each fixed joint of the robot's URDF model on the topic `/tf_static`, in its function [`publishFixedTransforms()`](https://github.com/ros/robot_state_publisher/blob/1.15.3/src/robot_state_publisher.cpp#L145-L168). The transform from `chassis_link` to `imu_link` carries the quaternion above as its rotation. `rosrun tf tf_echo chassis_link imu_link` prints the transform wherever robot_state_publisher runs with Remo's URDF model. For remo_description 2.5.0, in a ROS Noetic container on the PC, the output starts with these lines:
+**In tf:** with the default of its setting `use_tf_static`, robot_state_publisher broadcasts the transform of each fixed joint of the robot's URDF model on the topic `/tf_static`, in its function [`publishFixedTransforms()`](https://github.com/ros/robot_state_publisher/blob/1.15.3/src/robot_state_publisher.cpp#L145-L168). The transform from `chassis_link` to `imu_link` carries the quaternion above as its rotation. `rosrun tf tf_echo chassis_link imu_link` prints the transform wherever robot_state_publisher runs with Remo's URDF model. For remo_description 2.5.0, in a ROS Noetic container on the PC, the output starts with these lines:
 
 ```console
 At time 0.000
@@ -145,7 +154,7 @@ The fields `x`, `y`, `z` and `w` are $q_x$, $q_y$, $q_z$ and $q_w$. Some librari
 
 The robots' messages carry quaternions in three places:
 
-- **The IMU's orientation:** `orientation` of [`sensor_msgs/Imu`](noise-and-covariance.md#the-imus-message) is four zeros with −1 in `orientation_covariance[0]`, so the field holds no data. The BNO055 can compute its own orientation as a quaternion ([BNO055 datasheet, section 3.6.5.5 on page 37](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=37)). The chip's registers hold that quaternion with $q_w$ first. The firmware doesn't read that quaternion, because the EKF uses only the yaw rate.
+- **The IMU's orientation:** on `/diffbot/imu/data_raw`, `orientation` of [`sensor_msgs/Imu`](noise-and-covariance.md#the-imus-message) is four zeros with −1 in `orientation_covariance[0]`, so the field holds no data. The BNO055 can compute its own orientation as a quaternion ([BNO055 datasheet, section 3.6.5.5 on page 37](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=37)). The chip's registers hold that quaternion with $q_w$ first. The firmware doesn't read that quaternion, because the EKF uses only the yaw rate.
 - **The odometry's orientation:** `pose.pose.orientation` of `nav_msgs/Odometry` holds the heading $\theta$ as a yaw-only quaternion. The drive controller publishes this message on `/diffbot/mobile_base_controller/odom`, and the EKF on `/diffbot/odometry/filtered`, as [The two outputs](../../packages/imu/robot_localization.md#the-two-outputs) on the Localization page describes.
 - **The transforms:** each transform on `/tf` and `/tf_static` has a rotation, for example the heading in the EKF's transform from `odom` to `base_footprint`, and Remo's −90° in the transform from `chassis_link` to `imu_link`.
 
