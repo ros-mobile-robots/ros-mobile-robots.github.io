@@ -262,7 +262,7 @@ $$
 
 **One value for both quantities:** $\sigma$ is 0.005 rad/s for the angular velocity and 0.005 m/s² for the specific force. This is a limit of the plugin, which has one parameter for all values, and not a model of a real sensor. A gyroscope's noise in rad/s and an accelerometer's noise in m/s² are different quantities with different sizes. The acceleration's noise doesn't matter to the EKF today, because the EKF fuses only the yaw rate $\omega_z$. The yaw rate's noise and variance do reach the EKF. They are simulation settings too. So the simulation doesn't show how the real sensor's noise affects the EKF.
 
-**A simulation setting, not a measurement:** 0.005 isn't the BNO055's noise. At rest on Remo, the real BNO055's gyroscope scatters with a standard deviation of 0.0005 to 0.0008 rad/s, and its accelerometer with about 0.02 to 0.03 m/s². The [bench checks](../driver-bno055.md#bench-checks) on the BNO055 page have these measurements.
+**A simulation setting, not a measurement:** 0.005 isn't the BNO055's noise. At rest on Remo, the real BNO055's gyroscope scatters with a standard deviation of 0.0005 to 0.0008 rad/s, and its accelerometer with about 0.02 to 0.03 m/s². [Bias and noise at rest](../driver-bno055.md#bias-and-noise-at-rest) on the BNO055 page has these measurements.
 
 ### Filling the covariances
 
