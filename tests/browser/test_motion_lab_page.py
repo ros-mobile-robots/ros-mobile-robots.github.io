@@ -15,6 +15,7 @@ import html
 import math
 import re
 from typing import Any
+from typing import cast
 from typing import Dict
 from typing import Iterator
 from typing import List
@@ -24,15 +25,20 @@ from typing import Tuple
 import unittest
 
 from local_site import chromium
+from local_site import FAILED_RESOURCE
 from local_site import open_page
 from local_site import OpenedPage
+from local_site import PageLog
 from local_site import served_site
 from local_site import SITE_HOSTS
+from local_site import STOPPED_REQUEST_ERROR
 # local_site puts scripts/figures on the import path
 import motion_lab_figures as figures
 from playwright.sync_api import Browser
+from playwright.sync_api import ConsoleMessage
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page
+from playwright.sync_api import Request
 
 REMO = figures.ROBOTS[figures.EXAMPLE_ROBOT]
 # The configured wheel radius that ends the forward drive on the lower boundary of its check:
@@ -640,6 +646,9 @@ class TestMotionLabPage(SimulationTestPageCase):
         page = self.open_live_figure(**PHONE).page
         open_settings(page)
         set_slider(page, other, other.lowest)
+        # The first example changes this slider: it starts at the robot's value, so that a first
+        # tap that resets it at once can't pass
+        set_slider(page, slider, getattr(figures.DEFAULT_SETTINGS, slider.setting))
         page.locator(f'#{slider.element_id}').scroll_into_view_if_needed()
         box = page.locator(f'#{slider.element_id}').bounding_box()
         if box is None:
@@ -647,9 +656,15 @@ class TestMotionLabPage(SimulationTestPageCase):
         # Tap at a fifth of the slider: the first tap moves the value there, the second resets it
         x, y = box['x'] + box['width'] / 5, box['y'] + box['height'] / 2
         default = str(getattr(figures.DEFAULT_SETTINGS, slider.setting))
-        # The page records the value after the first tap, so that nothing runs between the taps
-        page.eval_on_selector(f'#{slider.element_id}', """input => input.addEventListener('input',
-            () => { input.dataset.afterFirstTap = input.value; }, {once: true})""")
+        # The page records the value as the second press starts, after the first tap has ended, so
+        # that nothing runs between the taps
+        page.eval_on_selector(f'#{slider.element_id}', """input => {
+            let presses = 0;
+            input.addEventListener('pointerdown', () => {
+                presses += 1;
+                if (presses === 2) input.dataset.afterFirstTap = input.value;
+            }, {capture: true});
+        }""")
         page.touchscreen.tap(x, y)
         page.touchscreen.tap(x, y)
         after_first_tap = page.eval_on_selector(f'#{slider.element_id}',
@@ -1319,6 +1334,25 @@ class TestMotionLabPage(SimulationTestPageCase):
             len(figures.EXAMPLES))
 
 
+class StandInRequest:
+    """A request for the page log's tests: the address is all that the log reads of one."""
+
+    def __init__(self, url: str) -> None:
+        """Keep the request's address."""
+        self.url = url
+
+
+class StandInConsoleMessage:
+    """A console message for the page log's tests: what the log reads of a real one."""
+
+    def __init__(self, kind: str, text: str, args: List[str], location: Dict[str, str]) -> None:
+        """Keep the message's kind (Playwright's type), text, arguments and location."""
+        self.type = kind
+        self.text = text
+        self.args = args
+        self.location = location
+
+
 class TestPageLog(SimulationTestPageCase):
     """The page's log tells the test's own stopped requests from failures that are the page's."""
 
@@ -1357,6 +1391,22 @@ class TestPageLog(SimulationTestPageCase):
         failed = [error for error in opened.log.errors if self.UNRELATED_FILE in error]
         self.assertTrue(any('ERR_CONNECTION_RESET' in error for error in failed),
                         opened.log.errors)
+
+    def test_a_page_console_error_at_a_blocked_url_keeps_its_message(self) -> None:
+        url = f'{self.base}{self.UNRELATED_FILE}'
+        browser_line = f'{FAILED_RESOURCE}: {STOPPED_REQUEST_ERROR}'
+        # A page message with more detail, and a page message that quotes the browser's line
+        for page_text in (f'{browser_line} while drawing the wheel', browser_line):
+            with self.subTest(page_text=page_text):
+                log = PageLog()
+                log.add_stopped_request(cast(Request, StandInRequest(url)))
+                log.add_console_message(cast(ConsoleMessage, StandInConsoleMessage(
+                    'error', page_text, ['an argument'], {'url': url})))
+                # Checked now: the browser's line that follows can have the same text
+                self.assertEqual(log.errors, [page_text])
+                log.add_console_message(cast(ConsoleMessage, StandInConsoleMessage(
+                    'error', browser_line, [], {'url': url})))
+                self.assertEqual(log.errors, [page_text])
 
     def test_an_error_that_the_page_writes_to_the_console_is_an_error(self) -> None:
         opened = self.open_simulation_test_page()

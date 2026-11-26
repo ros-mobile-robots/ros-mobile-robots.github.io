@@ -120,13 +120,18 @@ class PageLog:
         """Note an error that the page wrote to the console.
 
         The browser's own line about a request that the test stopped isn't the page's fault: each
-        stopped request excuses one such line at its address, with the error of route.abort().
+        stopped request excuses one such line at its address, with exactly the error of
+        route.abort() and no arguments.
         """
         if message.type not in ('error', 'assert'):
             return
         url = message.location.get('url', '')
+        # The browser's own line has exactly this text and no arguments. A page's console call
+        # has arguments, also when it quotes the same text
         about_stopped_request = (
-            message.text.startswith(f'{FAILED_RESOURCE}: {STOPPED_REQUEST_ERROR}')
+            message.type == 'error'
+            and message.text == f'{FAILED_RESOURCE}: {STOPPED_REQUEST_ERROR}'
+            and not message.args
             and self.stopped_console_lines.get(url, 0) > 0
         )
         if about_stopped_request:
