@@ -28,6 +28,7 @@
       
     
     
+    
       <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
@@ -37,6 +38,20 @@
 
 
     
+    <style>
+      /* A code block's title breaks inside a long name, such as a test's, instead of widening the page */
+      .md-typeset .highlight .filename { overflow-wrap: anywhere; }
+      /* On narrow screens, Material runs the tab labels of a page's top-level tabs from one edge of the
+         screen to the other. Its selectors also reach tabs inside those tabs, whose labels then reach
+         beyond the screen. These rules keep nested tabs and their arrows inside their own box, with
+         the arrows at Material's normal width. The media query is Material's own breakpoint */
+      @media screen and (max-width: 44.984375em) {
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels { max-width: 100%; margin: 0; padding-inline: 0; scroll-padding-inline-start: 0; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels::after { content: none; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels ~ .tabbed-control { width: 1.2rem; margin: 0; padding: 0; }
+      }
+    </style>
+
     
     
       
@@ -1921,6 +1936,64 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_2">
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_2" id="__nav_3_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMU (BNO055)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IMU (BNO055)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../imu/driver-bno055/" class="md-nav__link">
         
@@ -1938,6 +2011,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imu/noise-at-rest-tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tests of the Noise Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
