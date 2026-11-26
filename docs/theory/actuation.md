@@ -1,112 +1,152 @@
 # DC Motors and Motor Drivers
 
-Each wheel of DiffBot and Remo is driven by a brushed DC motor, the [DG01D-E](../DG01D-E-motor-with-encoder.md), through a motor driver.
-Remo's driver is the [Adafruit DC Motor + Stepper FeatherWing](https://www.adafruit.com/product/2927) with TB6612 chips, and DiffBot's is the [Grove I2C Motor Driver V1.3](../grove_motor_driver.md) with an L298.
-This page explains how a motor driver sets the direction and the speed of a motor: with an H-bridge for the direction, and with pulse-width modulation (PWM) for the speed.
-The [PID controller](../packages/diffbot_base/pid.md) of the firmware and the robots' [Power Supply](../power-supply.md) build on both.
+DiffBot and Remo each have two drive wheels, each powered by a [DG01D-E](../DG01D-E-motor-with-encoder.md) brushed DC motor.
+A motor driver reverses the voltage across the motor to change direction.
+It adjusts the average voltage with pulse-width modulation (PWM) to control how fast the wheel turns.
+Remo uses the [Adafruit DC Motor + Stepper FeatherWing](https://www.adafruit.com/product/2927) with TB6612 chips.
+DiffBot uses the [Grove I2C Motor Driver V1.3](../grove_motor_driver.md) with an L298.
+
+This page follows one motor: why a voltage turns it, how the four switches of an H-bridge reverse that voltage, how PWM sets its average, and how much voltage a driver loses.
+The values come from the parts' datasheets, from Adafruit's library and from Remo's firmware.
+None of them is a measurement on a robot.
 
 ## The brushed DC motor
 
 A brushed DC motor turns when a voltage is applied to its two terminals.
-Its speed is proportional to that voltage, and when the voltage is reversed, the current flows the other way through the winding and the motor turns in the other direction ([Microchip's application note AN905, Brushed DC Motor Fundamentals](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf), Speed Control and the H-bridge section).
-The DG01D-E is rated for 3 V to 9 V, and its [datasheet](https://cdn.sparkfun.com/assets/8/3/b/e/4/DS-16413-DG01D-E_Motor_with_Encoder.pdf) gives 90 RPM at 4.5 V.
-It has a gearbox and an encoder, which the [motor's page](../DG01D-E-motor-with-encoder.md) describes.
+Brushes make contact with a rotating switch called a commutator.
+The commutator directs the current through successive windings as the shaft turns ([Microchip's application note AN905, Brushed DC Motor Fundamentals](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf), Principles of Operation).
+Most brushed DC motors get their magnetic field from permanent magnets ([AN905, Permanent Magnet](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=2)).
+In such a motor, reversing the terminal voltage drives the current in the opposite direction.
+The torque reverses as the current reverses.
+At the same load, a higher voltage gives a higher steady speed.
+Load, heat and wear change the speed too ([AN905, Feedback Mechanisms](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)).
 
-So a motor driver has to do two things: switch the polarity of the voltage at the motor for the direction, and set the size of the voltage for the speed.
+The DG01D-E's [datasheet](https://cdn.sparkfun.com/assets/8/3/b/e/4/DS-16413-DG01D-E_Motor_with_Encoder.pdf) lists a voltage of 3 V to 9 V, a gear ratio of 1:48 and a speed of 90 RPM at 4.5 V.
+It doesn't name the load for that speed.
+The gearbox lets the wheel turn more slowly than the motor shaft and increases the torque available at the wheel.
+[Motor and Encoder](../DG01D-E-motor-with-encoder.md) explains how the encoder ticks relate to one wheel revolution.
+
+So a motor driver has two jobs.
+It sets the polarity of the voltage across the motor for the direction, and the average of that voltage for the speed.
 
 ## The H-bridge
 
 An H-bridge connects a motor to its supply in either direction.
 It has four switches, Q1 to Q4, in two half-bridges, one on each side of the motor.
-Each half-bridge connects its motor terminal either to the supply voltage +V or to ground (AN905, the H-bridge section).
+Each half-bridge can connect its motor terminal to the supply rail, +V, or to ground ([AN905, Figure 8](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=4)).
+When both switches on a side are open, that terminal can float.
+A floating terminal is connected to neither +V nor ground.
 Drawn as a circuit, the two half-bridges and the motor between them look like the letter H, which gives the circuit its name.
 
 --8<-- "includes/actuation-h-bridge.html"
 
-The two motor drivers have the same four modes, under their own names.
-The TB6612 sets them with its inputs IN1, IN2 and PWM ([TB6612FNG datasheet](https://cdn.sparkfun.com/assets/0/1/b/b/3/TB6612FNG.pdf), H-SW Control Function), and the L298 with its inputs C, D and its enable input ([L298 datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf), Figure 6):
+The table shows one switching pattern for each mode.
+Forward and reverse name opposite voltage polarities.
+Which way a wheel turns depends on how its motor leads are connected.
 
-| Mode | Closed switches (AN905, Table 1) | TB6612 (Remo) | L298 (DiffBot) |
+| Mode | Closed switches | TB6612 (Remo) | L298 (DiffBot) |
 | --- | --- | --- | --- |
 | Forward | Q1 and Q4 | CW | Forward |
 | Reverse | Q2 and Q3 | CCW | Reverse |
-| Coast | none | Stop, outputs off (high impedance) | Free running motor stop |
+| Coast | none | Stop | Free running motor stop |
 | Brake | Q2 and Q4 | Short brake | Fast motor stop |
 
-The two switches of one half-bridge must never be closed together.
-They would connect the supply directly to ground, and the short circuit can destroy the switches (AN905, the H-bridge section).
-The TB6612 prevents this itself: when it changes from one mode to another, it inserts a dead time in which the switches it turns off are already off before the others turn on (TB6612FNG datasheet, H-SW Operating Description).
+The closed switches are those of [AN905, Table 1](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=4).
+The two columns on the right give each chip's own name for the mode:
+
+- **TB6612:** With its standby input STBY high and its PWM input high, the TB6612 selects clockwise (CW) for its input IN1 high and IN2 low, counterclockwise (CCW) for the opposite pair, and Stop for two low inputs. Stop turns both outputs off, so both motor terminals float. Short brake connects both outputs to ground ([TB6612FNG datasheet, H-SW Control Function](https://cdn.sparkfun.com/assets/0/1/b/b/3/TB6612FNG.pdf#page=4)).
+- **L298:** A low enable input lets the motor coast. With enable high, opposite levels at the inputs C and D drive the motor, and equal levels brake it ([L298 datasheet, Figure 6](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf#page=6)). The figure shows the low-side brake.
+
+Closing both switches on the same side would short +V to ground.
+This is called shoot-through, and it can destroy the switches ([AN905, next to Table 1](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=4)).
+The TB6612 inserts a brief interval with the switches off during transitions to prevent it ([TB6612FNG datasheet, H-SW Operating Description](https://cdn.sparkfun.com/assets/0/1/b/b/3/TB6612FNG.pdf#page=4)).
+
+The four panels show ideal switches.
+A real bridge also has a diode across each switch, D1 to D4 in [AN905, Figure 8](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=4).
+When the switches turn off, the winding still carries current.
+The diodes give that current a path and protect the switches.
 
 ## PWM and the duty cycle
 
-To set the speed, the motor driver doesn't make a lower voltage.
-It switches the full supply voltage on and off many times per second, which is called pulse-width modulation (PWM).
-The time of one on-and-off cycle is the period \(T\), and the duty cycle \(D\) is the share of the period during which the motor is connected to the supply:
+To lower the average voltage, a motor driver doesn't make a lower voltage.
+It switches the full supply voltage $V_\text{supply}$ on and off many times per second.
+This is called pulse-width modulation (PWM).
+
+Take a motor that is driven forward through ideal switches.
+The voltage across the motor alternates between $V_\text{supply}$ and 0 V.
+The on-time is $t_\text{on}$.
+One full cycle takes the time $T$, the period, so the duty cycle $D$ is
 
 $$
 D = \frac{t_\text{on}}{T}
 $$
 
-The motor's winding smooths the pulses, so at a high enough frequency the current in the winding is steady (AN905, Speed Control).
-The motor then behaves as with the average voltage \(V_\text{average}\), which is the duty cycle times the supply voltage \(V_\text{supply}\) (AN905, Equation 1):
+The average terminal voltage $V_\text{average}$ is the duty cycle times the supply voltage ([AN905, Equation 1](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)):
 
 $$
-V_\text{average} = D \cdot V_\text{supply}
+V_\text{average} = D \, V_\text{supply}
 $$
+
+The winding's inductance smooths the current, which can keep flowing between the voltage pulses ([AN905, Speed Control](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)).
 
 --8<-- "includes/actuation-pwm.html"
 
-On Remo, the firmware's PID controller computes a command from −255 to 255 for each wheel.
-[`AdafruitMotorController::setSpeed()`](https://github.com/ros-mobile-robots/diffbot/blob/101f179a50afa92c625eb9f72dcd5443c9cc49e2/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) turns the sign of the command into the bridge's mode and passes the size of the command on as the speed:
+The figure's supply of 9.6 V is the nominal voltage of Remo's eight NiMH cells ([Remo's NiMH cells](../power-supply.md#remos-nimh-cells) on the Power Supply page).
+The plot shows voltage, not speed.
+A wheel at a duty cycle of 50 % need not turn at half of its full speed, because the speed also depends on the load ([AN905, Feedback Mechanisms](https://ww1.microchip.com/downloads/en/AppNotes/00905B.pdf#page=5)).
 
-```cpp
-void diffbot::AdafruitMotorController::setSpeed(int value)
-{
-    if (value > 0)
-    {
-        pMotor_->run(FORWARD);
-    }
-    else if (value < 0)
-    {
-        pMotor_->run(BACKWARD);
-        // AdafruAdafruit_MotorShield requires uint8 values from 0 to 255
-        // Make sure to convert the negative value to a positive one
-        value = value * -1;
-    }
-    else // zero speed
-    {
-        // Cut power to the motor
-        pMotor_->run(RELEASE);
-    }
+On Remo, each wheel's PID controller produces a signed motor command $u$ from −255 to 255 in every control step.
+[The feedback loop of one wheel](../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) follows one such command.
+The sign selects forward or reverse, and the magnitude $\lvert u \rvert$ sets the duty cycle.
+For each step of the magnitude, Adafruit's library switches the voltage on for 16 of the 4096 counts of a PWM period ([`Adafruit_DCMotor::setSpeed()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256), version 1.1.4):
 
-    pMotor_->setSpeed(value);
-}
-```
+$$
+D = \frac{16 \cdot \lvert u \rvert}{4096}
+$$
 
-Adafruit's library does the rest ([`Adafruit_MotorShield.cpp`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L231-L256), version 1.1.4):
+The table gives the three commands of the figure and the highest command:
 
-- **Direction:** `run(FORWARD)` sets the TB6612's input IN1 high and IN2 low, its mode CW. `run(BACKWARD)` sets IN1 low and IN2 high, CCW.
-- **Stop:** A command of 0 calls `run(RELEASE)`, which sets IN1 and IN2 low. The TB6612 then switches its outputs off, and the motor coasts. The firmware's [command timeout](../packages/diffbot_base/low-level.md#the-command-timeout) stops the motors this way too.
-- **Speed:** `setSpeed()` sets the PWM input to 16 counts per step of the command, of 4096 counts per period. The command 128, for example, gives 2048 of 4096 counts, a duty cycle of 50 %.
-- **Frequency:** The FeatherWing makes the PWM with a PCA9685 chip ([Adafruit's guide, Pinouts](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts)). The firmware asks for 1600 Hz, the default of [`AdafruitMotorController::begin()`](https://github.com/ros-mobile-robots/diffbot/blob/101f179a50afa92c625eb9f72dcd5443c9cc49e2/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.h#L49). The library lowers the request by 10 % and rounds the chip's prescaler to 3 ([`Adafruit_MS_PWMServoDriver::setPWMFreq()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/utility/Adafruit_MS_PWMServoDriver.cpp#L38-L57)). The PCA9685 divides its 25 MHz oscillator by 4096 times the prescaler plus 1, so it runs at its maximum of about 1526 Hz ([PCA9685 datasheet](https://cdn-shop.adafruit.com/datasheets/PCA9685.pdf), section 7.3.5), and a period lasts about 0.66 ms.
-- **Between the pulses:** While the PWM input is low, the TB6612's table gives short brake for both directions, so the motor's terminals are connected to ground until the next pulse.
+| Command magnitude $\lvert u \rvert$ | Counts of 4096 | Duty cycle $D$ |
+| --: | --: | --: |
+| 64 | 1024 | 25 % |
+| 128 | 2048 | 50 % |
+| 192 | 3072 | 75 % |
+| 255 | 4080 | 99.6 % |
 
-The highest command, 255, gives 4080 of 4096 counts, a duty cycle of 99.6 %.
+??? example "How Remo sets direction, duty cycle and frequency"
+    Remo's microcontroller (MCU), a Teensy, commands the FeatherWing over I2C.
+    In every control step, the firmware's `BaseController::write()` passes each wheel's command to [`AdafruitMotorController::setSpeed()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp#L16-L36) as `value`.
+    In the excerpt, follow the sign of `value` to the call of `pMotor_->run()`, and its magnitude to the call of `pMotor_->setSpeed()`:
+
+    ```cpp title="adafruit_feather_wing.cpp: setSpeed()" linenums="16"
+    --8<-- "{{ pid_src_raw }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.cpp:16:36"
+    ```
+
+    `pMotor_` points to an `Adafruit_DCMotor`, a motor object of Adafruit's library.
+    The library turns the two calls into signals for the TB6612.
+    The firmware's [`platformio.ini`]({{ pid_src_url }}/diffbot_firmware/platformio.ini#L36) asks for the library with `@^1.0.11`, which permits version 1.1.4, the version that this page describes.
+
+    - **Direction:** [`Adafruit_DCMotor::run()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L231-L246) sets the TB6612's input IN1 high and IN2 low for `FORWARD`, the chip's mode CW. For `BACKWARD`, it sets IN1 low and IN2 high, CCW. The FeatherWing's [schematic](https://github.com/adafruit/Adafruit-DC-Stepper-Motor-FeatherWing-PCB) connects the library's two direction pins to the chip's inputs of the same names.
+    - **Zero command:** A zero command calls `run(RELEASE)`, which sets both direction inputs low, then `setSpeed(0)`, which requests zero PWM duty. [Adafruit's library reference](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/library-reference) says that `RELEASE` cuts power to the motor and applies no braking. The firmware sends this same command to both motors [when the wheel command expires](../packages/diffbot_base/low-level.md#when-a-command-is-too-old).
+    - **Duty cycle:** `Adafruit_DCMotor::setSpeed()` multiplies the magnitude by 16 and sets the TB6612's PWM input high for that many of the 4096 counts of each period.
+    - **Between the drive pulses:** During a nonzero forward or reverse command, each low PWM interval puts the TB6612 in short brake. Both motor terminals connect to ground until the next drive pulse ([TB6612FNG datasheet, H-SW Control Function](https://cdn.sparkfun.com/assets/0/1/b/b/3/TB6612FNG.pdf#page=4)).
+    - **Frequency:** A PCA9685 chip on the FeatherWing generates the direction and PWM signals ([Adafruit's guide, Pinouts](https://learn.adafruit.com/adafruit-stepper-dc-motor-featherwing/pinouts)). Remo requests 1600 Hz: the firmware's [`setup()`](../packages/diffbot_base/low-level.md#connecting-the-firmware-in-maincpp) calls [`AdafruitMotorController::begin()`]({{ pid_src_url }}/diffbot_firmware/lib/motor_controllers/adafruit_feather_wing/adafruit_feather_wing.h#L49) without an argument, and 1600 is its default. Adafruit's library multiplies that request by 0.9, then rounds the calculated prescaler value of 3.24 to 3 ([`Adafruit_MS_PWMServoDriver::setPWMFreq()`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/utility/Adafruit_MS_PWMServoDriver.cpp#L38-L57)). With the PCA9685's typical 25 MHz clock, the nominal PWM frequency is 25,000,000 Hz / (4096 × (3 + 1)), about 1526 Hz. One period lasts about 0.66 ms at that frequency. The value 3 is the smallest that the chip's prescaler takes, so 1526 Hz is its highest PWM frequency ([PCA9685 datasheet, section 7.3.5](https://cdn-shop.adafruit.com/datasheets/PCA9685.pdf#page=25)).
+
+    These statements come from the code, the library and the datasheets.
+    The frequency is a calculation: the frequency of the PCA9685's clock on Remo isn't measured.
+    No automated test covers `AdafruitMotorController::setSpeed()` or the driver's outputs. The firmware's [unit tests](../packages/diffbot_base/low-level.md#the-unit-tests) on the PC run without the motor driver.
+
+DiffBot's Grove driver is wired to the Raspberry Pi instead, [through the Grove I2C hub](../power-supply.md#diffbot-four-alkaline-cells-and-the-grove-i2c-motor-driver).
+The node for that path, `motor_driver.py` of the `grove_motor_driver` package, is commented out as deprecated in [`minimal.launch`]({{ pid_src_url }}/diffbot_bringup/launch/minimal.launch#L20-L23).
+So the launch files at the pinned commit start no node that sends motor commands to DiffBot's driver.
 
 ## The voltage that the driver loses
 
-Real switches aren't ideal: each closed switch loses some voltage, and the motor gets the supply voltage minus these drops.
-How much depends on the kind of transistor:
+During a drive pulse, the current passes through two switches.
+Their voltage drops reduce the voltage across the motor:
 
-- **L298 (DiffBot):** Its switches are bipolar transistors. Its [datasheet](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf) gives 1.8 V to 3.2 V for the two transistors of a bridge together at 1 A.
-- **TB6612 (Remo):** Its switches are MOSFETs, which lose much less. Its [datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=10660) gives 0.5 V (typical) at 1 A for the two switches of a bridge together.
+- **L298 (DiffBot):** At 1 A, ST lists a total drop of 1.8 V minimum and 3.2 V maximum for the two transistors, under its test conditions: a motor supply of 42 V, a logic supply of 5 V and a junction temperature of 25 °C ([L298 datasheet, Electrical Characteristics](https://files.seeedstudio.com/wiki/Grove-I2C_Motor_Driver_V1.3/res/L298datasheet.pdf#page=3)). The L298 uses bipolar output transistors.
+- **TB6612 (Remo):** At 1 A, Toshiba lists a typical total drop of 0.5 V for the two switches, with both supplies at 5 V ([TB6612FNG datasheet, Electrical Characteristics](https://cdn.sparkfun.com/assets/0/1/b/b/3/TB6612FNG.pdf#page=5)). The TB6612 uses MOSFETs.
 
-The [Power Supply](../power-supply.md) page uses these drops with the robots' batteries and shows what the motors of each robot get.
-
-## Gearbox
-
-Gearboxes can be used to fine-tune the performance characteristics of a motion axis. 
-They're most commonly considered torque multipliers but actually serve several other functions, 
-including speed matching, inertia reduction, and resolution increase[ref](https://www.motioncontrolonline.org/content-detail.cfm/Motion-Control-Technical-Features/How-to-Specify-Gearboxes-for-Motion-Control-Systems/content_id/3256).
-
-<iframe title="vimeo-player" data-consent-src="https://player.vimeo.com/video/219688810" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+These values are for the chips alone, at the datasheets' test current.
+[Power Supply](../power-supply.md) follows the voltage from each robot's batteries through its driver board to the motors.

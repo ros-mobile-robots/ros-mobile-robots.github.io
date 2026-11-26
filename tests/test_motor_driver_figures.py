@@ -39,6 +39,9 @@ DRIVE_CURRENTS = ((figures.Current.LEFT_TO_RIGHT, figures.Side.LEFT, figures.Sid
 # A row of the page's table of the modes: the mode and the switches that are closed
 MODE_ROW = re.compile(r'^\| (?P<mode>Forward|Reverse|Coast|Brake) \| (?P<closed>[^|]+) \|',
                       re.MULTILINE)
+# A row of the page's table of the commands: the magnitude, its counts and its duty cycle
+DUTY_ROW = re.compile(r'^\| (?P<command>\d+) \| (?P<counts>\d+) \| (?P<duty>[\d.]+ %) \|$',
+                      re.MULTILINE)
 # The row of the Power Supply page's table of Remo's cells with the nominal voltages
 NOMINAL_ROW = re.compile(r'^\| Nominal \| (?P<cell>[\d.]+) V \| (?P<pack>[\d.]+) V \|$',
                          re.MULTILINE)
@@ -52,6 +55,8 @@ PRESCALER_BEFORE_ROUNDING = 3.2386
 SMALLEST_PRESCALER = 3
 HIGHEST_FREQUENCY_HZ = 1526
 PERIOD_AT_THE_HIGHEST_FREQUENCY_MS = 0.65536
+# The number of Remo's cells as the page's text writes it
+COUNT_WORDS = {8: 'eight'}
 # The drawings write their coordinates with up to six digits
 COORDINATE_PLACES = 3
 
@@ -382,19 +387,45 @@ class TestPwm(unittest.TestCase):
 class TestPage(unittest.TestCase):
     """The page's text repeats the numbers that the script calculates."""
 
-    def test_the_page_repeats_the_scripts_numbers(self) -> None:
-        page = PAGE.read_text(encoding='utf-8')
-        half_duty = figures.pulse_of(128)
-        self.assertIn(f'The command {half_duty.command}, for example, gives {half_duty.counts} '
-                      f'of {figures.COUNTS_PER_PERIOD} counts, a duty cycle of '
-                      f'{figures.percent(half_duty.duty)}', page)
-        highest = figures.pulse_of(figures.MAX_COMMAND)
-        self.assertIn(f'The highest command, {highest.command}, gives {highest.counts} of '
-                      f'{figures.COUNTS_PER_PERIOD} counts, a duty cycle of '
-                      f'{figures.percent(highest.duty)}', page)
-        self.assertIn(f"rounds the chip's prescaler to {figures.prescaler()}", page)
-        self.assertIn(f'about {figures.frequency_hz():.0f} Hz', page)
-        self.assertIn(f'about {figures.period_ms():.2f} ms', page)
+    def setUp(self) -> None:
+        self.page = PAGE.read_text(encoding='utf-8')
+
+    def test_the_duty_table_gives_the_figures_commands_and_the_highest_command(self) -> None:
+        rows = [(int(row['command']), int(row['counts']), row['duty'])
+                for row in DUTY_ROW.finditer(self.page)]
+        expected = [(pulse.command, pulse.counts, figures.percent(pulse.duty))
+                    for pulse in figures.pulses() + (figures.pulse_of(figures.MAX_COMMAND),)]
+        self.assertEqual(rows, expected)
+
+    def test_the_duty_formula_has_the_librarys_counts(self) -> None:
+        self.assertIn(f'D = \\frac{{{figures.COUNTS_PER_STEP} \\cdot \\lvert u \\rvert}}'
+                      f'{{{figures.COUNTS_PER_PERIOD}}}', self.page)
+        self.assertIn(f'on for {figures.COUNTS_PER_STEP} of the {figures.COUNTS_PER_PERIOD} '
+                      'counts of a PWM period', self.page)
+
+    def test_the_command_range_is_that_of_the_highest_command(self) -> None:
+        self.assertIn(f'a signed motor command $u$ from −{figures.MAX_COMMAND} to '
+                      f'{figures.MAX_COMMAND}', self.page)
+
+    def test_the_frequency_bullet_repeats_the_calculation(self) -> None:
+        megahertz = figures.OSCILLATOR_HZ / 1_000_000
+        for expected in (
+                f'Remo requests {figures.REQUESTED_FREQUENCY_HZ} Hz',
+                f'and {figures.REQUESTED_FREQUENCY_HZ} is its default',
+                f'multiplies that request by {figures.LIBRARY_FREQUENCY_FACTOR:g}',
+                f'rounds the calculated prescaler value of '
+                f'{figures.prescaler_before_rounding():.2f} to {figures.prescaler()}',
+                f"the PCA9685's typical {megahertz:g} MHz clock",
+                f'{figures.OSCILLATOR_HZ:,} Hz / ({figures.COUNTS_PER_PERIOD} × '
+                f'({figures.prescaler()} + 1)), about {figures.frequency_hz():.0f} Hz',
+                f'One period lasts about {figures.period_ms():.2f} ms',
+                f'so {figures.frequency_hz():.0f} Hz is its highest PWM frequency'):
+            self.assertIn(expected, self.page)
+
+    def test_the_text_under_the_figure_names_its_supply_voltage(self) -> None:
+        self.assertIn(f"The figure's supply of {figures.volts(figures.SUPPLY_VOLTAGE)} is the "
+                      f"nominal voltage of Remo's {COUNT_WORDS[figures.REMO_CELLS]} NiMH cells",
+                      self.page)
 
 
 if __name__ == '__main__':
