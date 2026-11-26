@@ -26,6 +26,7 @@
       
     
     
+    
       <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
@@ -35,6 +36,20 @@
 
 
     
+    <style>
+      /* A code block's title breaks inside a long name, such as a test's, instead of widening the page */
+      .md-typeset .highlight .filename { overflow-wrap: anywhere; }
+      /* On narrow screens, Material runs the tab labels of a page's top-level tabs from one edge of the
+         screen to the other. Its selectors also reach tabs inside those tabs, whose labels then reach
+         beyond the screen. These rules keep nested tabs and their arrows inside their own box, with
+         the arrows at Material's normal width. The media query is Material's own breakpoint */
+      @media screen and (max-width: 44.984375em) {
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels { max-width: 100%; margin: 0; padding-inline: 0; scroll-padding-inline-start: 0; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels::after { content: none; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels ~ .tabbed-control { width: 1.2rem; margin: 0; padding: 0; }
+      }
+    </style>
+
     
     
       
@@ -7251,7 +7266,7 @@ k = n\,i + j
 <p>What fills the elements, and what the filter does with them:</p>
 <ul>
 <li><strong>Only the diagonals are filled:</strong> the drive controller and the firmware write a variance onto each element of the diagonal and leave every other element at 0. So both messages say that the errors of two different values don't go together.</li>
-<li><strong>The filter copies all elements:</strong> <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/index.html">robot_localization</a> copies each array into a matrix, element by element, and rotates the matrix into <a href="#the-frames"><code>base_footprint</code></a>. The wheel odometry's velocities are in <code>base_footprint</code> already. The z axis of <a href="#the-frames"><code>imu_link</code></a> points up like the robot's, so the rotation leaves the yaw rate's variance at index 8 as it is.</li>
+<li><strong>The filter copies all elements:</strong> <a href="https://docs.ros.org/en/noetic/api/robot_localization/html/index.html">robot_localization</a> copies each array into a matrix, element by element, and rotates the matrix into <a href="#the-frames"><code>base_footprint</code></a>. The wheel odometry's velocities are in <code>base_footprint</code> already. The z axis of <code>imu_link</code> points up like the robot's, so the rotation leaves the yaw rate's variance at index 8 as it is.</li>
 <li><strong>The filter fuses four variances:</strong> the three of the wheel odometry's fused velocities, at 0, 7 and 35, and the <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s yaw rate's, at 8. These are the cells with a check mark.</li>
 <li><strong><a href="#what-two_d_mode-does"><code>two_d_mode</code></a> replaces the hatched variances:</strong> the variance of <span class="arithmatex">\(v_z\)</span> becomes 10⁻⁶ (m/s)², and those of <span class="arithmatex">\(\omega_x\)</span> and <span class="arithmatex">\(\omega_y\)</span> become 10⁻⁶ (rad/s)², as <a href="#what-two_d_mode-does">What <code>two_d_mode</code> does</a> explains.</li>
 </ul>
@@ -7297,9 +7312,9 @@ k = n\,i + j
 </details>
 <p>These settings supply the numbers on the diagonals:</p>
 <ul>
-<li><strong>The wheel odometry's variances:</strong> the drive controller publishes the values of its parameter <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/config/diffbot_control.yaml#L37"><code>twist_covariance_diagonal</code></a> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>, on the robot and in the simulation.</li>
-<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance on the robot:</strong> the firmware publishes its setting <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_firmware/lib/config/diffbot_base_config.h#L71"><code>angular_velocity_variance</code></a>, 4 · 10⁻⁴ (rad/s)². <a href="../driver-bno055/#what-the-firmware-publishes">What the firmware publishes</a> on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. <a href="../driver-bno055/#bias-and-noise-at-rest">Bias and noise at rest</a> on the same page shows how a recording of the standing robot gives the gyroscope's noise: on Remo, a variance of 2 to 7 · 10⁻⁷ (rad/s)². <a href="../driver-bno055/#from-the-report-to-the-ekf">From the report to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> follows the yaw rate's measured variance to this setting. The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.</li>
-<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance in the simulation:</strong> the simulated sensor publishes the square of <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_description/urdf/include/common_sensors.xacro#L251"><code>gaussianNoise</code></a>, the noise of 0.005 rad/s that the sensor adds to each value. The setting stands in DiffBot's <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_description/urdf/include/common_sensors.xacro#L251"><code>common_sensors.xacro</code></a> and in Remo's <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L261"><code>common_sensors.xacro</code></a>.</li>
+<li><strong>The wheel odometry's variances:</strong> the drive controller publishes the values of its parameter <code>twist_covariance_diagonal</code> in <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_control/config/diffbot_control.yaml"><code>diffbot_control.yaml</code></a>, on the robot and in the simulation.</li>
+<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance on the robot:</strong> the firmware publishes its setting <code>angular_velocity_variance</code>, 4 · 10⁻⁴ (rad/s)². <a href="../driver-bno055/#what-the-firmware-publishes">What the firmware publishes</a> on the BNO055 page lists the firmware's settings. The value is a starting value from the datasheet's noise and offsets. <a href="../driver-bno055/#bias-and-noise-at-rest">Bias and noise at rest</a> on the same page shows how a recording of the standing robot gives the gyroscope's noise: on Remo, a variance of 2 to 7 · 10⁻⁷ (rad/s)². <a href="../driver-bno055/#from-the-report-to-the-ekf">From the report to the <abbr title="Extended Kalman filter. A Kalman filter for nonlinear systems, which linearizes the motion and measurement models around the current estimate.">EKF</abbr></a> follows the yaw rate's measured variance to this setting. The starting value stays for now, because driving adds vibration and drift, which a recording at rest doesn't show.</li>
+<li><strong>The <abbr title="Inertial measurement unit. A sensor that measures acceleration and rotation rate, and often the magnetic field, to estimate orientation.">IMU</abbr>'s variance in the simulation:</strong> the simulated sensor publishes the square of <a href="https://github.com/ros-mobile-robots/diffbot/blob/ead34027a9507c65d7415f93817177340d60d549/diffbot_description/urdf/include/common_sensors.xacro#L251"><code>gaussianNoise</code></a>, the noise of 0.005 rad/s that the sensor adds to each value. The setting stands in DiffBot's <code>common_sensors.xacro</code> and in Remo's <a href="https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/include/common_sensors.xacro#L261"><code>common_sensors.xacro</code></a>.</li>
 </ul>
 <h4 id="the-frames">The frames</h4>
 <p>The filter turns every velocity into its <a href="#the-other-settings"><code>base_link_frame</code></a>, here <code>base_footprint</code>, before the filter fuses the value:</p>
