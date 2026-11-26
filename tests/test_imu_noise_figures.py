@@ -19,6 +19,7 @@ from typing import List
 from typing import Sequence
 from typing import Tuple
 import unittest
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 FIGURES = ROOT / 'scripts' / 'figures'
@@ -163,6 +164,16 @@ class TestTexts(unittest.TestCase):
 class TestTraceLayouts(unittest.TestCase):
     """The trace figure has a narrow and a wide layout, each with the readings and a legend."""
 
+    def test_trace_legend_pairs_the_mean_label_with_the_solid_mean_line(self) -> None:
+        """Check the mark a reader sees beside the mean in each layout."""
+        figures = load_script()
+        trace = figures.synthetic_trace()
+        for layout in figures.TRACE_LAYOUTS:
+            elements = list(ElementTree.fromstring(figures.trace_figure(trace, layout).svg()))
+            label = next(i for i, element in enumerate(elements)
+                         if element.tag == 'text' and (element.text or '').startswith('mean:'))
+            self.assertEqual(elements[label - 1].get('class'), 'mean-line', layout.name)
+
     def test_each_trace_layout_draws_the_first_seconds_readings_and_the_legends_dot(
             self) -> None:
         figures = load_script()
@@ -296,7 +307,7 @@ class TestFlowFigure(unittest.TestCase):
             figures.flow_name(two_steps(figures)),
             "The tool's two steps from a bag file to the report, each with its test classes: "
             'Read with read() and Print with show(). A failed check leaves the first step to '
-            'one line on stderr and status 1. TestToolOnBags runs all the steps as a command')
+            'one line on stderr and status 1. TestToolOnBags runs the tool as a command')
 
     def test_class_columns_puts_the_second_column_right_of_the_first_columns_longest_name(
             self) -> None:

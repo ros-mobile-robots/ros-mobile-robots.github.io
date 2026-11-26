@@ -49,6 +49,8 @@ from typing import List
 from typing import NamedTuple
 from typing import Sequence
 
+from board_drawings import Drawing
+from board_drawings import style_element
 from localization_figures import arrow_head
 from localization_figures import DRAWING_RULES
 from localization_figures import Figure
@@ -59,7 +61,6 @@ from localization_figures import LAYOUT_SPACE
 from localization_figures import NARROW_LAYOUT
 from localization_figures import RULES
 from localization_figures import Span
-from localization_figures import style_element
 from localization_figures import SYMBOL_RULES
 from localization_figures import WIDE_LAYOUT
 from localization_figures import WIDE_WIDTH
@@ -521,6 +522,13 @@ def interval_x(milliseconds: float, pixels_per_ms: float) -> float:
     return 26 + milliseconds * pixels_per_ms
 
 
+def numbered_mark(figure: Figure, x: float, y: float, number: int, css_class: str) -> None:
+    """Draw a numbered stamp or step at the given position, with the shared numbered disc."""
+    disc = Drawing()
+    disc.number_disc(x, y, number, css_class, 'letter')
+    figure.elements.extend(disc.elements)
+
+
 def intervals_figure(layout: PlotLayout) -> Figure:
     """Return a layout of the five header stamps on a time axis, with the intervals between."""
     stamps = STAMPS_WITH_ONE_LONG_INTERVAL
@@ -549,8 +557,7 @@ def intervals_figure(layout: PlotLayout) -> Figure:
                     'strong' if is_long else '', 'middle')
     for number, stamp in enumerate(stamps, start=1):
         x = interval_x(stamp, pixels_per_ms)
-        figure.circle(x, axis_y, 8, 'pass-mark')
-        figure.text(x, axis_y + 4, str(number), 'letter', 'middle')
+        numbered_mark(figure, x, axis_y, number, 'pass-mark')
         figure.text(x, axis_y + 26, str(stamp), 'note', 'middle')
     figure.text(interval_x(stamps[-1], pixels_per_ms) + 14, axis_y + 26, 'ms', 'note')
     return figure
@@ -609,8 +616,7 @@ def stamps_back_figure(layout: PlotLayout) -> Figure:
             figure.text(max(start_x, end_x) + figure.fixed(14), (start_y + end_y) / 2 + 4,
                         label, 'strong')
     for number, (x, y) in enumerate(points, start=1):
-        figure.circle(x, y, 8, 'pass-mark')
-        figure.text(x, y + 4, str(number), 'letter', 'middle')
+        numbered_mark(figure, x, y, number, 'pass-mark')
     figure.path(f'M12,{axis_y} H{interval_x(stamps[-1], pixels_per_ms) + 14:.1f}', 'axis')
     for stamp in sorted(set(stamps)):
         x = interval_x(stamp, pixels_per_ms)
@@ -757,7 +763,7 @@ FLOW_ARROW_LABELS = ('samples', 'statistics')  # what the first two steps hand o
 FLOW_EXIT_REASON = 'a check fails'
 FLOW_EXIT = ['✕ one line on stderr', 'status 1']
 FLOW_REPORT = ['✓ the report on stdout', 'status 0']
-FLOW_COMMAND_LABEL = 'runs all three steps as a command'
+FLOW_COMMAND_LABEL = 'runs the tool as a command'
 
 
 def class_columns(steps: Sequence[ToolStep]) -> Sequence[float]:
@@ -786,8 +792,7 @@ def step_card(figure: Figure, top: float, number: int, step: ToolStep,
     bottom = top + CARD_HEADER_HEIGHT + rows * CLASS_ROW_HEIGHT + CARD_BOTTOM_PADDING
     figure.rect(FLOW_CARD_LEFT, top, FLOW_CARD_RIGHT - FLOW_CARD_LEFT, bottom - top, 'item',
                 corner_radius=5)
-    figure.circle(FLOW_CARD_LEFT + 14, top + 15, 8, 'item')
-    figure.text(FLOW_CARD_LEFT + 14, top + 19, str(number), 'letter', 'middle')
+    numbered_mark(figure, FLOW_CARD_LEFT + 14, top + 15, number, 'item')
     figure.text(FLOW_CARD_LEFT + CARD_LABEL_LEFT, top + 19, step.label, 'strong')
     figure.text(FLOW_CARD_RIGHT - 8, top + 19, step.function, 'mono', 'end')
     for index, test_class in enumerate(step.test_classes):
@@ -813,7 +818,7 @@ def flow_name(steps: Sequence[ToolStep]) -> str:
     step_names = listed([f'{step.label} with {step.function}' for step in steps])
     return (f"The tool's {NUMBER_WORDS[len(steps)]} steps from a bag file to the report, each "
             f'with its test classes: {step_names}. A failed check leaves the first step to one '
-            f'line on stderr and status 1. {COMMAND_TEST_CLASS} runs all the steps as a command')
+            f'line on stderr and status 1. {COMMAND_TEST_CLASS} runs the tool as a command')
 
 
 def flow_caption(steps: Sequence[ToolStep]) -> str:
@@ -915,8 +920,7 @@ def wide_step_card(figure: Figure, top: float, height: float, number: int, step:
                    card: WideCard) -> None:
     """Add a step's card in the wide layout: number and label, function, one class per row."""
     figure.rect(card.left, top, card.width, height, 'item', corner_radius=5)
-    figure.circle(card.left + 14, top + WIDE_CARD_NUMBER_Y, 8, 'item')
-    figure.text(card.left + 14, top + 19, str(number), 'letter', 'middle')
+    numbered_mark(figure, card.left + 14, top + WIDE_CARD_NUMBER_Y, number, 'item')
     figure.text(card.left + CARD_LABEL_LEFT, top + 19, step.label, 'strong')
     figure.text(card.left + WIDE_CARD_PADDING, top + 35, step.function, 'mono')
     for index, test_class in enumerate(step.test_classes):

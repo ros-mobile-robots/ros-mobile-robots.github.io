@@ -90,14 +90,14 @@ Remo was checked on 2026-10-31 with firmware `1a3b547` built for the Teensy 3.2,
 | Check | Result |
 |:--|:--|
 | Rate and stamps | 50.0 Hz. 180 s at rest: 8,986 messages, intervals between the header stamps of 14 to 27 ms. Stamps in current ROS time, also after [rosserial](#how-the-firmware-reads-it) reconnected |
-| Axes and signs | At rest in this recording, z reads about +9.7 m/s². Turning left, [`angular_velocity.z`](#what-the-firmware-publishes) is positive. How the board is turned about z came from a later tilt test, below |
+| Axes and signs | At rest in this recording, z reads about +9.7 m/s². Turning left, `angular_velocity.z` is positive. How the board is turned about z came from a later tilt test, below |
 | Noise and bias at rest | Gyroscope: bias below 0.0001 rad/s, standard deviation 0.0005 to 0.0008 rad/s, below the output step of 1/900 rad/s. The same with the Teensy 4.0 ([Results on Remo](#results-on-remo)) |
 | Faults | Unplugged while the wheels turned at 9 rad/s: a warning after ten failed reads (0.2 s), and the wheels kept their speed. Plugged back in: found again within 10 s. With SDA and SCL swapped, it stayed "not found", without blocking the firmware |
 | Timing | [`measured_joint_states`](../../development/simulation-test.md#on-the-real-robot) at 20.0 Hz with the IMU running |
 
 The [evidence](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204) has the numbers and log excerpts, [diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169) the full checklist.
 
-A [tilt test](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6684760031) on 2026-11-05 checked the BNO055's axes on Remo using the Teensy 4.0. With the front held raised, the average y acceleration was +3.21 m/s². With the left side held raised, the average x acceleration was −7.24 m/s². The z acceleration remained positive during both tilts and was close to +9.8 m/s² with the robot level. These readings show that the board's y axis points forward, its x axis points right, and its z axis points up when Remo is level. The corresponding URDF orientation is [`imu_rpy="0 0 -1.5707963"`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L27), a −90° rotation about [`chassis_link`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L212-L215)'s z axis. The chip's pin-1 dot sits at the board's front right corner, which with the datasheet's default axes, placement P1 ([BNO055 datasheet, page 27](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=27)) gives the same. Remo's model has this orientation and the checked position on Remo's Raspberry Pi deck ([`remo.urdf.xacro`, lines 12–27](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L12-L27) in [remo_description](../remo_description.md) 2.5.0). The IMU's header pins sit in the breadboard, and `imu_link` lies about 7.6 cm behind the wheel axle and 2.34 cm left of the robot's center line.
+A [tilt test](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6684760031) on 2026-11-05 checked the BNO055's axes on Remo using the Teensy 4.0. With the front held raised, the average y acceleration was +3.21 m/s². With the left side held raised, the average x acceleration was −7.24 m/s². The z acceleration remained positive during both tilts and was close to +9.8 m/s² with the robot level. These readings show that the board's y axis points forward, its x axis points right, and its z axis points up when Remo is level. The corresponding URDF orientation is [`imu_rpy="0 0 -1.5707963"`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L27), a −90° rotation about [`chassis_link`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L212-L215)'s z axis. The chip's pin-1 dot sits at the board's front right corner, which with the datasheet's default axes, placement P1 ([BNO055 datasheet, page 27](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf#page=27)) gives the same. Remo's model has this orientation and the checked position on Remo's Raspberry Pi deck ([the mounting arguments in `remo.urdf.xacro`](https://github.com/ros-mobile-robots/remo_description/blob/2.5.0/urdf/remo.urdf.xacro#L12-L27) in [remo_description](../remo_description.md) 2.5.0). The IMU's header pins sit in the breadboard, and `imu_link` lies about 7.6 cm behind the wheel axle and 2.34 cm left of the robot's center line.
 
 ## Bias and noise at rest
 
@@ -138,7 +138,7 @@ rosrun diffbot_bringup \
 
 The bias is small: 0.00005 rad/s is less than a twentieth of the smallest step that the BNO055 can report. The noise is a baseline for the variances in the IMU's messages, which tell the [EKF](robot_localization.md) how much to trust each reading, as [From the report to the EKF](#from-the-report-to-the-ekf) shows.
 
-The `\` at the end of a line continues the command on the next line, so the three lines above are one command. The tool only reads the file: it needs no robot and no ROS master. Its report starts with the messages and their time stamps. A table for the angular velocity and a table for the acceleration follow, each with one row for each axis. The yaw rate is the row `z` of [`angular_velocity`](#what-the-firmware-publishes), the value that the EKF uses. For the acceleration, the mean of an axis isn't a bias: it is gravity's share on the axis together with the sensor's error, as [Read the report](#read-the-report) explains.
+The `\` at the end of a line continues the command on the next line, so the three lines above are one command. The tool only reads the file: it needs no robot and no ROS master. Its report starts with the messages and their time stamps. A table for the angular velocity and a table for the acceleration follow, each with one row for each axis. The yaw rate is the row `z` of `angular_velocity`, the value that the EKF uses. For the acceleration, the mean of an axis isn't a bias: it is gravity's share on the axis together with the sensor's error, as [Read the report](#read-the-report) explains.
 
 The rest of this section explains the result:
 
@@ -166,7 +166,7 @@ Put the robot on a firm surface, with the [bringup running](../../processing_uni
       /diffbot/imu/data_raw
     ```
 
-    `-w /home/ros/.ros` runs the command in this folder of the container. Compose mounts a folder of the Raspberry Pi there: `~/robot-data`, or the folder that the variable [`ROBOT_DATA`](../../processing_units/robot-container/setup.md#all-settings) names if you set it. Without `-w`, the file would be saved inside the container and be gone after `docker compose down`. The box "Running a command in a container" under [All commands](../../processing_units/robot-container/usage.md#all-commands) explains `docker compose exec` and [`/entrypoint.sh`](../../processing_units/robot-container/usage.md#all-commands).
+    `-w /home/ros/.ros` runs the command in this folder of the container. Compose mounts a folder of the Raspberry Pi there: `~/robot-data`, or the folder that the variable [`ROBOT_DATA`](../../processing_units/robot-container/setup.md#all-settings) names if you set it. Without `-w`, the file would be saved inside the container and be gone after `docker compose down`. The box "Running a command in a container" under [All commands](../../processing_units/robot-container/usage.md#all-commands) explains `docker compose exec` and `/entrypoint.sh`.
 
 === "Native ROS"
 
@@ -289,8 +289,8 @@ Each table has one row for each axis and these columns:
 | Column | What it means |
 |:--|:--|
 | `3 readings` | Below the field's name: how many messages have a measurement of this field. A [`sensor_msgs/Imu`](#what-the-firmware-publishes) message marks a field that it didn't measure with −1 as the first element of the field's covariance ([`Imu.msg`](https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/sensor_msgs/msg/Imu.msg#L5-L13)). The tool leaves such a message out of the field's statistics. |
-| `mean` of [`angular_velocity`](#what-the-firmware-publishes) | The gyroscope's **bias**: what the gyroscope reads while the robot doesn't turn. In the IMU mode that the firmware selects, the BNO055's fusion estimates the gyroscope's offset in the background and subtracts the estimate from the output ([datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf), sections 3.6.5.1 and 3.6.5.3). So the mean is the bias that remains in the corrected output. It isn't the bias of the raw sensor, which the firmware never reads. |
-| `mean` of [`linear_acceleration`](#what-the-firmware-publishes) | Gravity's share on each axis, plus the accelerometer's remaining error. One recording at rest can't separate the two. The shares depend on how the robot stands, so they change from one recording to the next. |
+| `mean` of `angular_velocity` | The gyroscope's **bias**: what the gyroscope reads while the robot doesn't turn. In the IMU mode that the firmware selects, the BNO055's fusion estimates the gyroscope's offset in the background and subtracts the estimate from the output ([datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf), sections 3.6.5.1 and 3.6.5.3). So the mean is the bias that remains in the corrected output. It isn't the bias of the raw sensor, which the firmware never reads. |
+| `mean` of `linear_acceleration` | Gravity's share on each axis, plus the accelerometer's remaining error. One recording at rest can't separate the two. The shares depend on how the robot stands, so they change from one recording to the next. |
 | `variance` | The **noise** as a variance $s^2$: how far the readings scatter around their mean, as a squared distance in (rad/s)² or (m/s²)². [The mean and the variance of three readings](#the-mean-and-the-variance-of-three-readings) has the formula. The variances in the message's covariances have the same unit. |
 | `std dev` | The standard deviation $s$, the square root of the variance. Its unit is the readings' own, so it is easier to compare with them. |
 | `distinct values` | How many different values the axis read in this recording. The BNO055 reports in steps of 1/900 rad/s (0.0011 rad/s) and 1/100 m/s² (0.01 m/s²). When the noise is smaller than one step, the readings take only a handful of values around their mean. The count says how many steps the recording used. It doesn't say how large a step is. |
@@ -309,9 +309,9 @@ $$
 
 $\bar{a}_x$, $\bar{a}_y$ and $\bar{a}_z$ are the means of the three acceleration axes. Remo's means of −0.23153, +0.07258 and +9.78867 m/s² give $\sqrt{0.0536 + 0.0053 + 95.8181}$ m/s² = 9.792 m/s². The result should be close to 9.81 m/s², however the robot stands.
 
-The tool refuses a recording that it can't interpret. It then prints one line that names the file and the reason, and ends with status 1 instead of a report: when the file isn't a readable [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag), when the topic's messages aren't ROS's `sensor_msgs/Imu`, when the topic has fewer than two messages, when a message has no [`frame_id`](#what-the-firmware-publishes) or the messages have different ones, and when a reading is NaN, infinite or beyond 1,000,000 rad/s or m/s², the tool's limit for a plausible reading. For a recording that was cut off before the recorder finished, the line says that the file has no index and that `rosbag reindex` can repair it.
+The tool refuses a recording that it can't interpret. It then prints one line that names the file and the reason, and ends with status 1 instead of a report: when the file isn't a readable [rosbag](https://github.com/ros/ros_comm/tree/25d371664e34ec9d26ee331434de9a38c412c890/tools/rosbag), when the topic's messages aren't ROS's `sensor_msgs/Imu`, when the topic has fewer than two messages, when a message has no `frame_id` or the messages have different ones, and when a reading is NaN, infinite or beyond 1,000,000 rad/s or m/s², the tool's limit for a plausible reading. For a recording that was cut off before the recorder finished, the line says that the file has no index and that `rosbag reindex` can repair it.
 
-[`--topic`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L770-L771) selects another `sensor_msgs/Imu` topic than [`/diffbot/imu/data_raw`](#what-the-firmware-publishes). The 30 ms of the line `Header intervals` belong to the firmware's 50 Hz and don't adapt to a topic with another rate.
+[`--topic`]({{ imu_noise_src_url }}/diffbot_bringup/scripts/imu_noise_at_rest.py#L770-L771) selects another `sensor_msgs/Imu` topic than `/diffbot/imu/data_raw`. The 30 ms of the line `Header intervals` belong to the firmware's 50 Hz and don't adapt to a topic with another rate.
 
 ### The mean and the variance of three readings
 
@@ -375,7 +375,7 @@ graph TB
 ```
 
 1. **In the report:** Remo's row `z` of [`angular_velocity`](#what-the-firmware-publishes) has the mean +0.00005 rad/s, the standard deviation 0.00073 rad/s and the variance 5.317 · 10⁻⁷ (rad/s)². The mean estimates the bias that remains. The standard deviation and the variance both describe the spread.
-2. **In the message:** a [`sensor_msgs/Imu`](#what-the-firmware-publishes) message carries the variances of its angular velocity in the field [`angular_velocity_covariance`]({{ imu_noise_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L220-L224), a 3 × 3 matrix stored as nine numbers. The yaw rate's variance is the last of them, index 8. [The variances](robot_localization.md#the-variances) on the Localization page shows the matrix with the index of every element.
+2. **In the message:** a `sensor_msgs/Imu` message carries the variances of its angular velocity in the field [`angular_velocity_covariance`]({{ imu_noise_src_url }}/diffbot_firmware/lib/imu/imu_publisher.h#L220-L224), a 3 × 3 matrix stored as nine numbers. The yaw rate's variance is the last of them, index 8. [The variances](robot_localization.md#the-variances) on the Localization page shows the matrix with the index of every element.
 3. **In the firmware:** the firmware doesn't measure a variance. It writes one setting, [`angular_velocity_variance`]({{ imu_noise_src_url }}/diffbot_firmware/lib/config/diffbot_base_config.h#L75) = 4 · 10⁻⁴ (rad/s)², to the indices 0, 4 and 8 of every message ([What the firmware publishes](#what-the-firmware-publishes)).
 4. **In the EKF:** of the IMU's values, the filter fuses only the yaw rate, so index 8 is the one that it uses. It doesn't fuse the IMU's acceleration ([What the filter fuses](robot_localization.md#what-the-filter-fuses)). The larger the variance, the less the filter trusts the IMU's yaw rate compared with the wheel odometry's.
 
@@ -387,7 +387,7 @@ So the measured 5.317 · 10⁻⁷ (rad/s)² is the baseline at rest for a settin
 
 ### Results on Remo
 
-Remo was recorded twice for 180 s at rest: with a Teensy 3.2 on 2026-10-31 ([the bench checks' results in diffbot#160](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)) and with Remo's own Teensy 4.0 on 2026-11-03 ([the Teensy 4.0 results in diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). The table has the numbers that the tool calculated from the two recordings:
+Remo was recorded twice for 180 s at rest: with a Teensy 3.2 on 2026-10-31 ([the bench checks' results in diffbot#160](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)) and with Remo's own Teensy 4.0 on 2026-11-03 ([the Teensy 4.0 results in diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). The table gives the saved results from the first version of the tool for those two recordings:
 
 | | Teensy 3.2 | Teensy 4.0 |
 |:--|:--|:--|
@@ -405,7 +405,7 @@ Both boards give the same picture, as expected: the Teensy only reads the sensor
 
 ### How the tool is tested
 
-82 tests check the tool, in [`test_imu_noise_at_rest.py`](noise-at-rest-tests.md). They calculate the statistics of readings with known results, such as the three readings above, and they run the tool as a command on small bags that they write themselves. No test needs a robot or a ROS master. [Tests: IMU Bias and Noise at Rest](noise-at-rest-tests.md) walks through them, with the command that runs them.
+The [tests of the noise tool](noise-at-rest-tests.md) show how to run all 82 tests. They check statistics against known results and run the command on prepared inputs. No test needs a robot or a ROS master.
 
 ## Trying the breakout on its own
 
