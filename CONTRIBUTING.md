@@ -47,7 +47,7 @@ Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules)
 
 ## Scripts and tests
 
-The figure scripts, the hooks and macros, the tests and the theme's JavaScript follow the same rules as the robots' code: one thing per function, names that say what a thing is, one type for values that belong together, type hints on every Python function, and test names that say what the test checks. [AGENTS.md](AGENTS.md#code-in-this-repository) has the list. New logic in Python comes with a unit test that CI runs. The theme's JavaScript has no tests yet, so say in the pull request which interaction you tried in the browser and what you saw.
+The figure scripts, the hooks and macros, the tests and the theme's JavaScript follow the same rules as the robots' code: one thing per function, names that say what a thing is, one type for values that belong together, type hints on every Python function, and test names that say what the test checks. [AGENTS.md](AGENTS.md#code-in-this-repository) has the list. New logic in Python comes with a unit test that CI runs. The browser job tests the interactive figure in headless Chromium. For other theme interactions, record the manual browser checks in the pull request.
 
 The rules hold for the files you add, for the lines you add or change at module level, and for the whole of each function, method and test you add or change, and for the whole class when you change its name, its bases or its shared attributes. The rest of an older script keeps its form until it changes. CI runs the unit tests, the strict build and the spelling check. It doesn't run flake8 or mypy, so check the style of your Python yourself, with the commands in [AGENTS.md](AGENTS.md#check-the-python-style).
 
