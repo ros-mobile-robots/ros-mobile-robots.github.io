@@ -76,6 +76,12 @@ class TestSvgElement(unittest.TestCase):
                                             'viewBox="0 0 340 120"'))
         self.assertTrue(self.svg.endswith('\n<path class="arrow"/>\n</svg>'))
 
+    def test_svg_element_uses_the_figures_own_markers_instead_of_the_arrowhead(self) -> None:
+        svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A', [],
+                                         markers=['<marker id="one"/>', '<marker id="two"/>'])
+        self.assertIn('<defs><marker id="one"/><marker id="two"/></defs>', svg)
+        self.assertNotIn('some-layout-head', svg)
+
 
 class TestNumberDisc(unittest.TestCase):
     """Drawing.number_disc() centers the number in its disc."""

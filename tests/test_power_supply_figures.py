@@ -12,7 +12,10 @@ import subprocess
 import sys
 import tempfile
 from typing import Dict
+from typing import List
+from typing import NamedTuple
 import unittest
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
@@ -39,6 +42,60 @@ def run_with_an_ascii_locale() -> Dict[str, bytes]:
         if run.returncode != 0:
             raise RuntimeError(f'{SCRIPT.name} failed: {run.stderr.strip()}')
         return {include.name: include.read_bytes() for include in includes.iterdir()}
+
+
+class Segment(NamedTuple):
+    """A straight piece of a drawn line, from (x1, y1) to (x2, y2)."""
+
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+
+
+def path_segments(path: str) -> List[Segment]:
+    """Return the straight pieces of an SVG path made of absolute M, L, H and V commands."""
+    segments: List[Segment] = []
+    x = y = 0.0
+    for command, numbers in re.findall(r'([MLHV])([^MLHV]*)', path):
+        values = [float(value) for value in re.split(r'[ ,]+', numbers.strip())]
+        if command == 'M':
+            x, y = values
+            continue
+        if command == 'H':
+            new_x, new_y = values[0], y
+        elif command == 'V':
+            new_x, new_y = x, values[0]
+        else:
+            new_x, new_y = values
+        segments.append(Segment(x, y, new_x, new_y))
+        x, y = new_x, new_y
+    return segments
+
+
+def crosses(first: Segment, second: Segment) -> bool:
+    """Return whether two horizontal or vertical segments meet or overlap."""
+    return (max(min(first.x1, first.x2), min(second.x1, second.x2))
+            <= min(max(first.x1, first.x2), max(second.x1, second.x2))
+            and max(min(first.y1, first.y2), min(second.y1, second.y2))
+            <= min(max(first.y1, first.y2), max(second.y1, second.y2)))
+
+
+def ends_on_top_of(line: List[Segment], box: power_supply_figures.Box, gap: float) -> bool:
+    """Return whether a line ends gap units above a box's upper edge, between its sides."""
+    return box.x < line[-1].x2 < box.right and line[-1].y2 == box.y - gap
+
+
+def drawn_lines(figure: power_supply_figures.Figure, css_class: str) -> List[List[Segment]]:
+    """Return the segments of each path of a layout whose class is exactly css_class."""
+    root = ElementTree.fromstring(figure.svg())
+    return [path_segments(path.get('d', '')) for path in root.iter('path')
+            if path.get('class') == css_class]
+
+
+def drawn_texts(figure: power_supply_figures.Figure) -> List[str]:
+    """Return the texts of a layout's text elements, in their order."""
+    return [text.text or '' for text in ElementTree.fromstring(figure.svg()).iter('text')]
 
 
 class TestIncludes(unittest.TestCase):
@@ -85,14 +142,15 @@ class TestStyles(unittest.TestCase):
             self.assertIn(f'<marker id="{marker}"', figure.svg(), source)
 
     def test_every_class_that_a_figure_draws_has_a_style_rule(self) -> None:
-        # The layouts' classes appear in the declarations of the container query's rule
-        rules = ' '.join(f'{selector} {declarations}'
-                         for selector, declarations in power_supply_figures.RULES)
+        # The layouts' classes also appear in the selectors inside the container query's rule
+        styled = set()
+        for selector, declarations in power_supply_figures.RULES:
+            styled.update(re.findall(r'\.([A-Za-z][\w-]*)', f'{selector} {declarations}'))
         for robot in (power_supply_figures.DIFFBOT, power_supply_figures.REMO):
             for figure in power_supply_figures.layouts(robot):
                 for classes in re.findall(r'class="([^"]+)"', figure.svg()):
                     for css_class in classes.split():
-                        self.assertIn(f'.{css_class}', rules, (robot.name, css_class))
+                        self.assertIn(css_class, styled, (robot.name, css_class))
 
 
 class TestLayouts(unittest.TestCase):
@@ -114,55 +172,89 @@ class TestLayouts(unittest.TestCase):
 
     def test_diffbots_i2c_and_ground_wires_never_cross(self) -> None:
         figures = power_supply_figures
-        i2c_leave, i2c_lane, i2c_arrive = figures.DIFFBOT_I2C
-        ground_leave, ground_lane, ground_arrive = figures.DIFFBOT_GROUND
+        i2c, ground = figures.DIFFBOT_I2C, figures.DIFFBOT_GROUND
         camera_data_y = (figures.CAMERA_BOX.y + figures.CAMERA_BOX.height / 2
                          + figures.PAIR_GAP / 2)
         # Both leave the Raspberry Pi below the camera's cable, the I2C wire first
-        self.assertTrue(camera_data_y < i2c_leave < ground_leave < figures.RASPBERRY_PI_BOX.bottom)
+        self.assertTrue(camera_data_y < i2c.leave_y < ground.leave_y
+                        < figures.RASPBERRY_PI_BOX.bottom)
         # The I2C wire runs down farther right and turns higher, so the ground wire stays inside it
-        self.assertGreater(i2c_lane, ground_lane)
-        self.assertLess(i2c_arrive, ground_arrive)
+        self.assertGreater(i2c.lane_x, ground.lane_x)
+        self.assertLess(i2c.arrive_y, ground.arrive_y)
         # Both lanes lie in the gap between the left column and the LiDAR and the camera
-        self.assertTrue(figures.RASPBERRY_PI_BOX.right < ground_lane < i2c_lane
+        self.assertTrue(figures.RASPBERRY_PI_BOX.right < ground.lane_x < i2c.lane_x
                         < figures.CAMERA_BOX.x)
         driver = figures.DRIVER_BOX
-        self.assertTrue(driver.y < i2c_arrive < ground_arrive < driver.bottom)
+        self.assertTrue(driver.y < i2c.arrive_y < ground.arrive_y < driver.bottom)
 
-    def test_diffbots_encoder_supply_crosses_no_box_and_no_wire(self) -> None:
+    def test_diffbots_encoder_supply_stays_clear_of_the_boxes_and_the_other_wires(self) -> None:
         figures = power_supply_figures
-        leave_x, turn_y, down_x, approach_y = figures.DIFFBOT_ENCODER_RAIL
+        rail = figures.DIFFBOT_ENCODER_RAIL
         pi, mcu = figures.RASPBERRY_PI_BOX, figures.MCU_BOX
-        encoders = figures.RIGHT_SENSOR_BOX
         # It leaves the Raspberry Pi's lower edge right of the MCU's USB cable and its label
-        self.assertTrue(pi.x + figures.LEFT_SUPPLY_OFFSET < leave_x < pi.right)
+        self.assertTrue(pi.x + figures.LEFT_SUPPLY_OFFSET < rail.leave_x < pi.right)
         # It turns between the Raspberry Pi and the MCU, below the I2C and the ground wires' turns
-        self.assertTrue(pi.bottom < turn_y < mcu.y)
-        self.assertGreater(turn_y, max(figures.DIFFBOT_I2C[0], figures.DIFFBOT_GROUND[0]))
-        # It runs down between the MCU and the ground wire's lane
-        self.assertTrue(mcu.right < down_x < figures.DIFFBOT_GROUND[1])
-        # It turns again between the MCU and the encoders, and reaches the encoders' box
-        self.assertTrue(mcu.bottom < approach_y < encoders.y)
-        self.assertTrue(0 < figures.DIFFBOT_ENCODER_SUPPLY_OFFSET < encoders.width)
+        self.assertTrue(pi.bottom < rail.turn_y < mcu.y)
+        self.assertGreater(rail.turn_y,
+                           max(figures.DIFFBOT_I2C.leave_y, figures.DIFFBOT_GROUND.leave_y))
+        # It runs down between the MCU and the ground wire's lane, then turns above the encoders
+        self.assertTrue(mcu.right < rail.lane_x < figures.DIFFBOT_GROUND.lane_x)
+        self.assertTrue(mcu.bottom < rail.approach_y < figures.RIGHT_SENSOR_BOX.y)
 
-    def test_diffbots_hub_sits_on_both_lanes_between_the_raspberry_pi_and_the_driver(self) -> None:
+    def test_diffbots_encoder_supply_reaches_its_box_without_crossing_its_data_wire(
+            self) -> None:
+        figures = power_supply_figures
+        for figure in figures.layouts(figures.DIFFBOT):
+            encoders = figure.box_of(figures.RIGHT_SENSOR_BOX)
+            supplies = [line for line in drawn_lines(figure, 'line bank')
+                        if ends_on_top_of(line, encoders, figures.HEAD_TIP)]
+            data = [line for line in drawn_lines(figure, 'line data')
+                    if ends_on_top_of(line, encoders, 0)]
+            self.assertEqual((len(supplies), len(data)), (1, 1), figure.css_class)
+            for supply_segment in supplies[0]:
+                for data_segment in data[0]:
+                    self.assertFalse(crosses(supply_segment, data_segment),
+                                     (figure.css_class, supply_segment, data_segment))
+
+    def test_diffbots_hub_sits_on_the_drawn_i2c_and_ground_wires_and_remo_has_none(
+            self) -> None:
+        figures = power_supply_figures
+        for figure in figures.layouts(figures.DIFFBOT):
+            elements = list(ElementTree.fromstring(figure.svg()))
+            labels = [index for index, element in enumerate(elements)
+                      if element.tag == 'text' and element.text == 'hub']
+            self.assertEqual(len(labels), 1, figure.css_class)
+            hub = elements[labels[0] - 1]
+            self.assertEqual(hub.tag, 'rect', figure.css_class)
+            left, top = float(hub.get('x', 0)), float(hub.get('y', 0))
+            right, bottom = left + float(hub.get('width', 0)), top + float(hub.get('height', 0))
+            label_x = float(elements[labels[0]].get('x', 0))
+            self.assertTrue(left < label_x < right, figure.css_class)
+            for css_class in ('line data', 'line ground'):
+                through_the_hub = [
+                    segment for line in drawn_lines(figure, css_class) for segment in line
+                    if segment.x1 == segment.x2 and left < segment.x1 < right
+                    and min(segment.y1, segment.y2) < top and max(segment.y1, segment.y2) > bottom]
+                self.assertEqual(len(through_the_hub), 1, (figure.css_class, css_class))
+        for figure in figures.layouts(figures.REMO):
+            self.assertNotIn('hub', drawn_texts(figure), figure.css_class)
+
+    def test_diffbots_hub_stays_clear_of_the_encoder_supply_and_the_camera(self) -> None:
         figures = power_supply_figures
         hub = figures.DIFFBOT_HUB_BOX
-        i2c_leave, i2c_lane, i2c_arrive = figures.DIFFBOT_I2C
-        ground_leave, ground_lane, ground_arrive = figures.DIFFBOT_GROUND
-        # Both wires run down through the hub, below their turns and above their arrivals
-        self.assertTrue(hub.x < ground_lane < i2c_lane < hub.right)
-        self.assertTrue(max(i2c_leave, ground_leave) < hub.y)
-        self.assertTrue(hub.bottom < min(i2c_arrive, ground_arrive))
-        # It stays clear of the encoders' supply lane and of the camera
-        self.assertTrue(figures.DIFFBOT_ENCODER_RAIL[2] < hub.x)
+        self.assertTrue(figures.DIFFBOT_ENCODER_RAIL.lane_x < hub.x)
         self.assertTrue(hub.right < figures.CAMERA_BOX.x)
 
-    def test_each_robots_legend_gives_its_motor_packs_voltage(self) -> None:
-        for robot in (power_supply_figures.DIFFBOT, power_supply_figures.REMO):
-            meanings = [entry.meaning for entry in power_supply_figures.legend_entries(robot.pack)]
-            self.assertIn(f'supply from the motor battery ({robot.pack.voltage})', meanings,
-                          robot.name)
+    def test_each_robot_shows_its_own_pack_and_voltage(self) -> None:
+        figures = power_supply_figures
+        for robot, pack, voltage in ((figures.DIFFBOT, 'Four alkaline AA cells', '6.0 V'),
+                                     (figures.REMO, 'Eight NiMH AA cells', '9.6 V')):
+            for figure in figures.layouts(robot):
+                texts = drawn_texts(figure)
+                for expected in (pack, f'{voltage} nominal',
+                                 f'supply from the motor battery ({voltage})'):
+                    self.assertEqual(texts.count(expected), 1,
+                                     (robot.name, figure.css_class, expected))
 
 
 if __name__ == '__main__':

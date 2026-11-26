@@ -13,6 +13,7 @@ and draws its rectangles, circles, lines, text, boxes with text and numbers in d
 
 import math
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -42,16 +43,18 @@ def arrowhead_marker(marker_id: str) -> str:
 
 
 def svg_element(name: str, css_classes: str, size: Tuple[float, float], title: str,
-                elements: Sequence[str]) -> str:
+                elements: Sequence[str], markers: Optional[Sequence[str]] = None) -> str:
     """Return an SVG element of size (width, height) with the elements, named title.
 
     name starts the element's IDs: name-title for its accessible name, and name-head for the
-    arrowhead marker that its arrows point to.
+    arrowhead marker that its arrows point to. A figure with markers of its own passes them as
+    markers instead.
     """
     width, height = size
+    definitions = ''.join(markers) if markers is not None else arrowhead_marker(f'{name}-head')
     return (f'<svg class="{css_classes}" viewBox="0 0 {width:g} {height:g}" role="img" '
             f'aria-labelledby="{name}-title"><title id="{name}-title">{escape(title)}</title>'
-            f'<defs>{arrowhead_marker(f"{name}-head")}</defs>\n'
+            f'<defs>{definitions}</defs>\n'
             + '\n'.join(elements) + '\n</svg>')
 
 
