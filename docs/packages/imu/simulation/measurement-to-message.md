@@ -280,7 +280,7 @@ $$
 
 $I_3$ is the 3 × 3 identity matrix. The specific force's covariance $\Sigma_f$ has the same numbers, in (m/s²)².
 
-**Why the other elements are 0:** an element off the diagonal is the covariance of two axes' errors. The plugin draws separate noise values for the three axes. Its model treats the errors as [independent](../../../theory/preliminaries/noise-and-covariance.md#why-independent-errors-have-the-covariance-0), so their off-diagonal covariances are zero. On a real sensor, the errors of two axes can be correlated: they tend to rise and fall together. Correlated errors can give elements off the diagonal that aren't 0.
+**Why the other elements are 0:** an element off the diagonal is the covariance of two axes' errors. The plugin draws separate noise values for the three axes. Its noise model treats the errors as [independent](../../../theory/preliminaries/noise-and-covariance.md#why-independent-errors-have-the-covariance-0), so their off-diagonal covariances are zero. On a real sensor, the errors of two axes can be correlated: they tend to rise and fall together. Correlated errors can give elements off the diagonal that aren't 0.
 
 Lines 170–172 of the excerpt write the orientation's covariance. The adapter replaces this covariance in [Part 3](#part-3-the-adapter).
 

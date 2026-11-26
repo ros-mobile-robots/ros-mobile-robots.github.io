@@ -574,7 +574,8 @@ def write_covariance_shares() -> None:
         'includes/math-covariance-shares.html', covariance_shares_figure(),
         'The ellipses of one, two and three standard deviations σ of the example covariance '
         'matrix, around the mean of the position estimate. The label on each ellipse gives the '
-        f'share of the positions inside it: {shares}, the shares of the table for two values.')
+        f'probability that a jointly normal position lies inside it: {shares}, the shares of the '
+        'table for two values.')
 
 
 def label_along(figure: Figure, start: Point, end: Point, text: str,
