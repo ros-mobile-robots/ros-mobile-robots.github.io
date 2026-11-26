@@ -162,6 +162,13 @@ class TestTexts(unittest.TestCase):
         self.assertEqual([figures.steps_in_words(steps) for steps in (0, 1, 2)],
                          ['zero', 'one output step', 'two output steps'])
 
+    def test_signed_value_with_decimals_gives_the_sign_a_minus_sign_and_the_decimals(
+            self) -> None:
+        figures = load_script()
+        self.assertEqual([figures.signed_value_with_decimals(value, decimals)
+                          for value, decimals in ((0.00148, 5), (-0.0011, 4))],
+                         ['+0.00148', '−0.0011'])
+
     def test_stamps_back_title_describes_the_repeat_the_step_back_and_the_last_stamp(
             self) -> None:
         figures = load_script()
