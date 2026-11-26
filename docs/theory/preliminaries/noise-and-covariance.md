@@ -238,7 +238,7 @@ $$
 - **A matrix without an inverse:** a zero eigenvalue gives zero spread along its axis, so the ordinary inverse $\boldsymbol\Sigma^{-1}$ in this formula doesn't exist. The second example of four readings in [The covariance of two values](#the-covariance-of-two-values), whose two errors go up and down fully together, has such a matrix.
 - **In the filter:** robot_localization can reject a measurement whose $d$ from the filter's prediction is too large, as [What the validator doesn't check](../../packages/imu/robot_localization.md#what-the-validator-doesnt-check) on the Localization page explains. The robots' [`ekf.yaml`]({{ ekf_src_url }}/diffbot_control/config/ekf.yaml) sets no threshold for this test.
 
-**A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values, the matrix of the example pairs with the positive covariance in [The covariance of two values](#the-covariance-of-two-values):
+**A turned ellipse:** two values give an ellipse instead of an ellipsoid. Take a position estimate $(x, y)$ with this covariance matrix, in example values. The tilted cloud of example pairs in the figure of the two clouds comes from the same matrix:
 
 $$
 \boldsymbol\Sigma = \begin{pmatrix} 5 & 3 \\ 3 & 5 \end{pmatrix}\ \text{cm}^2
