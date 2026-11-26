@@ -20,8 +20,9 @@ writes these includes, which follow the site's light and dark colors:
   and three standard deviations of the same matrix, each labeled with the share of the values
   inside it.
 - includes/math-quaternion-circle.html, in "Remo's IMU, turned by −90°" on the Quaternions page:
-  the two numbers of a yaw's quaternion that aren't 0, as a point on the unit circle at half the
-  yaw, for the yaw of Remo's IMU, with the opposite point, which is the same rotation.
+  the numbers w and z of the quaternion of a rotation about the z axis alone, as a point on the
+  unit circle at half the yaw, for the yaw of Remo's IMU, with the opposite point, which is the
+  same rotation.
 
 Each include holds one figure of one section, and one function writes it.
 
@@ -945,8 +946,9 @@ def quaternion_circle_caption() -> str:
     """Return the caption of the quaternion figure, with the numbers of Remo's quaternion."""
     yaw = REMO_IMU_YAW
     quaternion = yaw_only_quaternion(yaw)
-    return ("The two numbers of a yaw's quaternion that aren't 0, <em>q<sub>w</sub></em> = "
-            'cos(<em>ψ</em>/2) and <em>q<sub>z</sub></em> = sin(<em>ψ</em>/2), as a point on the '
+    return ('For a rotation about the <em>z</em> axis alone, <em>q<sub>x</sub></em> = '
+            '<em>q<sub>y</sub></em> = 0. The coordinates <em>q<sub>w</sub></em> = '
+            'cos(<em>ψ</em>/2) and <em>q<sub>z</sub></em> = sin(<em>ψ</em>/2) give a point on the '
             f"unit circle at half the yaw. For the yaw of Remo's IMU, {degrees_text(yaw)}, the "
             f'point <strong>q</strong> lies at {degrees_text(yaw / 2)}: <em>q<sub>w</sub></em> ≈ '
             f'{four_decimals(quaternion.w)} and <em>q<sub>z</sub></em> ≈ '

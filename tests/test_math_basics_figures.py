@@ -56,6 +56,12 @@ PHONE_DRAWING_WIDTH = 358  # px
 TEXT_COLUMN_DRAWING_WIDTH = 688  # px
 # The round cloud's sample covariance in the page's text, such as "about −0.009 cm²"
 ROUND_CLOUD_SENTENCE = r'its 200 pairs have a sample covariance of about (\S+) cm²'
+# An axis of the quaternion figure has its name this close to the tip of its arrowhead
+AXIS_NAME_REACH = 20  # px
+# The name of an axis of the quaternion figure as the drawing writes it: its place, then q with
+# the axis's letter as its subscript
+AXIS_NAME = (r'<text x="([\d.]+)" y="([\d.]+)" text-anchor="\w+"><tspan class="variable">q</tspan>'
+             r'<tspan class="subscript index" dy="2.5">(\w)</tspan></text>')
 # The criteria of the scatter figure's seeds: the sample covariance of a cloud's pairs lies this
 # close to the covariance of their distribution, and with the covariance 0, each quadrant holds
 # a quarter of the pairs, up to this many more or fewer
@@ -721,6 +727,30 @@ class TestQuaternionCircle(unittest.TestCase):
         arc_end = first_match(r' ([\d.]+,[\d.]+)"/>$', figure.elements[0])[1]
         self.assertTrue(figure.elements[1].startswith(f'<path class="angle-head" d="M{arc_end} '))
 
+    def test_quaternion_figure_ends_the_horizontal_axis_to_the_right_and_the_vertical_one_up(
+            self) -> None:
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        svg = figures.quaternion_circle_figure().svg()
+        right_end = plot.at(plot.axis_reach, 0)
+        upper_end = plot.at(0, plot.axis_reach)
+        tips = re.findall(r'<path class="axis-head" d="M([\d.]+),([\d.]+) ', svg)
+        self.assertEqual([(float(x), float(y)) for x, y in tips],
+                         [(round(right_end.x, 1), round(right_end.y, 1)),
+                          (round(upper_end.x, 1), round(upper_end.y, 1))])
+
+    def test_quaternion_figure_names_the_horizontal_axis_w_and_the_vertical_axis_z(self) -> None:
+        figures = load_script()
+        plot = figures.QUATERNION_PLOT
+        names = {letter: (float(x), float(y)) for x, y, letter in re.findall(
+            AXIS_NAME, figures.quaternion_circle_figure().svg())}
+        self.assertEqual(sorted(names), ['w', 'z'])
+        # The point's w is its distance to the right of the center, and its z the distance up
+        for letter, arrow_tip in (('w', plot.at(plot.axis_reach, 0)),
+                                  ('z', plot.at(0, plot.axis_reach))):
+            distance = math.hypot(names[letter][0] - arrow_tip.x, names[letter][1] - arrow_tip.y)
+            self.assertLess(distance, AXIS_NAME_REACH, letter)
+
     def test_quaternion_figure_writes_each_number_at_its_axis(self) -> None:
         figures = load_script()
         plot = figures.QUATERNION_PLOT
@@ -749,6 +779,21 @@ class TestQuaternionCircle(unittest.TestCase):
         svg = load_script().quaternion_circle_figure().svg()
         self.assertIn('<tspan> = −90°, half of it: </tspan>', svg)
         self.assertIn('<tspan>/2 = −45°</tspan>', svg)
+
+    def test_quaternion_caption_opens_with_the_yaw_alone_and_its_two_coordinates(self) -> None:
+        caption = load_script().quaternion_circle_caption()
+        self.assertTrue(caption.startswith(
+            'For a rotation about the <em>z</em> axis alone, <em>q<sub>x</sub></em> = '
+            '<em>q<sub>y</sub></em> = 0. The coordinates <em>q<sub>w</sub></em> = '
+            'cos(<em>ψ</em>/2) and <em>q<sub>z</sub></em> = sin(<em>ψ</em>/2) give a point on the '
+            'unit circle at half the yaw. '))
+
+    def test_quaternion_caption_doesnt_say_that_both_coordinates_differ_from_zero(self) -> None:
+        # A yaw of 0 has z = 0, and a yaw of 180° has w = 0
+        figures = load_script()
+        self.assertEqual(figures.yaw_only_quaternion(0).z, 0)
+        self.assertAlmostEqual(figures.yaw_only_quaternion(180).w, 0)
+        self.assertNotRegex(figures.quaternion_circle_caption(), r"aren't 0|nonzero|not 0")
 
     def test_quaternion_caption_gives_remos_yaw_half_of_it_and_the_two_numbers(self) -> None:
         figures = load_script()

@@ -104,7 +104,7 @@ $$
 
 The two nonzero components each have the square 1/2, so the exact quaternion has the length 1. The rounded decimals don't: their squares add up to 0.99998.
 
-The figure shows where the two numbers come from. Every yaw's quaternion lies on the unit circle, the circle of radius 1, because $q_z^2 + q_w^2 = 1$. Start at the point (1, 0) on the $q_w$ axis, the quaternion of the yaw 0. Follow the arc: it turns by half the yaw, $\psi/2$ = −45°, and points to $\mathbf q$ on the circle. The dashed lines from $\mathbf q$ to the two axes end at its two numbers. The opposite point $-\mathbf q$ is the second quaternion of the same rotation, which [The length 1 and the rotation that does nothing](#the-length-1-and-the-rotation-that-does-nothing) introduces:
+The figure shows where the two numbers come from. Every yaw's quaternion lies on the unit circle, the circle of radius 1, because $q_z^2 + q_w^2 = 1$. Start at the point (1, 0) on the $q_w$ axis, the quaternion of the yaw 0. Follow the arc: it turns by half the yaw, $\psi/2$ = −45°, clockwise because the angle is negative, and points to $\mathbf q$ on the circle. The dashed lines from $\mathbf q$ to the two axes end at its two numbers. The opposite point $-\mathbf q$ is the second quaternion of the same rotation, which [The length 1 and the rotation that does nothing](#the-length-1-and-the-rotation-that-does-nothing) introduces:
 
 --8<-- "includes/math-quaternion-circle.html"
 
