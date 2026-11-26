@@ -11,9 +11,9 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const MILLISECONDS_PER_SECOND = 1000;
 // Screen readers hear the result once a change is complete: this long after the last change
 const ANNOUNCE_DELAY_MS = 400;
-// Touch screens send no double click. A tap lasts less than TAP_MAX_MS and stays within
-// TAP_SLOP_PX of its starting point. Two taps reset the slider when their releases are less than
-// DOUBLE_TAP_MS apart and less than DOUBLE_TAP_DISTANCE_PX apart on screen.
+// A tap lasts less than TAP_MAX_MS and stays within TAP_SLOP_PX of its starting point. Two taps
+// reset the slider when their releases are less than DOUBLE_TAP_MS apart and less than
+// DOUBLE_TAP_DISTANCE_PX apart on screen.
 const DOUBLE_TAP_MS = 350;
 const TAP_MAX_MS = 300;
 const TAP_SLOP_PX = 10;

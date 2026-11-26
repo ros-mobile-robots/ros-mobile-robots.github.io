@@ -82,8 +82,8 @@
 .ix.ix-is-live .ix-examples > li:not(.ix-current) { visibility: hidden; }
 .ix.ix-is-live .ix-examples > li.ix-revealed .ix-show { visibility: hidden; }
 .ix .ix-answer, .ix .ix-shown-answer { display: block; margin-top: .25em; padding-left: .6em; border-left: 3px solid var(--ix-line); }
-/* Under the play bar, one place for the answer, the hint before it and the values that differ
-   from the example's, as high as the highest of them: changing a value moves nothing below */
+/* The answer, hint and changed-values note share one grid cell under the play bar. The
+   comparison itself follows the last slider */
 .md-typeset .ix .ix-answer-area { display: grid; grid-template-columns: minmax(0, 1fr); margin: .8em 0 0; }
 .md-typeset .ix .ix-answer-area > p { grid-area: 1 / 1; margin: 0; }
 .ix .ix-answer-area > .ix-off { visibility: hidden; }
