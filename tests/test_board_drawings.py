@@ -23,6 +23,11 @@ DRAWINGS = (
     lambda drawing: board_drawings.draw_gear_motor_with_wheel(drawing, 0, 0),
     lambda drawing: board_drawings.draw_encoder_disc(drawing, 30, 30),
     lambda drawing: board_drawings.draw_bno055_breakout(drawing, 0, 0),
+    lambda drawing: board_drawings.draw_power_bank(drawing, 0, 0),
+    lambda drawing: board_drawings.draw_battery_holder(drawing, 0, 0),
+    lambda drawing: board_drawings.draw_lidar(drawing, 0, 0),
+    lambda drawing: board_drawings.draw_camera(drawing, 0, 0),
+    lambda drawing: board_drawings.draw_grove_motor_driver(drawing, 0, 0),
 )
 
 
@@ -37,14 +42,18 @@ class TestBoardRules(unittest.TestCase):
     """Every part keeps its colors: each class a drawing uses has a rule in the figure's scope."""
 
     def test_every_class_that_a_drawing_uses_has_a_color_rule(self) -> None:
-        selectors = {selector for selector, _ in board_drawings.board_rules('.some-figure')}
+        rules = (board_drawings.board_rules('.some-figure')
+                 + board_drawings.supply_part_rules('.some-figure'))
+        selectors = {selector for selector, _ in rules}
         for draw in DRAWINGS:
             for css_class in classes_drawn(draw):
                 with self.subTest(css_class=css_class):
                     self.assertIn(f'.some-figure .{css_class}', selectors)
 
     def test_every_rule_applies_only_inside_the_figure(self) -> None:
-        for selector, _ in board_drawings.board_rules('.some-figure'):
+        rules = (board_drawings.board_rules('.some-figure')
+                 + board_drawings.supply_part_rules('.some-figure'))
+        for selector, _ in rules:
             with self.subTest(selector=selector):
                 self.assertRegex(selector, r'(^|\] )\.some-figure \.[a-z-]+$')
 
@@ -67,6 +76,12 @@ class TestSvgElement(unittest.TestCase):
         self.assertTrue(self.svg.startswith('<svg class="some-figure some-layout" '
                                             'viewBox="0 0 340 120"'))
         self.assertTrue(self.svg.endswith('\n<path class="arrow"/>\n</svg>'))
+
+    def test_svg_element_uses_the_figures_own_markers_instead_of_the_arrowhead(self) -> None:
+        svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A', [],
+                                         markers=['<marker id="one"/>', '<marker id="two"/>'])
+        self.assertIn('<defs><marker id="one"/><marker id="two"/></defs>', svg)
+        self.assertNotIn('some-layout-head', svg)
 
 
 class TestSvgElementWithADescription(unittest.TestCase):
