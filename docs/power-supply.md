@@ -24,8 +24,8 @@ If you see such warnings, use a power bank that delivers more current, or a bett
 ## From the battery to the motors
 
 The motor driver sits between the battery and the motors.
-For each motor, it has an H-bridge: four switches that let the current flow through the motor in either direction.
-The driver uses pulse-width modulation (PWM) to change the fraction of each cycle for which it applies voltage to the motor.
+Each motor has an [H-bridge](theory/actuation.md#the-h-bridge), four switches that can drive current through the motor in either direction.
+The driver uses [pulse-width modulation (PWM)](theory/actuation.md#pwm-and-the-duty-cycle) to change the fraction of each cycle for which it applies voltage to the motor.
 The duty cycle is the share of each period during which the switches are on.
 The higher the duty cycle, the higher the average voltage at the motor.
 

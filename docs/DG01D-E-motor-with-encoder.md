@@ -40,6 +40,11 @@ There are six poles which results in three pulses per revolution.
 
 ![magnetic field paper]({{ asset_dir }}/hardware/encoder/magnetic-field-paper.jpg){ align=right } 
 
+### Driving the motor
+
+A motor driver applies the voltage between the motor's two poles, M+ and M-.
+[DC Motors and Motor Drivers](theory/actuation.md) explains why that voltage turns a brushed DC motor, how the driver's H-bridge reverses the voltage and how pulse-width modulation (PWM) sets its average.
+
 ### Terminal Pin Layout
 
 The pins on the product are as follows, when looking at the connector on the housing, motor down/connector up, from right to left. The colors correspond to the included cable when plugged in to the connection slot.

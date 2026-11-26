@@ -94,7 +94,7 @@
 - term: PWM
   expansion: pulse-width modulation
   definition: Switching a signal on and off quickly, so the share of on-time sets, for example, a motor's average voltage.
-  link: processing_units/teensy-mcu.md
+  link: theory/actuation.md#pwm-and-the-duty-cycle
 
 - term: REP
   expansion: ROS Enhancement Proposal
