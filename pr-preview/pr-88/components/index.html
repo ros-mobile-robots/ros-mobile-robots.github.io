@@ -26,6 +26,7 @@
       
     
     
+    
       <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
@@ -35,6 +36,20 @@
 
 
     
+    <style>
+      /* A code block's title breaks inside a long name, such as a test's, instead of widening the page */
+      .md-typeset .highlight .filename { overflow-wrap: anywhere; }
+      /* On narrow screens, Material runs the tab labels of a page's top-level tabs from one edge of the
+         screen to the other. Its selectors also reach tabs inside those tabs, whose labels then reach
+         beyond the screen. These rules keep nested tabs and their arrows inside their own box, with
+         the arrows at Material's normal width. The media query is Material's own breakpoint */
+      @media screen and (max-width: 44.984375em) {
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels { max-width: 100%; margin: 0; padding-inline: 0; scroll-padding-inline-start: 0; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels::after { content: none; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels ~ .tabbed-control { width: 1.2rem; margin: 0; padding: 0; }
+      }
+    </style>
+
     
     
       
@@ -6126,7 +6141,7 @@ Regarding speed, the Pi has a limited bus speed of approximately 20 MB/s (<a hre
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">DiffBot</label><label for="__tabbed_1_2">Remo</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>DiffBot is built on the acrylic plate of the <a href="https://joy-it.net/en/products/robot05">Robot Car Kit 2WD</a> from Joy-IT (article no.: robot05). The kit includes two drive wheels, a caster wheel and a battery holder. The holder sits under the base plate and supplies the motors.</p>
+<p>DiffBot is built on the acrylic plate of the <a href="https://joy-it.net/en/products/robot05">Robot Car Kit 2WD</a> from Joy-IT (article no.: robot05). The kit includes two drive wheels and a caster wheel. DiffBot's motors run from eight NiMH AA cells in series.</p>
 <p></p><figure>
     <a href="/pr-preview/pr-88/resources/components/car-kit05.jpg"><img src="/pr-preview/pr-88/resources/components/car-kit05.jpg"></a>
     <figcaption>Parts of the 2WD Robot Car Kit 05 from Joy-IT.</figcaption>

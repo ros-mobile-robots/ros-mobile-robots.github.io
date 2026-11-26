@@ -26,6 +26,7 @@
       
     
     
+    
       <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
@@ -35,6 +36,20 @@
 
 
     
+    <style>
+      /* A code block's title breaks inside a long name, such as a test's, instead of widening the page */
+      .md-typeset .highlight .filename { overflow-wrap: anywhere; }
+      /* On narrow screens, Material runs the tab labels of a page's top-level tabs from one edge of the
+         screen to the other. Its selectors also reach tabs inside those tabs, whose labels then reach
+         beyond the screen. These rules keep nested tabs and their arrows inside their own box, with
+         the arrows at Material's normal width. The media query is Material's own breakpoint */
+      @media screen and (max-width: 44.984375em) {
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels { max-width: 100%; margin: 0; padding-inline: 0; scroll-padding-inline-start: 0; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels::after { content: none; }
+        .md-content__inner > .tabbed-set .tabbed-set .tabbed-labels ~ .tabbed-control { width: 1.2rem; margin: 0; padding: 0; }
+      }
+    </style>
+
     
     
       
@@ -5041,7 +5056,7 @@ With Adafruit's converter as the example, each row is one wire. The pins of the 
 <p>The level shifter connects <code>A1</code> with <code>B1</code> and <code>A2</code> with <code>B2</code> itself. Don't connect these pins with a wire.</p>
 <p>Each side of the level shifter gets its reference voltage from the board on that side: 3.3 V from the Raspberry Pi, and the logic supply of the motor driver, which Seeed gives as 5 V.
 The motor driver makes this supply from its batteries, with its own 5 V regulator.
-DiffBot's eight NiMH cells give the regulator enough input for its 5 V, as <a href="../power-supply/#diffbot-eight-nimh-cells-and-the-grove-i2c-motor-driver">DiffBot: eight NiMH cells and the Grove <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> Motor Driver</a> on the Power Supply page explains.
+At a board input of 9.6 V, the regulator has enough voltage to supply the 5 V logic rail. The <a href="../power-supply/#diffbot-eight-nimh-cells-and-the-grove-i2c-motor-driver">Power Supply</a> page shows the calculation.
 Leave the jumper J4 on the motor driver board in place: it connects the regulator to the VCC pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector, and Seeed asks for the jumper when 5 V should be supplied to the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> bus (<a href="https://wiki.seeedstudio.com/Grove-I2C_Motor_Driver_V1.3/#hardware-overview">Seeed's hardware overview</a>).
 Connect this VCC pin only to the level shifter's <code>HV</code>, never to the Raspberry Pi, which has its own supply.
 The GND pin of the <abbr title="Inter-Integrated Circuit. A two-wire bus, with a data line (SDA) and a clock line (SCL), that connects sensors and drivers to a computer.">I2C</abbr> connector is connected to the board's ground, with or without the jumper.</p>
