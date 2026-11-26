@@ -657,18 +657,26 @@ def covariance_axes_figure() -> Figure:
     return figure
 
 
-def write_covariance_axes() -> None:
-    """Write the figure of the ellipse's axes, in "The covariance ellipsoid"."""
+def rounded_root_text(square: float) -> str:
+    """Return the root of a square in cm² with its rounded value, such as "√8 cm ≈ 2.83 cm"."""
+    return f'√{square:g} cm ≈ {length_text(math.sqrt(square))}'
+
+
+def covariance_axes_caption() -> str:
+    """Return the caption of the axes figure, with the rounded lengths marked as approximate."""
     covariance = EXAMPLE_COVARIANCE
     axes = principal_axes(covariance)
-    write_figure(
-        'includes/math-covariance-axes.html', covariance_axes_figure(),
-        f'The ellipse of one standard deviation σ of the example covariance matrix, turned by '
-        f'{axes.angle:g}°. Its semi-axes lie along the eigenvectors: √{axes.major:g} cm = '
-        f'{length_text(math.sqrt(axes.major))} and √{axes.minor:g} cm = '
-        f'{length_text(math.sqrt(axes.minor))}. The dashed circle with the radius '
-        f'√{covariance.xx:g} cm = {length_text(math.sqrt(covariance.xx))} is the ellipse that '
-        'the matrix would have without its covariance.')
+    return ('The ellipse of one standard deviation σ of the example covariance matrix, turned by '
+            f'{axes.angle:g}°. Its semi-axes lie along the eigenvectors: '
+            f'{rounded_root_text(axes.major)} and {rounded_root_text(axes.minor)}. The dashed '
+            f'circle with the radius {rounded_root_text(covariance.xx)} is the ellipse that the '
+            'matrix would have without its covariance.')
+
+
+def write_covariance_axes() -> None:
+    """Write the figure of the ellipse's axes, in "The covariance ellipsoid"."""
+    write_figure('includes/math-covariance-axes.html', covariance_axes_figure(),
+                 covariance_axes_caption())
 
 
 def example_pairs(covariance: Covariance, seed: int, count: int) -> List[Deviation]:

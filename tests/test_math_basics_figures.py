@@ -248,13 +248,31 @@ class TestCovarianceMath(unittest.TestCase):
         self.assertAlmostEqual(rightmost, math.sqrt(figures.EXAMPLE_COVARIANCE.xx),
                                delta=ELLIPSE_SAMPLING_TOLERANCE)
 
-    def test_page_gives_the_example_ellipses_radius_and_half_width_along_x(self) -> None:
+    def test_page_gives_the_example_ellipses_crossing_and_half_width_as_displacements(
+            self) -> None:
         figures = load_script()
         page = PAGE.read_text(encoding='utf-8')
+        variance = figures.EXAMPLE_COVARIANCE.xx
         crossing = figures.point_in_direction(figures.EXAMPLE_COVARIANCE, 1, 0).x
-        half_width = math.sqrt(figures.EXAMPLE_COVARIANCE.xx)
-        self.assertIn(f'the ellipse reaches $4/\\sqrt{{5}}$ cm = {crossing:.2f} cm', page)
-        self.assertIn(f'at $x$ = {half_width:.2f} cm', page)
+        half_width = math.sqrt(variance)
+        self.assertIn('the ellipse crosses at a positive displacement of '
+                      f'$4/\\sqrt{{{variance:g}}}$ cm, about {crossing:.2f} cm.', page)
+        self.assertIn(f'The standard deviation of $x$ is $\\sqrt{{{variance:g}}}$ cm, about '
+                      f'{half_width:.2f} cm.', page)
+        self.assertIn("At the ellipse's rightmost point, "
+                      f'$x - \\mu_x = \\sqrt{{{variance:g}}}$ cm.', page)
+
+    def test_page_gives_no_position_of_the_example_ellipse_without_its_mean(self) -> None:
+        # The example has a covariance matrix and no mean, so only displacements are known
+        section = PAGE.read_text(encoding='utf-8').split('### The covariance ellipsoid\n')[1]
+        section = section.split('\n## ')[0]
+        self.assertNotRegex(section, r'at \$x\$ = [\d.]+ cm')
+
+    def test_axes_caption_marks_each_rounded_root_as_approximate(self) -> None:
+        caption = load_script().covariance_axes_caption()
+        for rounded_root in ('√8 cm ≈ 2.83 cm', '√2 cm ≈ 1.41 cm', '√5 cm ≈ 2.24 cm'):
+            self.assertEqual(caption.count(rounded_root), 1, rounded_root)
+        self.assertNotIn(' cm = ', caption)
 
     def test_shares_for_one_and_two_values_are_those_of_the_pages_table(self) -> None:
         figures = load_script()
