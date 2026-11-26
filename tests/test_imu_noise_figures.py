@@ -165,9 +165,8 @@ class TestTexts(unittest.TestCase):
     def test_signed_value_with_decimals_gives_the_sign_a_minus_sign_and_the_decimals(
             self) -> None:
         figures = load_script()
-        self.assertEqual([figures.signed_value_with_decimals(value, decimals)
-                          for value, decimals in ((0.00148, 5), (-0.0011, 4))],
-                         ['+0.00148', '−0.0011'])
+        self.assertEqual(figures.signed_value_with_decimals(0.0014, 5), '+0.00140')
+        self.assertEqual(figures.signed_value_with_decimals(-0.00148, 4), '−0.0015')
 
     def test_stamps_back_title_describes_the_repeat_the_step_back_and_the_last_stamp(
             self) -> None:
@@ -200,13 +199,17 @@ class TestTraceLayouts(unittest.TestCase):
         trace = figures.synthetic_trace()
         for layout in figures.TRACE_LAYOUTS:
             # The plot's lines start at its left edge. The legend's marks start elsewhere
-            lines = re.findall(
-                rf'<path class="(mean-line|spread-line)" d="M{figures.TRACE_PLOT_LEFT},([\d.]+) ',
-                figures.trace_figure(trace, layout).svg())
-            self.assertEqual([css_class for css_class, _ in lines],
+            lines = list(re.finditer(
+                r'<path class="(?P<kind>mean-line|spread-line)" '
+                rf'd="M{figures.TRACE_PLOT_LEFT},(?P<y>[\d.]+) ',
+                figures.trace_figure(trace, layout).svg()))
+            self.assertEqual([line['kind'] for line in lines],
                              ['spread-line', 'mean-line', 'spread-line'], layout.name)
-            self.assertAlmostEqual(float(lines[1][1]), figures.trace_y(trace.mean),
-                                   delta=SVG_COORDINATE_TOLERANCE)
+            upper_y, mean_y, lower_y = (float(line['y']) for line in lines)
+            self.assertLess(upper_y, mean_y, layout.name)
+            self.assertAlmostEqual(mean_y, figures.trace_y(trace.mean),
+                                   delta=SVG_COORDINATE_TOLERANCE, msg=layout.name)
+            self.assertLess(mean_y, lower_y, layout.name)
 
     def test_each_trace_layout_draws_the_first_seconds_readings_and_the_legends_dot(
             self) -> None:

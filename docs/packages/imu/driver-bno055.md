@@ -387,7 +387,7 @@ So the measured 5.317 · 10⁻⁷ (rad/s)² is the baseline at rest for a settin
 
 ### Results on Remo
 
-Remo was recorded twice for 180 s at rest: with a Teensy 3.2 on 2026-10-31 ([the bench checks' results in diffbot#160](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)) and with Remo's own Teensy 4.0 on 2026-11-03 ([the Teensy 4.0 results in diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). The table has the numbers of the two reports in the linked comments. The tool's first version printed them, and the recordings weren't run through the tool again.
+Remo was recorded twice for 180 s at rest: with a Teensy 3.2 on 2026-10-31 ([the bench checks' results in diffbot#160](https://github.com/ros-mobile-robots/diffbot/issues/160#issuecomment-6550353204)) and with Remo's own Teensy 4.0 on 2026-11-03 ([the Teensy 4.0 results in diffbot#169](https://github.com/ros-mobile-robots/diffbot/issues/169#issuecomment-6600460527)). The linked comments summarize the bench checks. The table gives the values from the reports that the first version of the tool printed. The recordings weren't run through the tool again.
 
 | | Teensy 3.2 | Teensy 4.0 |
 |:--|:--|:--|
