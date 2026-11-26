@@ -10,8 +10,9 @@ these includes, which follow the site's light and dark colors:
 - includes/math-covariance-scatter.html, in "The covariance of two values": two clouds of example
   pairs of deviations, drawn from normal distributions with a positive covariance and with the
   covariance 0, the sign of their product in each quadrant, and the ellipses of one and two
-  standard deviations over each cloud. The figure has a narrow layout with the two plots one
-  below the other and a wide one with the plots side by side.
+  standard deviations over each cloud. The caption gives each cloud's number of positive products
+  and its sample covariance. The figure has a narrow layout with the two plots one below the
+  other and a wide one with the plots side by side.
 - includes/math-covariance-axes.html, in "The covariance ellipsoid": the ellipse of one standard
   deviation of the example covariance matrix, its semi-axes along the eigenvectors, and the
   circle that the matrix would give without its covariance.
@@ -64,6 +65,12 @@ DRAWING_WIDTH = 300
 TEXT_SIZE = 12  # px
 VARIABLE_SIZE = 14  # px
 SIGN_SIZE = 17  # px
+# The size of the smallest text, the numbers along the axes: in a narrow drawing as in LARGE_RULES,
+# and in the wide layout of the scatter figure. The text column shows that layout a little
+# smaller than its largest width, so its smallest text is set larger. It is then as large on the
+# page as a narrow drawing's on a phone, which tests/test_math_basics_figures.py checks
+NOTE_SIZE = 11  # px
+WIDE_NOTE_SIZE = 11.5  # px
 # The widest character of the drawings' text, as a share of its size: an upper bound, so that
 # a label's box is never smaller than the label
 CHARACTER_WIDTH = 0.62
@@ -88,7 +95,7 @@ MATH_RULES = (
     # label readable, and the dots stay visible around the letters
     ('.lv-math .lv-fig .halo', f'paint-order:stroke;stroke:{BG};stroke-width:3px;'
                                'stroke-linejoin:round'),
-    ('.lv-math figcaption .lv-nowrap', 'white-space:nowrap'),
+    (f'.lv-math .lv-fig.{WIDE_LAYOUT} .note', f'font-size:{WIDE_NOTE_SIZE}px'),
 )
 FIGURE_RULES = RULES + LARGE_RULES + DRAWING_RULES + SYMBOL_RULES + MATH_RULES
 FIGURE_CLASSES = 'lv-large lv-drawing lv-symbols lv-math'
@@ -146,6 +153,7 @@ class ExampleCloud(NamedTuple):
 
     covariance: Covariance  # the matrix of the normal distribution that the pairs come from
     seed: int  # for Python's generator
+    shape: str  # the word for the cloud in the figure's caption, such as "tilted"
 
     def pairs(self) -> List[Deviation]:
         """Return the cloud's SCATTER_COUNT pairs, the same in every run."""
@@ -158,8 +166,8 @@ class ExampleCloud(NamedTuple):
 # tests/test_math_basics_figures.py checks. In the cloud without the covariance, each quadrant
 # also holds a quarter of the pairs, within the tests' QUADRANT_TOLERANCE
 SCATTER_COUNT = 200
-SCATTER_CLOUDS = (ExampleCloud(EXAMPLE_COVARIANCE, seed=150),
-                  ExampleCloud(UNCORRELATED_COVARIANCE, seed=494))
+SCATTER_CLOUDS = (ExampleCloud(EXAMPLE_COVARIANCE, seed=150, shape='tilted'),
+                  ExampleCloud(UNCORRELATED_COVARIANCE, seed=494, shape='round'))
 # The ellipses over the example pairs
 SCATTER_STANDARD_DEVIATIONS = STANDARD_DEVIATIONS[:2]
 
@@ -292,9 +300,9 @@ def minus_signed(value: float) -> str:
     return f'{value:g}'.replace('-', '−')
 
 
-def one_decimal(value: float) -> str:
-    """Return a number with one decimal and a minus sign, such as "−1.2", and 0.0 without one."""
-    return f'{round(value, 1) + 0:.1f}'.replace('-', '−')
+def three_decimals(value: float) -> str:
+    """Return a number with three decimals and a minus sign, such as "−0.009"."""
+    return f'{round(value, 3) + 0:.3f}'.replace('-', '−')
 
 
 def multiple_of_sigma(multiple: int) -> Sequence[Span]:
@@ -734,15 +742,17 @@ def scatter_plots(layout: ScatterLayout) -> List[Plot]:
     return [OVERVIEW_PLOT, OVERVIEW_PLOT.shifted(layout.second_plot_offset)]
 
 
+def scatter_title() -> str:
+    """Return the scatter figure's accessible name, the same for both of its layouts."""
+    covariances = listed([f'{cloud.covariance.xy:g} cm²' for cloud in SCATTER_CLOUDS])
+    return f'Position errors drawn from two Gaussian models with covariance {covariances}'
+
+
 def covariance_scatter_figure(layout: ScatterLayout) -> Figure:
     """Return a layout of the drawing of the two clouds of example pairs."""
-    covariances = listed([f'{cloud.covariance.xy:g} cm²' for cloud in SCATTER_CLOUDS])
-    positives = listed([str(positive_product_count(cloud.pairs())) for cloud in SCATTER_CLOUDS])
     plots = scatter_plots(layout)
-    figure = Figure(layout.name, f'Two clouds of {SCATTER_COUNT} example pairs of deviations, '
-                    f'with the covariance {covariances}: {positives} of them lie in the two '
-                    'quadrants with a positive product', plots[-1].drawing_bottom(),
-                    layout.width, layout.css_class)
+    figure = Figure(layout.name, scatter_title(), plots[-1].drawing_bottom(), layout.width,
+                    layout.css_class)
     mask = add_gap_mask(figure, [label.box for plot, cloud in zip(plots, SCATTER_CLOUDS)
                                  for label in scatter_labels(plot, cloud.covariance)])
     for plot, cloud in zip(plots, SCATTER_CLOUDS):
@@ -750,40 +760,24 @@ def covariance_scatter_figure(layout: ScatterLayout) -> Figure:
     return figure
 
 
-def cloud_caption(cloud: ExampleCloud) -> str:
-    """Return the sentence of the scatter figure's caption about one cloud's products."""
-    pairs = cloud.pairs()
-    return (f'With <em>σ<sub>xy</sub></em> = {cloud.covariance.xy:g} cm², '
-            f'{positive_product_count(pairs)} of the {len(pairs)} products are positive, and the '
-            'sample covariance is <em>s<sub>xy</sub></em> = '
-            f'{one_decimal(sample_covariance(pairs).xy)} cm².')
-
-
-def inside_count(cloud: ExampleCloud, standard_deviations: int) -> int:
-    """Return how many of a cloud's pairs lie inside the ellipse of this many σ."""
-    return sum(1 for pair in cloud.pairs()
-               if mahalanobis_distance(cloud.covariance, pair) < standard_deviations)
+def scatter_caption() -> str:
+    """Return the scatter figure's caption, with the counts and sample covariances of the pairs."""
+    same_signs = listed([f'{positive_product_count(cloud.pairs())} pairs in the {cloud.shape} '
+                         'cloud' for cloud in SCATTER_CLOUDS])
+    sample_covariances = listed([f'{three_decimals(sample_covariance(cloud.pairs()).xy)} cm²'
+                                 for cloud in SCATTER_CLOUDS])
+    distances = listed([str(multiple) for multiple in SCATTER_STANDARD_DEVIATIONS])
+    return (f'Each cloud contains {SCATTER_COUNT} simulated pairs from a model with the variance '
+            f'{EXAMPLE_COVARIANCE.xx:g} cm² on each axis. The deviations have the same sign for '
+            f'{same_signs}. The sample covariances are about {sample_covariances}. The ellipses '
+            f"show distances of {distances} from each model's mean.")
 
 
 def write_covariance_scatter() -> None:
     """Write the figure of the two clouds of example pairs, in "The covariance of two values"."""
-    covariance, ellipses = EXAMPLE_COVARIANCE, SCATTER_STANDARD_DEVIATIONS
-    inside = ', and '.join(
-        f'{listed([str(inside_count(cloud, multiple)) for multiple in ellipses])} of the pairs '
-        f'with <em>σ<sub>xy</sub></em> = {cloud.covariance.xy:g} cm²' for cloud in SCATTER_CLOUDS)
-    shares = [share_within_for_two_values(multiple) for multiple in ellipses]
-    write_layout_figure(
-        'includes/math-covariance-scatter.html',
-        [covariance_scatter_figure(layout) for layout in SCATTER_LAYOUTS],
-        f'Two clouds of {SCATTER_COUNT} example pairs of deviations from the means, in cm, each '
-        f'drawn from a normal distribution with the variances {covariance.xx:g} cm². The sign in '
-        'each quadrant is the sign of the product <span class="lv-nowrap">(<em>x</em> − '
-        '<em>μ<sub>x</sub></em>)(<em>y</em> − <em>μ<sub>y</sub></em>)</span>. '
-        + ' '.join(cloud_caption(cloud) for cloud in SCATTER_CLOUDS)
-        + f' The ellipses of one and two standard deviations σ hold {inside}. The shares for two '
-        f'values, {listed([percent(share) for share in shares])}, are '
-        f'{listed([str(round(share * SCATTER_COUNT)) for share in shares])} of the '
-        f'{SCATTER_COUNT} pairs.')
+    write_layout_figure('includes/math-covariance-scatter.html',
+                        [covariance_scatter_figure(layout) for layout in SCATTER_LAYOUTS],
+                        scatter_caption())
 
 
 def main() -> None:

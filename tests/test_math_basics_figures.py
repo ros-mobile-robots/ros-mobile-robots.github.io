@@ -10,6 +10,7 @@ import importlib.util
 import math
 from pathlib import Path
 import re
+import statistics
 import sys
 from types import ModuleType
 from typing import Any
@@ -39,6 +40,13 @@ ROUNDING = 0.05  # px
 # The rightmost of an ellipse's points in 360 directions, one degree apart, lies this close to
 # the ellipse's rightmost point
 ELLIPSE_SAMPLING_TOLERANCE = 0.001  # cm
+# The widths at which the page shows a drawing, measured in a browser on the built page: a narrow
+# drawing on a phone 390 px wide, and the scatter figure's wide layout in the text column of a
+# window 1440 px wide
+PHONE_DRAWING_WIDTH = 358  # px
+TEXT_COLUMN_DRAWING_WIDTH = 688  # px
+# The round cloud's sample covariance in the page's text, such as "about −0.009 cm²"
+ROUND_CLOUD_SENTENCE = r'its 200 pairs have a sample covariance of about (\S+) cm²'
 # The criteria of the scatter figure's seeds: the sample covariance of a cloud's pairs lies this
 # close to the covariance of their distribution, and with the covariance 0, each quadrant holds
 # a quarter of the pairs, up to this many more or fewer
@@ -459,6 +467,27 @@ class TestScatterLayouts(unittest.TestCase):
             self.assertEqual(svg.count(f'mask="url(#{layout.name}-gaps)"'), ellipse_count,
                              layout.name)
 
+    def test_both_scatter_layouts_have_the_same_accessible_name(self) -> None:
+        figures = load_script()
+        titles = [figures.covariance_scatter_figure(layout).title
+                  for layout in figures.SCATTER_LAYOUTS]
+        self.assertEqual(titles, ['Position errors drawn from two Gaussian models with '
+                                  'covariance 3 cm² and 0 cm²'] * 2)
+
+    def test_wide_scatter_layout_shows_its_smallest_text_as_large_as_a_phone_does(self) -> None:
+        figures = load_script()
+        wide = scatter_layout(figures, figures.WIDE_LAYOUT)
+        on_a_phone = figures.NOTE_SIZE * PHONE_DRAWING_WIDTH / figures.DRAWING_WIDTH
+        in_the_text_column = figures.WIDE_NOTE_SIZE * TEXT_COLUMN_DRAWING_WIDTH / wide.width
+        self.assertGreaterEqual(in_the_text_column, on_a_phone)
+        self.assertIn((f'.lv-math .lv-fig.{figures.WIDE_LAYOUT} .note',
+                       f'font-size:{figures.WIDE_NOTE_SIZE}px'), figures.FIGURE_RULES)
+
+    def test_note_size_is_the_size_that_the_large_figures_rules_set(self) -> None:
+        figures = load_script()
+        self.assertIn(('.lv-large .lv-fig .note,.lv-grids .lv-fig .note',
+                       f'font-size:{figures.NOTE_SIZE}px'), figures.FIGURE_RULES)
+
     def test_each_scatter_plot_names_the_covariance_of_its_cloud(self) -> None:
         figures = load_script()
         for layout in figures.SCATTER_LAYOUTS:
@@ -544,10 +573,51 @@ class TestTexts(unittest.TestCase):
     def test_minus_signed_writes_a_minus_sign(self) -> None:
         self.assertEqual(load_script().minus_signed(-15), '−15')
 
-    def test_one_decimal_writes_a_minus_sign_but_not_before_zero(self) -> None:
+    def test_three_decimals_writes_a_minus_sign_but_not_before_zero(self) -> None:
         figures = load_script()
-        self.assertEqual(figures.one_decimal(-1.26), '−1.3')
-        self.assertEqual(figures.one_decimal(-0.009), '0.0')
+        self.assertEqual(figures.three_decimals(-0.009064), '−0.009')
+        self.assertEqual(figures.three_decimals(3.013933), '3.014')
+        self.assertEqual(figures.three_decimals(-0.0004), '0.000')
+
+    def test_scatter_caption_counts_each_clouds_pairs_with_deviations_of_the_same_sign(
+            self) -> None:
+        figures = load_script()
+        counts = [sum(1 for pair in cloud.pairs() if (pair.x > 0) == (pair.y > 0))
+                  for cloud in figures.SCATTER_CLOUDS]
+        self.assertIn(f'The deviations have the same sign for {counts[0]} pairs in the tilted '
+                      f'cloud and {counts[1]} pairs in the round cloud.',
+                      figures.scatter_caption())
+
+    def test_scatter_caption_gives_each_clouds_sample_covariance_to_three_decimals(
+            self) -> None:
+        figures = load_script()
+        covariances = []
+        for cloud in figures.SCATTER_CLOUDS:
+            pairs = cloud.pairs()
+            covariance = statistics.covariance([pair.x for pair in pairs],
+                                               [pair.y for pair in pairs])
+            covariances.append(f'{covariance:.3f}'.replace('-', '−'))
+        self.assertIn(f'The sample covariances are about {covariances[0]} cm² and '
+                      f'{covariances[1]} cm².', figures.scatter_caption())
+
+    def test_scatter_caption_shows_that_the_round_clouds_sample_covariance_is_not_zero(
+            self) -> None:
+        self.assertIn('about 3.014 cm² and −0.009 cm²', load_script().scatter_caption())
+
+    def test_scatter_caption_names_the_pairs_the_variance_and_the_ellipses_distances(
+            self) -> None:
+        caption = load_script().scatter_caption()
+        self.assertTrue(caption.startswith('Each cloud contains 200 simulated pairs from a model '
+                                           'with the variance 5 cm² on each axis.'))
+        self.assertTrue(caption.endswith('The ellipses show distances of 1 and 2 from each '
+                                         "model's mean."))
+
+    def test_page_gives_the_round_clouds_sample_covariance_as_the_caption_does(self) -> None:
+        figures = load_script()
+        round_cloud = next(cloud for cloud in figures.SCATTER_CLOUDS if cloud.shape == 'round')
+        sentence = first_match(ROUND_CLOUD_SENTENCE, PAGE.read_text(encoding='utf-8'))
+        self.assertEqual(sentence[1], figures.three_decimals(
+            figures.sample_covariance(round_cloud.pairs()).xy))
 
     def test_normal_distribution_axis_shows_the_noise_in_thousandths(self) -> None:
         svg = load_script().normal_distribution_figure().svg()

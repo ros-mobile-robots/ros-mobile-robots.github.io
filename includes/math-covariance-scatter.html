@@ -100,7 +100,7 @@
 .lv-math .lv-fig .sign{font-size:17px;font-weight:700}
 .lv-math .lv-fig .angle-arc{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2}
 .lv-math .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
-.lv-math figcaption .lv-nowrap{white-space:nowrap}
+.lv-math .lv-fig.lv-layout-wide .note{font-size:11.5px}
 .md-typeset .lv-space{container-type:inline-size;margin:1em 0}
 .md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
 .lv-fig.lv-layout-wide{display:none}
@@ -108,7 +108,7 @@
 </style>
 <div class="lv-space">
 <figure class="lv-figure lv-large lv-drawing lv-symbols lv-math lv-layouts">
-<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 692" role="img" aria-labelledby="math-covariance-scatter-title"><title id="math-covariance-scatter-title">Two clouds of 200 example pairs of deviations, with the covariance 3 cm² and 0 cm²: 151 and 100 of them lie in the two quadrants with a positive product</title>
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 692" role="img" aria-labelledby="math-covariance-scatter-title"><title id="math-covariance-scatter-title">Position errors drawn from two Gaussian models with covariance 3 cm² and 0 cm²</title>
 <defs><mask id="math-covariance-scatter-gaps" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="692"><rect x="0" y="0" width="300" height="692" fill="white"/><rect x="137.6" y="138.2" width="14.9" height="16.0" rx="3" fill="black"/><rect x="119.1" y="119.8" width="14.9" height="16.0" rx="3" fill="black"/><rect x="126.8" y="481.5" width="14.9" height="16.0" rx="3" fill="black"/><rect x="97.6" y="452.2" width="14.9" height="16.0" rx="3" fill="black"/></mask></defs>
 <path class="zero-line" d="M34.0,164.8 H293.0 M163.5,294.2 V26.0"/>
 <circle class="pair" cx="224.5" cy="135.3" r="2"/>
@@ -593,7 +593,7 @@
 <text class="strong halo" x="134.2" y="494.8" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
 <text class="strong halo" x="105.0" y="465.6" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
 </svg>
-<svg class="lv-fig lv-layout-wide" viewBox="0 0 600 338" role="img" aria-labelledby="math-covariance-scatter-wide-title"><title id="math-covariance-scatter-wide-title">Two clouds of 200 example pairs of deviations, with the covariance 3 cm² and 0 cm²: 151 and 100 of them lie in the two quadrants with a positive product</title>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 600 338" role="img" aria-labelledby="math-covariance-scatter-wide-title"><title id="math-covariance-scatter-wide-title">Position errors drawn from two Gaussian models with covariance 3 cm² and 0 cm²</title>
 <defs><mask id="math-covariance-scatter-wide-gaps" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="338"><rect x="0" y="0" width="600" height="338" fill="white"/><rect x="137.6" y="138.2" width="14.9" height="16.0" rx="3" fill="black"/><rect x="119.1" y="119.8" width="14.9" height="16.0" rx="3" fill="black"/><rect x="426.8" y="127.5" width="14.9" height="16.0" rx="3" fill="black"/><rect x="397.6" y="98.2" width="14.9" height="16.0" rx="3" fill="black"/></mask></defs>
 <path class="zero-line" d="M34.0,164.8 H293.0 M163.5,294.2 V26.0"/>
 <circle class="pair" cx="224.5" cy="135.3" r="2"/>
@@ -1078,6 +1078,6 @@
 <text class="strong halo" x="434.2" y="140.8" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
 <text class="strong halo" x="405.0" y="111.6" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
 </svg>
-<figcaption>Two clouds of 200 example pairs of deviations from the means, in cm, each drawn from a normal distribution with the variances 5 cm². The sign in each quadrant is the sign of the product <span class="lv-nowrap">(<em>x</em> − <em>μ<sub>x</sub></em>)(<em>y</em> − <em>μ<sub>y</sub></em>)</span>. With <em>σ<sub>xy</sub></em> = 3 cm², 151 of the 200 products are positive, and the sample covariance is <em>s<sub>xy</sub></em> = 3.0 cm². With <em>σ<sub>xy</sub></em> = 0 cm², 100 of the 200 products are positive, and the sample covariance is <em>s<sub>xy</sub></em> = 0.0 cm². The ellipses of one and two standard deviations σ hold 74 and 174 of the pairs with <em>σ<sub>xy</sub></em> = 3 cm², and 84 and 177 of the pairs with <em>σ<sub>xy</sub></em> = 0 cm². The shares for two values, 39.3 % and 86.5 %, are 79 and 173 of the 200 pairs.</figcaption>
+<figcaption>Each cloud contains 200 simulated pairs from a model with the variance 5 cm² on each axis. The deviations have the same sign for 151 pairs in the tilted cloud and 100 pairs in the round cloud. The sample covariances are about 3.014 cm² and −0.009 cm². The ellipses show distances of 1 and 2 from each model's mean.</figcaption>
 </figure>
 </div>
