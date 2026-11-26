@@ -7,12 +7,12 @@
 
 ### Normal Distribution and Gaussian Function
 
-[The normal distribution](math-basics.md#the-normal-distribution) on the Math Basics page explains the normal distribution with its two numbers, the mean and the variance, and with the noise of the robots' simulated IMU as the example.
+[The normal distribution](noise-and-covariance.md#the-normal-distribution) on the Noise and Covariance page explains the normal distribution with its two numbers, the mean and the variance, and with the noise of the robots' simulated IMU as the example.
 
 
 ### Multivariate Distribution
 
-[The covariance matrix and its ellipsoid](math-basics.md#the-covariance-matrix-and-its-ellipsoid) on the Math Basics page explains the covariance matrix of a vector of normally distributed values.
+[The covariance matrix and its ellipsoid](noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid) on the Noise and Covariance page explains the covariance matrix of a vector of normally distributed values.
 
 ### Joint Distribution
 

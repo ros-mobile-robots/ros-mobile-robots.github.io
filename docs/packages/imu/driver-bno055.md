@@ -48,7 +48,7 @@ The firmware in [`diffbot_firmware`](https://github.com/ros-mobile-robots/diffbo
 | `angular_velocity` | rad/s, from the gyroscope |
 | `linear_acceleration` | m/s², the specific force, including gravity |
 | `orientation` | not provided: `orientation_covariance[0]` is −1, which [REP 145](https://www.ros.org/reps/rep-0145.html) defines as "no data" for a field |
-| covariances | diagonal starting values: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)². At rest, the [bench checks](#bench-checks) measured much less. [The variance and the standard deviation](../../theory/preliminaries/math-basics.md#the-variance-and-the-standard-deviation) on the Math Basics page explains the variance and why the gyroscope's starting value is larger, and [The covariance matrix and its ellipsoid](../../theory/preliminaries/math-basics.md#the-covariance-matrix-and-its-ellipsoid) explains the matrix |
+| covariances | diagonal starting values: 4 · 10⁻⁴ (rad/s)² and 10⁻² (m/s²)². At rest, the [bench checks](#bench-checks) measured much less. [The variance and the standard deviation](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) on the Noise and Covariance page explains the variance and why the gyroscope's starting value is larger, and [The covariance matrix and its ellipsoid](../../theory/preliminaries/noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid) explains the matrix |
 
 The chip's own orientation estimate isn't read: the EKF uses only the angular velocity. The topic's name is REP 145's for accelerometer and gyroscope data without an orientation.
 

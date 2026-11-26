@@ -1,6 +1,6 @@
 """Tests for scripts/figures/math_basics_figures.py.
 
-The script writes the figures of the Math Basics page as four includes.
+The script writes the figures of the Noise and Covariance page as four includes.
 
 Run from the repository root: python -m unittest discover -s tests
 """
@@ -25,7 +25,7 @@ from figure_script_runs import run_with_an_ascii_locale  # noqa: E402
 
 FIGURES = ROOT / 'scripts' / 'figures'
 SCRIPT = FIGURES / 'math_basics_figures.py'
-PAGE = ROOT / 'docs' / 'theory' / 'preliminaries' / 'math-basics.md'
+PAGE = ROOT / 'docs' / 'theory' / 'preliminaries' / 'noise-and-covariance.md'
 INCLUDE_NAMES = ['math-covariance-axes.html', 'math-covariance-scatter.html',
                  'math-covariance-shares.html', 'math-normal-distribution.html']
 # A row of the page's table of the shares inside: the standard deviations, then the shares for
@@ -122,7 +122,7 @@ class TestIncludes(unittest.TestCase):
                 '<!-- Written by scripts/figures/math_basics_figures.py -->\n'), include_name)
 
     def test_includes_have_no_id_in_common(self) -> None:
-        # The page shows all four figures, and a split page keeps them in one place
+        # One page shows all four figures
         ids: List[str] = []
         for include_name in INCLUDE_NAMES:
             ids += re.findall(r' id="([^"]+)"',

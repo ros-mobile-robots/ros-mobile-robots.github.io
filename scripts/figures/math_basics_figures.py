@@ -1,7 +1,8 @@
-"""Generate the figures of the Math Basics page as inline SVG.
+"""Generate the figures of the Noise and Covariance page as inline SVG.
 
-The page is docs/theory/preliminaries/math-basics.md. The script writes these includes, which
-follow the site's light and dark colors:
+The page is docs/theory/preliminaries/noise-and-covariance.md, one of the two pages with the math
+basics of the IMU pages. The other one, quaternions.md, has no generated figure. The script writes
+these includes, which follow the site's light and dark colors:
 
 - includes/math-normal-distribution.html, in "The normal distribution": the density of the
   simulated IMU's noise, a normal distribution with the mean 0 and the standard deviation of the
@@ -18,8 +19,7 @@ follow the site's light and dark colors:
   and three standard deviations of the same matrix, each labeled with the share of the values
   inside it.
 
-Each include holds one figure of one section, and one function writes it. So a figure moves
-with its section when the page is split, and the script changes only in this list.
+Each include holds one figure of one section, and one function writes it.
 
 Every drawing is 300 units wide, so that its text is readable on a phone. The wide layout of the
 scatter figure is two such drawings wide, and the CSS of LAYOUT_RULES in localization_figures.py
@@ -782,7 +782,7 @@ def write_covariance_scatter() -> None:
 
 
 def main() -> None:
-    """Write the includes of the Math Basics page, in the order of its sections."""
+    """Write the includes of the Noise and Covariance page, in the order of its sections."""
     write_normal_distribution()
     write_covariance_scatter()
     write_covariance_axes()
