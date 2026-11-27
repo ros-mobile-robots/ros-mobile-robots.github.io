@@ -13,14 +13,16 @@ import sys
 import tempfile
 from typing import Dict
 from typing import List
-from typing import NamedTuple
 import unittest
 from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
+sys.path.insert(0, str(ROOT / 'tests'))
 
 import power_supply_figures  # noqa: E402
+from svg_paths import path_segments  # noqa: E402
+from svg_paths import Segment  # noqa: E402
 
 SCRIPT = ROOT / 'scripts' / 'figures' / 'power_supply_figures.py'
 INCLUDE_NAMES = ['power-supply-flow-diffbot.html', 'power-supply-flow-remo.html']
@@ -42,35 +44,6 @@ def run_with_an_ascii_locale() -> Dict[str, bytes]:
         if run.returncode != 0:
             raise RuntimeError(f'{SCRIPT.name} failed: {run.stderr.strip()}')
         return {include.name: include.read_bytes() for include in includes.iterdir()}
-
-
-class Segment(NamedTuple):
-    """A straight piece of a drawn line, from (x1, y1) to (x2, y2)."""
-
-    x1: float
-    y1: float
-    x2: float
-    y2: float
-
-
-def path_segments(path: str) -> List[Segment]:
-    """Return the straight pieces of an SVG path made of absolute M, L, H and V commands."""
-    segments: List[Segment] = []
-    x = y = 0.0
-    for command, numbers in re.findall(r'([MLHV])([^MLHV]*)', path):
-        values = [float(value) for value in re.split(r'[ ,]+', numbers.strip())]
-        if command == 'M':
-            x, y = values
-            continue
-        if command == 'H':
-            new_x, new_y = values[0], y
-        elif command == 'V':
-            new_x, new_y = x, values[0]
-        else:
-            new_x, new_y = values
-        segments.append(Segment(x, y, new_x, new_y))
-        x, y = new_x, new_y
-    return segments
 
 
 def crosses(first: Segment, second: Segment) -> bool:

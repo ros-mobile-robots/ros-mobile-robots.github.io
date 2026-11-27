@@ -35,6 +35,11 @@ pip3 install smbus
     operate for this purpose. For a development environment it is best practice to use a python virtual environment like
     [`venv`](https://docs.python.org/3/library/venv.html) and install the packages inside it.
 
+### The L298 and its H-bridges
+
+The board drives DiffBot's two motors with an L298, a chip with two H-bridges.
+[DC Motors and Motor Drivers](theory/actuation.md) explains how an H-bridge reverses the voltage across a motor, how pulse-width modulation (PWM) sets the average voltage, and how much voltage the L298 loses.
+
 ### Connection
 
 The driver is wired to I2C bus 1 of DiffBot's Raspberry Pi 4 B, through a passive [Grove I2C hub](https://wiki.seeedstudio.com/Grove-I2C_Hub/). DiffBot's standard bringup does not start the `motor_driver` node. In [`minimal.launch`]({{ diffbot_src_url }}/diffbot_bringup/launch/minimal.launch#L20-L23), the entry for `motor_driver.py` from the `grove_motor_driver` package is commented out and marked "Deprecated".

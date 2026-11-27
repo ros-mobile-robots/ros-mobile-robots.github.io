@@ -24,10 +24,7 @@ If you see such warnings, use a power bank that delivers more current, or a bett
 ## From the battery to the motors
 
 The motor driver sits between the battery and the motors.
-For each motor, it has an H-bridge: four switches that let the current flow through the motor in either direction.
-The driver uses pulse-width modulation (PWM) to change the fraction of each cycle for which it applies voltage to the motor.
-The duty cycle is the share of each period during which the switches are on.
-The higher the duty cycle, the higher the average voltage at the motor.
+The driver's H-bridge selects the motor's direction, and the pulse-width modulation (PWM) duty cycle gives the fraction of each period spent applying the drive voltage, as [DC Motors and Motor Drivers](theory/actuation.md) explains.
 
 The highest motor command gives the maximum duty cycle.
 Remo's driver library, for example, turns its highest command, 255, into 4080 of 4096 PWM counts, a duty cycle of 99.6 % ([`Adafruit_MotorShield.cpp`](https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library/blob/1.1.4/Adafruit_MotorShield.cpp#L254-L256)).
