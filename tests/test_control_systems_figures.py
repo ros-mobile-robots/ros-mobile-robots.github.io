@@ -1045,9 +1045,18 @@ class TestRobustness(unittest.TestCase):
         self.assertLess(self.include.index(self.wide), self.include.index(self.tall))
         self.assertEqual(self.include.count('<figcaption>'), 1)
 
-    def test_caption_says_that_the_differences_are_enlarged_and_not_measured(self) -> None:
-        self.assertIn("the wheels' differences drawn much larger than real ones, "
-                      'not a measurement of the robot', self.include)
+    def test_caption_says_that_the_range_is_chosen_for_the_eye_and_not_measured(self) -> None:
+        variation = round(control_systems_figures.RADIUS_VARIATION * 100)
+        self.assertIn(f'The radii differ by {variation} %, a range chosen so that the three '
+                      'lines can be told apart. An example, not a measurement of the robot.',
+                      self.include)
+
+    def test_accessible_name_is_short_and_says_angular_speed(self) -> None:
+        longest = 60
+        for svg in (self.wide, self.tall):
+            name = ElementTree.fromstring(svg).findtext('title') or ''
+            self.assertIn('angular speed', name)
+            self.assertLessEqual(len(name), longest)
 
     def test_three_wheels_stand_side_by_side_from_the_smallest_to_the_largest(self) -> None:
         for drawing in self.layouts:
@@ -1174,11 +1183,12 @@ class TestRobustness(unittest.TestCase):
             for earlier, later in zip(crossings, crossings[1:]):
                 self.assertGreaterEqual(later - earlier, apart)
 
-    def test_both_layouts_name_the_parameter_the_target_the_band_and_the_output(self) -> None:
+    def test_both_layouts_name_the_parameter_the_band_and_both_angular_speeds(self) -> None:
         for drawing in self.layouts:
             texts = texts_of(drawing.svg)
-            for text in ('parameter', 'wheel radius', 'reference', 'target wheel speed',
-                         'allowed error after settling', 'output', 'wheel speed', 'time'):
+            for text in ('parameter', 'wheel radius', 'reference', 'target angular speed',
+                         'allowed error after settling', 'output', 'wheel angular speed',
+                         'time'):
                 self.assertEqual(texts.count(text), 1, text)
 
     def test_the_bands_name_stands_right_below_the_plots_band(self) -> None:

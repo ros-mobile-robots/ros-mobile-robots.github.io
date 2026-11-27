@@ -83,12 +83,18 @@ Robustness is the ability of the controller to provide stability and performance
 
 The figure shows such an uncertainty for one parameter of the model, the wheel radius.
 The model has one value for the radius, and each real wheel's radius lies somewhere in a band around that value.
-Follow the three lines of the plot, one for each wheel: with the same controller, the speed of the smallest wheel (short dashes), of the model's wheel (solid line) and of the largest wheel (long dashes) all enter the gray tolerance band and stay in it.
+Follow the three wheels toward the same target angular speed, measured by the encoder in rad/s.
+With the same controller, the smallest wheel (short dashes), the model's wheel (solid line) and the largest wheel (long dashes) all enter the gray tolerance band and stay in it.
+[The feedback loop of one wheel](../../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) on the PID Controllers page shows how the robots measure and control this angular speed.
 
 --8<-- "includes/control-systems-robustness.html"
 
 The figure draws the wheels' differences much larger than they are on a real robot, so that the three lines can be told apart.
 A larger wheel pushes the robot with less force for the same motor torque, so its speed rises more slowly.
+
+The plot shows how fast each wheel turns, not how fast the robot drives.
+A larger wheel rolling without slip travels farther per turn.
+The wheel-speed controller cannot detect that distance error.
 
 Model uncertainty can mean that the wheels of the robot are of slightly different sizes or the distribution of mass is different than what's assumed.
 Also, the parameters of the system might just change over time because of wear and tear.

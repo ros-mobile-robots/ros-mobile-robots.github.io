@@ -12,9 +12,9 @@ All are inline SVG that follows the site's light and dark colors. In the page's 
   stands next to the plot in the wide layout and below it in the tall one;
 - includes/control-systems-robustness.html: model uncertainty as a bounded variation of one
   parameter, the wheel radius. Three wheels stand on a scale of the radius, the model's wheel
-  between the smallest and the largest real one, and a plot shows the speed of each over time
-  with the same controller. Each wheel is drawn with the line of its speed. The wheels stand to
-  the left of the plot in the wide layout and above it in the tall one;
+  between the smallest and the largest real one, and a plot shows the angular speed of each
+  over time with the same controller. Each wheel is drawn with the line of its speed. The
+  wheels stand to the left of the plot in the wide layout and above it in the tall one;
 - includes/control-systems-open-loop.html: an open loop, the chain from the reference through the
   controller, the actuators and the process to the outputs, with no path back. It holds a wide
   layout, with the chain to the right, and a tall one for phones, with the chain down;
@@ -266,7 +266,7 @@ class Wheel(NamedTuple):
     """One of the robustness figure's wheels.
 
     radius is a share of the wheel radius that the model has. The wheel and the line of its
-    speed are drawn with the same kind of line.
+    angular speed are drawn with the same kind of line.
     """
 
     radius: float
@@ -275,15 +275,13 @@ class Wheel(NamedTuple):
 
 
 # The example of the robustness figure. The model's parameter is the wheel radius. The real
-# wheels' radii differ from the model's value by up to RADIUS_VARIATION, which is far more than
-# real wheels differ, so that the three speeds can be told apart. The model's wheel is drawn
-# with a radius of WHEEL_RADIUS, and the scale below the wheels shows RADIUS_VARIATION as
-# WHEEL_SPACING
-ROBUSTNESS_TITLE = ("Model uncertainty as a bounded variation of a parameter. The model's value "
-                    'of the wheel radius lies in a band between the smallest and the largest '
-                    'real wheel. With the same controller, the speed of each of the three '
-                    'wheels follows the target speed into the tolerance band and stays '
-                    'there')
+# wheels' radii differ from the model's value by up to RADIUS_VARIATION, a range chosen so
+# that the three lines can be told apart. The plot shows each wheel's angular speed, which
+# is what the encoder measures and the controller controls. How far a wheel rolls at that
+# angular speed depends on its radius, and the plot doesn't show it. The model's wheel is
+# drawn with a radius of WHEEL_RADIUS, and the scale below the wheels shows RADIUS_VARIATION
+# as WHEEL_SPACING
+ROBUSTNESS_TITLE = 'Wheel angular speed at three radii'
 RADIUS_VARIATION = 0.25
 WHEELS = (Wheel(1 - RADIUS_VARIATION, 'smallest', LineKind.SMALLEST),
           Wheel(1, "model's value", LineKind.SIGNAL),
@@ -791,7 +789,7 @@ def wheel_loop(radius: float) -> SecondOrder:
 
 
 def wheel_speed(radius: float, time: float) -> float:
-    """Return the speed of a wheel with a radius at a time of the robustness figure."""
+    """Return the angular speed of a wheel with a radius at a time of the robustness figure."""
     return step_response(wheel_loop(radius), time - STEP_TIME)
 
 
@@ -828,7 +826,7 @@ def wheels_on_the_scale(figure: Figure, model_x: float, ground_y: float) -> None
 
 
 def robustness_plot(figure: Figure, plot: Plot) -> None:
-    """Add the plot of the three wheels' speeds, with their target and the tolerance band.
+    """Add the plot of the three wheels' angular speeds, with their target and the tolerance band.
 
     The model's wheel is drawn last, on top of the two others. The band has the name of the
     performance figure's mark 3, below its right end.
@@ -837,9 +835,10 @@ def robustness_plot(figure: Figure, plot: Plot) -> None:
     for wheel in sorted(WHEELS, key=lambda wheel: wheel.kind is LineKind.SIGNAL):
         speed = functools.partial(wheel_speed, wheel.radius)
         figure.curve(sampled(plot, speed, plot.duration), wheel.kind)
-    figure.signal(plot.x_at(STEP_TIME) + 8, plot.top + 8, 'reference', 'target wheel speed')
+    figure.signal(plot.x_at(STEP_TIME) + 8, plot.top + 8, 'reference', 'target angular speed')
     figure.text(plot.right, plot.y_at(1 - ALLOWED_ERROR) + 13, TOLERANCE_NAME, anchor='end')
-    figure.signal(plot.x_at(0.5 * plot.duration), plot.y_at(0.5), 'output', 'wheel speed')
+    figure.signal(plot.x_at(0.5 * plot.duration), plot.y_at(0.5), 'output',
+                  'wheel angular speed')
 
 
 def robustness_figure() -> Figure:
@@ -999,10 +998,10 @@ def main() -> None:
                   'measurement of the robot.')
     write_include('includes/control-systems-robustness.html',
                   [wide_robustness_figure(), robustness_figure()],
-                  'Model uncertainty as a bounded variation of one parameter. The same '
-                  "controller drives the smallest wheel, the model's wheel and the largest "
-                  "wheel. An example with the wheels' differences drawn much larger than real "
-                  'ones, not a measurement of the robot.')
+                  'The angular speed of a wheel at three radii, with the same controller: '
+                  "the smallest wheel, the model's value and the largest wheel. The radii "
+                  f'differ by {round(RADIUS_VARIATION * 100)} %, a range chosen so that the '
+                  'three lines can be told apart. An example, not a measurement of the robot.')
     write_include('includes/control-systems-open-loop.html',
                   [wide_open_loop_figure(), open_loop_figure()],
                   "An open loop for a wheel's speed. The chain ends at the outputs, and "
