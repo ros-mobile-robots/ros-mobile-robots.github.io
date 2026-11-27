@@ -1102,6 +1102,28 @@ PERCENT_ROUNDING = 1
 WHEEL_KINDS = [LineKind.SMALLEST, LineKind.SIGNAL, LineKind.LARGEST]
 
 
+def variation_in_the_caption(include: str) -> Tuple[int, int]:
+    """Return the percentages that the robustness figure's caption states for its radii.
+
+    The first one is how far the smallest radius is below the model value, the second one how
+    far the largest is above it.
+    """
+    stated = re.search(r'The smallest radius is (\d+) % below the model value and the '
+                       r'largest is (\d+) % above it\.', include)
+    assert stated is not None
+    return int(stated.group(1)), int(stated.group(2))
+
+
+def variation_on_the_page() -> int:
+    """Return the percentage that the page's Robustness section states for the radii."""
+    page = (ROOT / 'docs' / 'theory' / 'modeling-control'
+            / 'control-systems-introduction.md').read_text(encoding='utf-8')
+    stated = re.search(r'The smallest and the largest radius differ by (\d+) % from the '
+                       r"model's value\.", page)
+    assert stated is not None
+    return int(stated.group(1))
+
+
 def robustness_drawing(svg: str) -> RobustnessDrawing:
     """Return what a layout of the robustness figure draws. The wheels' scale is drawn first."""
     wheels = [DrawnWheel(kind, Point(float(circle.get('cx', 0)), float(circle.get('cy', 0))),
@@ -1139,10 +1161,7 @@ class TestRobustness(unittest.TestCase):
                       f'largest is {variation} % above it.', self.include)
 
     def test_caption_states_the_radius_variation_that_the_rims_are_drawn_with(self) -> None:
-        stated = re.search(r'The smallest radius is (\d+) % below the model value and the '
-                           r'largest is (\d+) % above it\.', self.include)
-        assert stated is not None
-        stated_below, stated_above = (int(percent) for percent in stated.groups())
+        stated_below, stated_above = variation_in_the_caption(self.include)
         for drawing in self.layouts:
             drawn_below, drawn_above = drawing.rims_below_and_above
             self.assertAlmostEqual(drawn_below, stated_below, delta=PERCENT_ROUNDING)
@@ -1153,15 +1172,16 @@ class TestRobustness(unittest.TestCase):
                       'An example, not a measurement of the robot.', self.include)
 
     def test_page_states_the_radius_variation_that_the_rims_are_drawn_with(self) -> None:
-        page = (ROOT / 'docs' / 'theory' / 'modeling-control'
-                / 'control-systems-introduction.md').read_text(encoding='utf-8')
-        stated = re.search(r'The smallest and the largest radius differ by (\d+) % from the '
-                           r"model's value\.", page)
-        assert stated is not None
-        stated_percent = int(stated.group(1))
+        stated_percent = variation_on_the_page()
         for drawing in self.layouts:
             for drawn_percent in drawing.rims_below_and_above:
                 self.assertAlmostEqual(drawn_percent, stated_percent, delta=PERCENT_ROUNDING)
+
+    def test_page_states_exactly_the_percentages_of_the_caption(self) -> None:
+        # The rims are compared within a rounding. The two texts are whole numbers and must agree
+        on_the_page = variation_on_the_page()
+        for in_the_caption in variation_in_the_caption(self.include):
+            self.assertEqual(on_the_page, in_the_caption)
 
     def test_legend_says_what_the_three_blue_labels_show(self) -> None:
         for svg in (self.wide, self.tall):
