@@ -91,7 +91,7 @@ With the same controller, the smallest wheel (short dashes), the model's wheel (
 
 In this example the larger wheel takes longer to reach the tolerance band.
 The three lines show three chosen radii, and they are no proof for every radius in between.
-The radii differ by 25 % from the model's value.
+The smallest and the largest radius differ by 25 % from the model's value.
 This range was chosen so that the three lines can be told apart, and it is not the tolerance of the robots' wheels.
 
 The plot shows how fast each wheel turns, not how fast the robot drives.

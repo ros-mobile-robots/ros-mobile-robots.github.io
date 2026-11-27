@@ -1128,7 +1128,8 @@ class TestRobustness(unittest.TestCase):
         page = (ROOT / 'docs' / 'theory' / 'modeling-control'
                 / 'control-systems-introduction.md').read_text(encoding='utf-8')
         variation = round(control_systems_figures.RADIUS_VARIATION * 100)
-        self.assertIn(f"The radii differ by {variation} % from the model's value.", page)
+        self.assertIn(f'The smallest and the largest radius differ by {variation} % from the '
+                      "model's value.", page)
 
     def test_accessible_name_is_short_and_says_angular_speed(self) -> None:
         longest = 60
