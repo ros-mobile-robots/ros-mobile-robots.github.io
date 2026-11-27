@@ -10,6 +10,9 @@ All are inline SVG that follows the site's light and dark colors:
 - includes/control-systems-stability.html: a bounded input and the outputs of a stable and of an
   unstable system over time, with the system between the two plots. In the wide layout the plots
   stand side by side, in the tall one the input's plot stands above the outputs';
+- includes/control-systems-performance.html: a wheel's speed over time after a step of its target
+  speed, with four performance criteria marked by numbers, and a key to the numbers. The key
+  stands next to the plot in the wide layout and below it in the tall one;
 - includes/control-systems-closed-loop.html: the same system with a controller that closes the
   loop from the observations back to the commands. It holds two layouts of the figure, a wide one
   for wider screens, with the forward path to the right and the feedback path back below it, and
@@ -74,6 +77,7 @@ FIGURE_IDS = {
     'includes/control-systems-system.html': 'system-figure',
     'includes/control-systems-open-loop.html': 'open-loop-figure',
     'includes/control-systems-stability.html': 'stability-figure',
+    'includes/control-systems-performance.html': 'performance-figure',
     'includes/control-systems-closed-loop.html': 'closed-loop-figure',
     'includes/control-systems-agent.html': 'agent-figure',
 }
@@ -142,6 +146,8 @@ class LineKind(Enum):
     SIGNAL = 'signal'      # thick, solid: a signal over time
     UNSTABLE = 'unstable'  # thick, dashed: the output of an unstable system
     BOUND = 'bound'        # thin, dotted: a value that a bounded signal never passes
+    TARGET = 'target'      # thin, dashed: the reference that an output should follow
+    GUIDE = 'guide'        # thin, solid: from a point of a plot to its mark
 
 
 class Point(NamedTuple):
@@ -198,6 +204,16 @@ class SecondOrder(NamedTuple):
     natural_frequency: float  # rad/s
     damping_ratio: float
 
+    @property
+    def fade_rate(self) -> float:
+        """Return the rate at which the system's swings fade, in 1/s."""
+        return self.damping_ratio * self.natural_frequency
+
+    @property
+    def swing_frequency(self) -> float:
+        """Return the frequency of the system's swings, in rad/s."""
+        return self.natural_frequency * math.sqrt(1 - self.damping_ratio ** 2)
+
 
 # The example of the stability figure. The target speed steps from 0 to 1 at STEP_TIME and stays
 # there, below INPUT_BOUND. The stable system is SETTLING: its output stays below OUTPUT_BOUND.
@@ -206,21 +222,42 @@ class SecondOrder(NamedTuple):
 STABILITY_TITLE = ('A bounded input, a step of the target wheel speed, goes into a system. The '
                    "output of a stable system, the wheel's speed, settles and stays bounded. "
                    'The output of an unstable system keeps growing and passes the bound')
-STABILITY_DURATION = 1.5  # s
+STABILITY_DURATION = 1.8  # s
 STEP_TIME = 0.15  # s
-SETTLING = SecondOrder(natural_frequency=10, damping_ratio=0.7)
-RUNAWAY_TIME = 0.6  # s
+SETTLING = SecondOrder(natural_frequency=7, damping_ratio=0.7)
+RUNAWAY_TIME = 0.8  # s
 INPUT_BOUND = 1.4
 OUTPUT_BOUND = 1.4
 INPUT_HIGHEST = 1.6
 OUTPUT_HIGHEST = 2.2
 SPEED_SCALE = 60  # px for the target speed
 SYSTEM_BOX: Sequence[Line] = (('System', 'name'), ('wheel with its controller', 'example'))
+# The example of the performance figure. The wheel is SETTLING again. Its target speed steps
+# at STEP_TIME, and its speed counts as at the target while it is within ACCEPTABLE_ERROR of
+# the target. From DISTURBANCE_TIME on, a load slows the wheel, by up to DIP_DEPTH, until the
+# controller has made up for the load. The tracking error is marked at ERROR_MARK_TIME
+PERFORMANCE_MARKS = ('time to reach the target', 'tracking error', 'largest acceptable error',
+                     'disturbance and recovery')
+PERFORMANCE_TITLE = ("A wheel's speed over time. The target speed steps up, and the speed "
+                     'follows it into the band of the largest acceptable error and stays '
+                     'there, also when a disturbance slows the wheel. Numbers mark: '
+                     + ', '.join(f'{number} {mark}'
+                                 for number, mark in enumerate(PERFORMANCE_MARKS, start=1)))
+PERFORMANCE_DURATION = 2.2  # s
+PERFORMANCE_HIGHEST = 1.45
+ACCEPTABLE_ERROR = 0.15
+ERROR_MARK_TIME = STEP_TIME + 0.2  # s
+DISTURBANCE_TIME = 1.2  # s
+DIP_DEPTH = 0.1
+TIME_RESOLUTION = 0.001  # s, of the time from which the speed stays at the target
 # The spacing of the plots' parts, in px: between two points of a sampled curve, from the end of
-# an axis to its arrowhead, and between the lines of a label
+# an axis to its arrowhead, between the lines of a label, between the rows of a key, and the
+# radius of a number's disc
 SAMPLE_STEP = 2
 AXIS_OVERHANG = 8
 LINE_SPACING = 14
+KEY_ROW = 20
+DISC_RADIUS = 8
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -252,6 +289,10 @@ RULES = (
      f'fill:none;stroke:{FG};stroke-width:2;stroke-linejoin:round;stroke-dasharray:7 4'),
     (f'.cs-fig .{LineKind.BOUND.value}',
      f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:2 3'),
+    (f'.cs-fig .{LineKind.TARGET.value}',
+     f'fill:none;stroke:{FG};stroke-width:1.3;stroke-dasharray:6 3'),
+    (f'.cs-fig .{LineKind.GUIDE.value}', f'fill:none;stroke:{FG_LIGHT};stroke-width:1'),
+    ('.cs-fig .band', 'fill:var(--md-default-fg-color--lightest);stroke:none'),
 )
 
 
@@ -296,6 +337,17 @@ class Figure:
         """Add a circle around (x, y)."""
         self.elements.append(f'<circle class="{css_class}" cx="{x}" cy="{y}" r="{radius}"/>')
 
+    def area(self, left: float, top: float, width: float, height: float,
+             css_class: str) -> None:
+        """Add a filled rectangle with square corners."""
+        self.elements.append(f'<rect class="{css_class}" x="{left}" y="{top}" '
+                             f'width="{width}" height="{height}"/>')
+
+    def number_disc(self, x: float, y: float, number: int) -> None:
+        """Add a number in a disc around (x, y)."""
+        self.circle(x, y, DISC_RADIUS, 'number-disc')
+        self.text(x, round(y + 3.8, 1), str(number), 'number', 'middle')
+
     def arrow(self, path: str) -> None:
         """Add a line along an SVG path, with an arrowhead at its end."""
         self.elements.append(
@@ -328,8 +380,7 @@ class Figure:
                number: Optional[int] = None) -> None:
         """Add a signal's label: its name, its example below, and its number if it has one."""
         if number is not None:
-            self.circle(x + 8, y - 4, 8, 'number-disc')
-            self.text(x + 8, y - 0.2, str(number), 'number', 'middle')
+            self.number_disc(x + DISC_RADIUS, y - 4, number)
             x += 20
         self.text(x, y, name)
         self.text(x, y + 14, example, 'example')
@@ -414,11 +465,27 @@ def step_response(system: SecondOrder, time: float) -> float:
     """
     if time <= 0:
         return 0.0
-    decay_rate = system.damping_ratio * system.natural_frequency
-    swing_frequency = system.natural_frequency * math.sqrt(1 - system.damping_ratio ** 2)
-    swing = (math.cos(swing_frequency * time)
-             + decay_rate / swing_frequency * math.sin(swing_frequency * time))
-    return 1 - math.exp(-decay_rate * time) * swing
+    swing = (math.cos(system.swing_frequency * time)
+             + system.fade_rate / system.swing_frequency * math.sin(system.swing_frequency * time))
+    return 1 - math.exp(-system.fade_rate * time) * swing
+
+
+def fading_swing(system: SecondOrder, time: float) -> float:
+    """Return a system's fading swing at a time: it starts at 0, rises once and dies out."""
+    return math.exp(-system.fade_rate * time) * math.sin(system.swing_frequency * time)
+
+
+def disturbance_response(system: SecondOrder, time: float) -> float:
+    """Return how far a lasting load has moved a system's output at a time after it began.
+
+    The result is a share of the largest move. The output moves away once, and the controller
+    brings it back while the load stays. This is the answer of a loop whose controller sums up
+    the error, as a PID does. At the load's start and before it, the output hasn't moved.
+    """
+    if time <= 0:
+        return 0.0
+    largest_at = math.atan2(system.swing_frequency, system.fade_rate) / system.swing_frequency
+    return fading_swing(system, time) / fading_swing(system, largest_at)
 
 
 def runaway_response(time: float) -> float:
@@ -532,6 +599,119 @@ def wide_stability_figure() -> Figure:
     figure.box(row - BOX_HEIGHT / 2, SYSTEM_BOX, x=box_x, width=WIDE_CONTROLLER_WIDTH)
     figure.arrow(f'M{box_x + WIDE_CONTROLLER_WIDTH},{row} H{output_plot.left - 8}')
     stability_output_plot(figure, output_plot)
+    figure.text(WIDE_WIDTH / 2, height - 8, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def performance_output(time: float) -> float:
+    """Return the wheel's speed at a time of the performance figure."""
+    return (step_response(SETTLING, time - STEP_TIME)
+            - DIP_DEPTH * disturbance_response(SETTLING, time - DISTURBANCE_TIME))
+
+
+def time_at_the_target(signal: Callable[[float], float], end: float) -> float:
+    """Return the time from which a signal stays within ACCEPTABLE_ERROR of 1, until end.
+
+    The result is a multiple of TIME_RESOLUTION.
+    """
+    times = [step * TIME_RESOLUTION for step in range(round(end / TIME_RESOLUTION), -1, -1)]
+    last_outside = next(time for time in times if abs(signal(time) - 1) > ACCEPTABLE_ERROR)
+    return last_outside + TIME_RESOLUTION
+
+
+def dimension(figure: Figure, start: Point, end: Point) -> None:
+    """Add a measure between two points: a line with an arrowhead at each of them."""
+    middle = Point(round((start.x + end.x) / 2, 1), round((start.y + end.y) / 2, 1))
+    for tip in (start, end):
+        figure.arrow(f'M{middle.x},{middle.y} L{tip.x},{tip.y}')
+
+
+def reach_time_mark(figure: Figure, plot: Plot, reached_at: float) -> None:
+    """Add mark 1 below the time axis: from the target's step until the speed is at the target.
+
+    A guide leads down from the step, and one from the point where the speed enters the band.
+    """
+    mark_y = plot.bottom + 12
+    start, end = Point(plot.x_at(STEP_TIME), mark_y), Point(plot.x_at(reached_at), mark_y)
+    figure.curve([Point(start.x, plot.bottom), Point(start.x, mark_y + 5)], LineKind.GUIDE)
+    figure.curve([plot.point(reached_at, performance_output(reached_at)),
+                  Point(end.x, mark_y + 5)], LineKind.GUIDE)
+    dimension(figure, start, end)
+    figure.number_disc(end.x + 14, mark_y, 1)
+
+
+def error_mark(figure: Figure, plot: Plot) -> None:
+    """Add mark 2: the tracking error at ERROR_MARK_TIME, from the speed up to the target."""
+    speed = performance_output(ERROR_MARK_TIME)
+    dimension(figure, plot.point(ERROR_MARK_TIME, speed), plot.point(ERROR_MARK_TIME, 1))
+    figure.number_disc(plot.x_at(ERROR_MARK_TIME) - 13, plot.y_at((speed + 1) / 2) + 6, 2)
+
+
+def band_mark(figure: Figure, plot: Plot) -> None:
+    """Add mark 3 at the band's right end: a bracket from the target to the band's upper edge."""
+    bracket_x = plot.right + 6
+    band_top, target_y = plot.y_at(1 + ACCEPTABLE_ERROR), plot.y_at(1)
+    figure.curve([Point(bracket_x - 4, band_top), Point(bracket_x, band_top),
+                  Point(bracket_x, target_y), Point(bracket_x - 4, target_y)], LineKind.GUIDE)
+    figure.number_disc(bracket_x, band_top - 12, 3)
+
+
+def disturbance_mark(figure: Figure, plot: Plot, speed: Sequence[Point]) -> None:
+    """Add mark 4 below the band, under the lowest point of the speed's dip."""
+    dip = max((point for point in speed if point.x >= plot.x_at(DISTURBANCE_TIME)),
+              key=lambda point: point.y)
+    figure.number_disc(dip.x, plot.y_at(1 - ACCEPTABLE_ERROR) + 14, 4)
+
+
+def performance_plot(figure: Figure, plot: Plot) -> None:
+    """Add the plot of the wheel's speed and its target, the band and the four marks."""
+    reached_at = time_at_the_target(performance_output, DISTURBANCE_TIME)
+    speed = sampled(plot, performance_output, plot.duration)
+    band_top, step_x = plot.y_at(1 + ACCEPTABLE_ERROR), plot.x_at(STEP_TIME)
+    figure.area(step_x, band_top, plot.right - step_x,
+                round(plot.y_at(1 - ACCEPTABLE_ERROR) - band_top, 1), 'band')
+    figure.axes(plot)
+    figure.curve([plot.point(0, 0), plot.point(STEP_TIME, 0), plot.point(STEP_TIME, 1),
+                  plot.point(plot.duration, 1)], LineKind.TARGET)
+    figure.curve(speed, LineKind.SIGNAL)
+    figure.signal(step_x + 8, plot.top + 8, 'reference', 'target wheel speed')
+    figure.signal(plot.x_at(reached_at) + 18, plot.y_at(0.5), 'output', 'wheel speed')
+    reach_time_mark(figure, plot, reached_at)
+    error_mark(figure, plot)
+    band_mark(figure, plot)
+    disturbance_mark(figure, plot, speed)
+
+
+def performance_key(figure: Figure, x: float, y: float) -> None:
+    """Add the key to the marks: each mark's number and its name, one row below the other."""
+    for index, mark in enumerate(PERFORMANCE_MARKS):
+        row_y = y + index * KEY_ROW
+        figure.number_disc(x + DISC_RADIUS, row_y - 4, index + 1)
+        figure.text(x + 22, row_y, mark)
+
+
+def performance_figure() -> Figure:
+    """Return the tall layout of the performance figure, for phones: the key below the plot."""
+    plot = Plot(left=44, top=20, width=300, height=152, duration=PERFORMANCE_DURATION,
+                highest=PERFORMANCE_HIGHEST)
+    key_y = plot.bottom + 48
+    height = round(key_y + len(PERFORMANCE_MARKS) * KEY_ROW + 16)
+    figure = Figure('cs-performance', height, PERFORMANCE_TITLE, layout='cs-fig-tall')
+    performance_plot(figure, plot)
+    performance_key(figure, plot.left, key_y)
+    figure.text(WIDTH / 2, height - 6, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def wide_performance_figure() -> Figure:
+    """Return the wide layout of the performance figure: the key to the right of the plot."""
+    plot = Plot(left=40, top=20, width=410, height=152, duration=PERFORMANCE_DURATION,
+                highest=PERFORMANCE_HIGHEST)
+    height = round(plot.bottom + 46)
+    figure = Figure('cs-performance-wide', height, PERFORMANCE_TITLE, width=WIDE_WIDTH,
+                    layout='cs-fig-wide')
+    performance_plot(figure, plot)
+    performance_key(figure, plot.right + 44, plot.top + 52)
     figure.text(WIDE_WIDTH / 2, height - 8, LEGEND, 'legend', 'middle')
     return figure
 
@@ -665,6 +845,11 @@ def main() -> None:
                   [wide_stability_figure(), stability_figure()],
                   'Bounded input, bounded output. The same input goes into a stable and into an '
                   'unstable system. The curves are an example, not a measurement of the robot.')
+    write_include('includes/control-systems-performance.html',
+                  [wide_performance_figure(), performance_figure()],
+                  "How a wheel's speed follows a step of its target speed. The numbers mark "
+                  'four performance criteria. The curve is an example response, not a '
+                  'measurement of the robot.')
     write_include('includes/control-systems-closed-loop.html',
                   [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '

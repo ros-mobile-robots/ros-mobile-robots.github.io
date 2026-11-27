@@ -64,8 +64,13 @@ Beside being stable a system needs also to perform well. Performance can be meas
 
 These are all good examples of performance criteria for controller design.
 
-!!! todo "TODO"
-    Add performance image with direct path to target and max acceptable error
+The figure shows the first four criteria for the speed of a wheel, each with its number.
+Follow the solid line, the wheel's speed, from the step of its target speed on the left: the speed enters the gray band (1), where its error (2) is smaller than the largest acceptable error (3), and it stays in the band when a disturbance slows the wheel for a moment (4).
+
+--8<-- "includes/control-systems-performance.html"
+
+In the example, the disturbance is a load that slows the wheel, such as a carpet.
+The figure doesn't show the fifth criterion, noise.
 
 ### Robustness
 
