@@ -5620,7 +5620,7 @@ SUMMARY
 </style>
 <figure class="tl-figure" style="--tl-basis:300px;--tl-max:480px">
 <div class="tl-panels">
-<svg class="tl-fig" viewBox="0 0 360 394" role="img" aria-labelledby="tl-at-rest-title tl-at-rest-description"><title id="tl-at-rest-title">The test at rest over simulation time</title><desc id="tl-at-rest-description">The test sends the stop command 20 times per second, for SETTLE, 1 s, and then for MEASURE, 2 s. The robot stands still. The test keeps the IMU’s messages of MEASURE, about 100, and needs at least 91. The mean of their readings on the upward axis must lie between 9.31 and 10.31 m/s², and the mean of their yaw rates within 0.05 rad/s of 0 rad/s. A solid line marks a reference value, gravity in the simulation, 9.8 m/s². It is not a reading.</desc>
+<svg class="tl-fig" viewBox="0 0 360 394" role="img" aria-labelledby="tl-at-rest-title" aria-describedby="tl-at-rest-description"><title id="tl-at-rest-title">The test at rest over simulation time</title><desc id="tl-at-rest-description">The test sends the stop command 20 times per second, for SETTLE, 1 s, and then for MEASURE, 2 s. The robot stands still. The test keeps the IMU’s messages of MEASURE, about 100, and needs at least 91. The mean of their readings on the upward axis must lie between 9.31 and 10.31 m/s², and the mean of their yaw rates within 0.05 rad/s of 0 rad/s. A solid line marks a reference value, gravity in the simulation, 9.8 m/s². It is not a reading.</desc>
 <text class="row-title" x="8" y="14" text-anchor="start">The test sends this command, 20 times per second</text>
 <rect class="command-wash" x="40" y="22" width="280" height="20" rx="4"></rect>
 <text x="180" y="36" text-anchor="middle">stand still: all velocities 0</text>
@@ -5846,7 +5846,7 @@ SUMMARY
 </style>
 <figure class="tl-figure" style="--tl-basis:300px;--tl-max:480px">
 <div class="tl-panels">
-<svg class="tl-fig" viewBox="0 0 360 394" role="img" aria-labelledby="tl-left-turn-title tl-left-turn-description"><title id="tl-left-turn-title">The left turn over simulation time</title><desc id="tl-left-turn-description">The test sends a turn command of 0.5 rad/s about the upward axis, 20 times per second, for SPEED_UP, 1 s, and then for MEASURE, 2 s. Then it sends one stop command. The robot turns left on the spot, by about 0.5 rad after SPEED_UP and about 1.5 rad after MEASURE. These headings are ideal: they follow from the command, not from a run. The test keeps the IMU’s messages of MEASURE, about 100, and needs at least 91. The mean of their yaw rates must lie between 0.35 and 0.65 rad/s.</desc>
+<svg class="tl-fig" viewBox="0 0 360 394" role="img" aria-labelledby="tl-left-turn-title" aria-describedby="tl-left-turn-description"><title id="tl-left-turn-title">The left turn over simulation time</title><desc id="tl-left-turn-description">The test sends a turn command of 0.5 rad/s about the upward axis, 20 times per second, for SPEED_UP, 1 s, and then for MEASURE, 2 s. Then it sends one stop command. The robot turns left on the spot, by about 0.5 rad after SPEED_UP and about 1.5 rad after MEASURE. These headings are ideal: they follow from the command, not from a run. The test keeps the IMU’s messages of MEASURE, about 100, and needs at least 91. The mean of their yaw rates must lie between 0.35 and 0.65 rad/s.</desc>
 <text class="row-title" x="8" y="14" text-anchor="start">The test sends this command, 20 times per second</text>
 <rect class="command-wash" x="40" y="22" width="280" height="20" rx="4"></rect>
 <text x="180" y="36" text-anchor="middle">turn left: angular.z = 0.5 rad/s</text>
@@ -5968,7 +5968,7 @@ SUMMARY
 </style>
 <figure class="tl-figure" style="--tl-basis:280px;--tl-max:400px">
 <div class="tl-panels">
-<svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-copy-title tl-reset-copy-description"><title id="tl-reset-copy-title">The reset test with the robots’ IMU plugin</title><desc id="tl-reset-copy-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The first sample after the reset is stamped about 0.02 s. Samples that arrive after the test saved its count, just before the reset call, count as fresh when each stamp is later than 0 s, later than the last fresh stamp and below 1 s. The test passes with 10 of them. A dot marks sample 10, stamped about 0.20 s.</desc>
+<svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-copy-title" aria-describedby="tl-reset-copy-description"><title id="tl-reset-copy-title">The reset test with the robots’ IMU plugin</title><desc id="tl-reset-copy-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The first sample after the reset is stamped about 0.02 s. Samples that arrive after the test saved its count, just before the reset call, count as fresh when each stamp is later than 0 s, later than the last fresh stamp and below 1 s. The test passes with 10 of them. A dot marks sample 10, stamped about 0.20 s.</desc>
 <text class="row-title" x="8" y="14" text-anchor="start">With the robots’ IMU plugin</text>
 <text class="note" x="8" y="32" text-anchor="start">Stamp of the IMU’s samples, in s of simulation time</text>
 <rect class="fresh" x="151.3" y="153.9" width="140.7" height="36.1" rx="0"></rect>
@@ -5998,7 +5998,7 @@ SUMMARY
 <text class="note" x="288" y="183.9" text-anchor="end">counted: rising, &lt; 1 s</text>
 <text class="strong" x="8" y="254" text-anchor="start">10 fresh samples: the test passes</text>
 </svg>
-<svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-old-time-title tl-reset-old-time-description"><title id="tl-reset-old-time-title">The reset test with a plugin that keeps the old time</title><desc id="tl-reset-old-time-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The plugin stays silent until the clock has passed 3 s again. No sample after the reset has a stamp below 1 s, so none counts as fresh, and the test fails.</desc>
+<svg class="tl-fig" viewBox="0 0 300 262" role="img" aria-labelledby="tl-reset-old-time-title" aria-describedby="tl-reset-old-time-description"><title id="tl-reset-old-time-title">The reset test with a plugin that keeps the old time</title><desc id="tl-reset-old-time-description">The stamps of the IMU’s samples rise with Gazebo’s clock to 3 s. Then the test resets the simulation, and the clock starts from 0 again. The plugin stays silent until the clock has passed 3 s again. No sample after the reset has a stamp below 1 s, so none counts as fresh, and the test fails.</desc>
 <text class="row-title" x="8" y="14" text-anchor="start">With a plugin that keeps the old time</text>
 <text class="note" x="8" y="32" text-anchor="start">Stamp of the IMU’s samples, in s of simulation time</text>
 <rect class="fresh" x="151.3" y="153.9" width="140.7" height="36.1" rx="0"></rect>
