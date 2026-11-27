@@ -65,9 +65,17 @@ class TestSvgElement(unittest.TestCase):
         self.svg = board_drawings.svg_element('some-layout', 'some-figure some-layout', (340, 120),
                                               'A & B', ['<path class="arrow"/>'])
 
-    def test_svg_element_has_its_title_as_its_accessible_name(self) -> None:
-        self.assertIn('role="img" aria-labelledby="some-layout-title"><title '
-                      'id="some-layout-title">A &amp; B</title>', self.svg)
+    def test_svg_element_is_an_image_named_by_its_title_alone(self) -> None:
+        root = ElementTree.fromstring(self.svg)
+        titles = root.findall('title')
+        self.assertEqual(len(titles), 1)
+        title = titles[0]
+        self.assertEqual(root.get('role'), 'img')
+        self.assertEqual(title.get('id'), 'some-layout-title')
+        self.assertEqual(root.get('aria-labelledby'), title.get('id'))
+        self.assertEqual(title.text, 'A & B')
+        self.assertIsNone(root.get('aria-describedby'))
+        self.assertEqual(root.findall('desc'), [])
 
     def test_svg_element_defines_the_arrowhead_with_its_own_id(self) -> None:
         self.assertIn('<defs><marker id="some-layout-head"', self.svg)
@@ -85,14 +93,20 @@ class TestSvgElement(unittest.TestCase):
 
 
 class TestSvgElementWithADescription(unittest.TestCase):
-    """svg_element() adds a description to the accessible name and takes the drawing's markers."""
+    """svg_element() describes the SVG with its description and takes the drawing's markers."""
 
-    def test_svg_element_names_its_title_and_its_description(self) -> None:
-        svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A & B', [],
-                                         description='C < D')
-        self.assertIn('aria-labelledby="some-layout-title some-layout-description">'
-                      '<title id="some-layout-title">A &amp; B</title>'
-                      '<desc id="some-layout-description">C &lt; D</desc><defs>', svg)
+    def test_svg_element_is_named_by_its_title_and_described_by_its_description(self) -> None:
+        root = ElementTree.fromstring(board_drawings.svg_element(
+            'some-layout', 'some-figure', (340, 120), 'A & B', [], description='C < D'))
+        titles = root.findall('title')
+        descriptions = root.findall('desc')
+        self.assertEqual((len(titles), len(descriptions)), (1, 1))
+        title, description = titles[0], descriptions[0]
+        self.assertEqual(title.get('id'), 'some-layout-title')
+        self.assertEqual(description.get('id'), 'some-layout-description')
+        self.assertEqual(root.get('aria-labelledby'), title.get('id'))
+        self.assertEqual(root.get('aria-describedby'), description.get('id'))
+        self.assertEqual((title.text, description.text), ('A & B', 'C < D'))
 
     def test_svg_element_has_no_definitions_without_markers(self) -> None:
         svg = board_drawings.svg_element('some-layout', 'some-figure', (340, 120), 'A', [],
