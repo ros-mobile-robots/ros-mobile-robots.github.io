@@ -65,7 +65,9 @@ Besides being stable, a system also needs to perform well. Performance can be me
 These are all good examples of performance criteria for controller design.
 
 The figure shows the first four criteria for the speed of a wheel, each with its number.
-Follow the solid line, the wheel's speed, from the step of its target speed on the left: the speed enters the gray band (1), where its error (2) is smaller than the largest acceptable error (3), and it stays in the band when a disturbance slows the wheel for a moment (4).
+Follow the solid line, the wheel's speed, from the step of its target speed on the left.
+The speed takes the time (1) to get into the gray band around the target, and its tracking error (2) shrinks on the way.
+Inside the band, the error is smaller than the largest acceptable error (3), also when a disturbance slows the wheel for a moment (4).
 
 --8<-- "includes/control-systems-performance.html"
 
