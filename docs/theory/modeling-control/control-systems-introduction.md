@@ -153,8 +153,10 @@ With the mentioned objectives in mind, stability, performance, and robustness, i
 
 The simplest approach is for the user to send a predetermined sequence of commands directly to the actuators, which is called open loop control.
 
-!!! todo "TODO"
-    Add open loop image
+The figure shows an open loop for the speed of a wheel.
+Follow the arrows from the reference to the outputs: no arrow leads back to the controller.
+
+--8<-- "includes/control-systems-open-loop.html"
 
 !!! note "Open Loop Pros"
     - it can't make a stable process unstable: a bounded, preset command keeps the response of a stable process bounded, because no measurement is fed back
@@ -184,8 +186,8 @@ The figure shows a closed loop around the system of the [first figure](#system-f
 5. The process reacts with its **outputs**. The wheel turns at a speed that also depends on the robot's weight and on the ground.
 6. The **sensors** measure the outputs. The wheel encoder gives the measured wheel speed. This **observation** goes back to the comparison.
 
-Without the path of the observations (6), the loop is open, and the controller has no measured speed to subtract.
-An open loop controller for the same wheel could apply a fixed motor command for a fixed time.
+Without the path of the observations (6), the loop is open, as in the [open loop figure](#open-loop-figure), and the controller has no measured speed to subtract.
+An open loop controller for the same wheel could follow a plan that is set in advance: a fixed motor command for a fixed time.
 If the wheel slows down under a load, for example on a carpet, that command stays the same, and the wheel turns less far than planned.
 The closed loop measures the slowdown, and the controller raises the motor command.
 If the motor has enough torque, the wheel gets back to its target speed.

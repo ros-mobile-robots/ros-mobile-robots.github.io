@@ -1,9 +1,12 @@
 """Generate the figures on docs/theory/modeling-control/control-systems-introduction.md.
 
-Both are inline SVG that follows the site's light and dark colors:
+All are inline SVG that follows the site's light and dark colors:
 
 - includes/control-systems-system.html: a system as actuators, process and sensors, with its
-  inputs, outputs and observations. It has the styles for both figures;
+  inputs, outputs and observations. It has the styles for all figures;
+- includes/control-systems-open-loop.html: an open loop, the chain from the reference through the
+  controller, the actuators and the process to the outputs, with no path back. It holds a wide
+  layout, with the chain to the right, and a tall one for phones, with the chain down;
 - includes/control-systems-closed-loop.html: the same system with a controller that closes the
   loop from the observations back to the commands. It holds two layouts of the figure, a wide one
   for wider screens, with the forward path to the right and the feedback path back below it, and
@@ -24,6 +27,7 @@ Run from the repository root after changing a figure:
 """
 
 from typing import List
+from typing import NamedTuple
 from typing import Optional
 from typing import Sequence
 from typing import Tuple
@@ -58,6 +62,7 @@ WIDE_RIGHT_WIDTH = 156
 # The id of each figure element, for links to the figure
 FIGURE_IDS = {
     'includes/control-systems-system.html': 'system-figure',
+    'includes/control-systems-open-loop.html': 'open-loop-figure',
     'includes/control-systems-closed-loop.html': 'closed-loop-figure',
     'includes/control-systems-agent.html': 'agent-figure',
 }
@@ -78,6 +83,43 @@ SENSORS: Sequence[Line] = (('Sensors', 'name'), ('wheel encoder', 'example'))
 LEGEND = "Blue: an example, the speed of one of the robot's wheels"
 CLOSED_LOOP_TITLE = ('A closed control loop: reference, comparison, controller, actuators, '
                      'process, sensors, and the observations fed back to the comparison')
+
+
+class Signal(NamedTuple):
+    """A signal's label: the page's word for the signal, and the wheel example's word below."""
+
+    name: str
+    example: str
+
+
+class Stage(NamedTuple):
+    """One step of the open loop's chain: the signal into a box, and the box."""
+
+    signal: Signal
+    box_lines: Sequence[Line]
+    wide_width: float  # the box's width in the wide layout
+
+
+# The open loop is the closed loop's forward path: the same signals and boxes, without the
+# comparison and the sensors. Its controller has no error to work with, so it follows a plan.
+# In the tall layout, an arrow of OPEN_LOOP_GAP leads down into each box. In the wide layout,
+# the chain runs right along OPEN_WIDE_ROW, and an arrow of OPEN_WIDE_GAP leads into each box
+OPEN_LOOP_TITLE = ('An open control loop: reference, controller, actuators and process in a '
+                   'chain to the outputs, with no path back to the controller')
+OPEN_LOOP_STAGES = (
+    Stage(Signal('reference', 'target wheel speed'),
+          (('Controller', 'name'), ('plan set in advance', 'example')), WIDE_CONTROLLER_WIDTH),
+    Stage(Signal('commands', 'motor command'), ACTUATORS, WIDE_RIGHT_WIDTH),
+    Stage(Signal('inputs', 'torque on the wheel'), PROCESS, WIDE_RIGHT_WIDTH),
+)
+OPEN_LOOP_OUTPUTS = Signal('outputs', 'wheel speed')
+OPEN_LOOP_TOP = 6
+OPEN_LOOP_GAP = 54
+OPEN_LOOP_LAST_ARROW = 46
+OPEN_WIDE_HEIGHT = 124
+OPEN_WIDE_ROW = 66
+OPEN_WIDE_START = 4
+OPEN_WIDE_GAP = 48
 
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
@@ -200,6 +242,48 @@ def system_figure() -> Figure:
     return figure
 
 
+def open_loop_figure() -> Figure:
+    """Return the tall layout of the open loop, for phones: the chain runs down the middle."""
+    legend_space = 26
+    height = (OPEN_LOOP_TOP + len(OPEN_LOOP_STAGES) * (OPEN_LOOP_GAP + BOX_HEIGHT)
+              + OPEN_LOOP_LAST_ARROW + legend_space)
+    figure = Figure('cs-open', height, OPEN_LOOP_TITLE, layout='cs-fig-tall')
+    label_x = SYSTEM_X + 8
+    arrow_start = OPEN_LOOP_TOP
+    for stage in OPEN_LOOP_STAGES:
+        box_y = arrow_start + OPEN_LOOP_GAP
+        figure.arrow(f'M{SYSTEM_X},{arrow_start} V{box_y - 1}')
+        figure.signal(label_x, arrow_start + 22, stage.signal.name, stage.signal.example)
+        figure.box(box_y, stage.box_lines, x=SYSTEM_X - BOX_WIDTH / 2)
+        arrow_start = box_y + BOX_HEIGHT
+    figure.arrow(f'M{SYSTEM_X},{arrow_start} V{arrow_start + OPEN_LOOP_LAST_ARROW}')
+    figure.signal(label_x, arrow_start + 20, OPEN_LOOP_OUTPUTS.name, OPEN_LOOP_OUTPUTS.example)
+    figure.text(WIDTH / 2, height - 6, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def wide_open_loop_figure() -> Figure:
+    """Return the wide layout of the open loop: the chain runs right, and nothing returns.
+
+    Each signal's label starts above the start of its arrow, as in the closed loop's wide layout.
+    """
+    figure = Figure('cs-open-wide', OPEN_WIDE_HEIGHT, OPEN_LOOP_TITLE, width=WIDE_WIDTH,
+                    layout='cs-fig-wide')
+    label_y = OPEN_WIDE_ROW - 44
+    arrow_start: float = OPEN_WIDE_START
+    for stage in OPEN_LOOP_STAGES:
+        box_x = arrow_start + OPEN_WIDE_GAP
+        figure.arrow(f'M{arrow_start},{OPEN_WIDE_ROW} H{box_x}')
+        figure.signal(arrow_start + 6, label_y, stage.signal.name, stage.signal.example)
+        figure.box(OPEN_WIDE_ROW - BOX_HEIGHT / 2, stage.box_lines, x=box_x,
+                   width=stage.wide_width)
+        arrow_start = box_x + stage.wide_width
+    figure.arrow(f'M{arrow_start},{OPEN_WIDE_ROW} H{WIDE_WIDTH - OPEN_WIDE_START}')
+    figure.signal(arrow_start + 6, label_y, OPEN_LOOP_OUTPUTS.name, OPEN_LOOP_OUTPUTS.example)
+    figure.text(WIDE_WIDTH / 2, OPEN_WIDE_HEIGHT - 8, LEGEND, 'legend', 'middle')
+    return figure
+
+
 def closed_loop_figure() -> Figure:
     """Return the tall layout of the closed loop, for phones: the loop runs down and back up."""
     figure = Figure('cs-loop', 428, CLOSED_LOOP_TITLE, layout='cs-fig-tall')
@@ -313,7 +397,7 @@ def write_include(path: str, figures: Sequence[Figure], caption: str, style: str
 
 
 def main() -> None:
-    """Write the three includes."""
+    """Write the includes."""
     write_include('includes/control-systems-system.html', [system_figure()],
                   'A system from its actuators to its sensors. Read the figure from top to '
                   'bottom. In the example, the measured wheel speed comes about like this: the '
@@ -321,6 +405,10 @@ def main() -> None:
                   'their edges, and the firmware computes the angular velocity from the change of '
                   'the count and the time it took.',
                   style_element(RULES) + '\n')
+    write_include('includes/control-systems-open-loop.html',
+                  [wide_open_loop_figure(), open_loop_figure()],
+                  'An open loop. Follow the arrows from the reference to the outputs. No arrow '
+                  "leads back from the wheel's speed to the controller.")
     write_include('includes/control-systems-closed-loop.html',
                   [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '

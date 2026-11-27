@@ -1,0 +1,51 @@
+<figure class="cs-figure cs-has-wide" id="open-loop-figure">
+<svg class="cs-fig cs-fig-wide" viewBox="0 0 680 124" role="img" aria-labelledby="cs-open-wide-title"><title id="cs-open-wide-title">An open control loop: reference, controller, actuators and process in a chain to the outputs, with no path back to the controller</title><defs><marker id="cs-open-wide-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="arrow" d="M4,66 H52" marker-end="url(#cs-open-wide-head)"/>
+<text x="10" y="22" text-anchor="start">reference</text>
+<text class="example" x="10" y="36" text-anchor="start">target wheel speed</text>
+<rect class="block" x="52" y="44.0" width="140" height="44" rx="5"/>
+<text class="name" x="122.0" y="62.5" text-anchor="middle">Controller</text>
+<text class="example" x="122.0" y="77.5" text-anchor="middle">plan set in advance</text>
+<path class="arrow" d="M192,66 H240" marker-end="url(#cs-open-wide-head)"/>
+<text x="198" y="22" text-anchor="start">commands</text>
+<text class="example" x="198" y="36" text-anchor="start">motor command</text>
+<rect class="block" x="240" y="44.0" width="156" height="44" rx="5"/>
+<text class="name" x="318.0" y="62.5" text-anchor="middle">Actuators</text>
+<text class="example" x="318.0" y="77.5" text-anchor="middle">motor driver and motor</text>
+<path class="arrow" d="M396,66 H444" marker-end="url(#cs-open-wide-head)"/>
+<text x="402" y="22" text-anchor="start">inputs</text>
+<text class="example" x="402" y="36" text-anchor="start">torque on the wheel</text>
+<rect class="block" x="444" y="44.0" width="156" height="44" rx="5"/>
+<text class="name" x="522.0" y="62.5" text-anchor="middle">Process and environment</text>
+<text class="example" x="522.0" y="77.5" text-anchor="middle">wheel, robot and ground</text>
+<path class="arrow" d="M600,66 H676" marker-end="url(#cs-open-wide-head)"/>
+<text x="606" y="22" text-anchor="start">outputs</text>
+<text class="example" x="606" y="36" text-anchor="start">wheel speed</text>
+<text class="legend" x="340.0" y="116" text-anchor="middle">Blue: an example, the speed of one of the robot's wheels</text>
+</svg>
+<svg class="cs-fig cs-fig-tall" viewBox="0 0 360 372" role="img" aria-labelledby="cs-open-title"><title id="cs-open-title">An open control loop: reference, controller, actuators and process in a chain to the outputs, with no path back to the controller</title><defs><marker id="cs-open-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="arrow" d="M180.0,6 V59" marker-end="url(#cs-open-head)"/>
+<text x="188.0" y="28" text-anchor="start">reference</text>
+<text class="example" x="188.0" y="42" text-anchor="start">target wheel speed</text>
+<rect class="block" x="95.0" y="60" width="170" height="44" rx="5"/>
+<text class="name" x="180.0" y="78.5" text-anchor="middle">Controller</text>
+<text class="example" x="180.0" y="93.5" text-anchor="middle">plan set in advance</text>
+<path class="arrow" d="M180.0,104 V157" marker-end="url(#cs-open-head)"/>
+<text x="188.0" y="126" text-anchor="start">commands</text>
+<text class="example" x="188.0" y="140" text-anchor="start">motor command</text>
+<rect class="block" x="95.0" y="158" width="170" height="44" rx="5"/>
+<text class="name" x="180.0" y="176.5" text-anchor="middle">Actuators</text>
+<text class="example" x="180.0" y="191.5" text-anchor="middle">motor driver and motor</text>
+<path class="arrow" d="M180.0,202 V255" marker-end="url(#cs-open-head)"/>
+<text x="188.0" y="224" text-anchor="start">inputs</text>
+<text class="example" x="188.0" y="238" text-anchor="start">torque on the wheel</text>
+<rect class="block" x="95.0" y="256" width="170" height="44" rx="5"/>
+<text class="name" x="180.0" y="274.5" text-anchor="middle">Process and environment</text>
+<text class="example" x="180.0" y="289.5" text-anchor="middle">wheel, robot and ground</text>
+<path class="arrow" d="M180.0,300 V346" marker-end="url(#cs-open-head)"/>
+<text x="188.0" y="320" text-anchor="start">outputs</text>
+<text class="example" x="188.0" y="334" text-anchor="start">wheel speed</text>
+<text class="legend" x="180.0" y="366" text-anchor="middle">Blue: an example, the speed of one of the robot's wheels</text>
+</svg>
+<figcaption>An open loop. Follow the arrows from the reference to the outputs. No arrow leads back from the wheel's speed to the controller.</figcaption>
+</figure>
