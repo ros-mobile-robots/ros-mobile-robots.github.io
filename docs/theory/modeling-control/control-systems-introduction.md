@@ -32,22 +32,22 @@ The main objectives of the controller are the following:
 
 ### Stability
 
-Mathematically, stability can be formalized as [Bounded Input Bounded Output](https://en.wikipedia.org/wiki/BIBO_stability).
-The output of a system will be bounded for every input to the system that is bounded.
-In other words, if finite energy is provided to the system, then finite energy should exit the system.
-A signal is bounded when it never passes some fixed value, its bound.
+Mathematically, stability can be formalized as [Bounded Input Bounded Output](https://en.wikipedia.org/wiki/BIBO_stability) (BIBO) stability.
+A signal is bounded if its magnitude stays within a fixed finite limit for all time.
+A system is BIBO stable if every bounded input produces a bounded output.
 
 The figure shows this for a wheel with its speed controller: the input is the target speed, and the output is the wheel's speed.
-Follow the two outputs after the input's step: the stable system's output (solid line) settles and stays below its bound, the dotted line, and the unstable system's output (dashed line) passes the bound and keeps growing.
+Each dotted line is one such limit, a bound.
+Follow the two outputs after the input's step.
+For the same target step, the solid response settles.
+The dashed response keeps growing beyond any fixed limit.
 
 --8<-- "includes/control-systems-stability.html"
 
-On a real robot, the unstable wheel's speed would not grow forever: it would run away to the fastest speed that the motor can reach.
-
-According to the definition of stability provided (BIBO stability),
-a system goes unstable when an output of the system diverges (always continues growing in time),
-when provided with a finite energy input. When defining the output as "distance from the center of the lane",
-driving outside of the road would be an example of instability.
+One response can't prove that a system is stable, because the definition asks for every bounded input.
+The solid line only shows what a stable system does with this step.
+The dashed line is one kind of unstable response.
+Other unstable systems oscillate with a growing amplitude.
 
 ### Performance
 
@@ -226,7 +226,7 @@ An unstable system might lead to overshooting driving behavior, not following a 
 driving outside of the road without heading back.
 There are very few instances in which making a system unstable might be desirable
 (exceptions being, e.g., acrobatic flight or selected military/destructive applications).
-An unstable system will behave unpredictably, potentially with catastrophic results.
+The output of an unstable system can grow beyond any fixed limit, potentially with catastrophic results.
 
 
 
