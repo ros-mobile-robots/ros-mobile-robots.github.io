@@ -37,6 +37,7 @@ A signal is bounded if its magnitude stays within a fixed finite limit for all t
 A system is BIBO stable if every bounded input produces a bounded output.
 
 The figure shows this for a wheel with its speed controller: the input is the target speed, and the output is the wheel's speed.
+This input is the reference of the [closed loop figure](#closed-loop-figure), and all three plots of this page draw it with the same thin dashed line.
 Each dotted line is one such limit, a bound.
 Follow the two outputs after the input's step.
 For the same target step, the solid response settles.

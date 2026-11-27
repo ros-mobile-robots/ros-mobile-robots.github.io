@@ -479,6 +479,20 @@ class TestLineKinds(unittest.TestCase):
                            and declaration_of(kind.value, 'stroke-dasharray') is None]
         self.assertEqual(thick_and_solid, [LineKind.SIGNAL])
 
+    def test_target_speed_has_the_targets_line_in_each_of_the_three_plot_figures(self) -> None:
+        # The stability figure's input is the same target speed as the other plots' reference
+        plot_figures = [control_systems_figures.wide_stability_figure(),
+                        control_systems_figures.stability_figure(),
+                        control_systems_figures.wide_performance_figure(),
+                        control_systems_figures.performance_figure(),
+                        control_systems_figures.wide_robustness_figure(),
+                        control_systems_figures.robustness_figure()]
+        for figure in plot_figures:
+            target, = drawn_lines(figure.svg(), LineKind.TARGET)
+            levels = [point.y for point in target]
+            self.assertEqual(levels, sorted(levels, reverse=True), figure.name)
+            self.assertEqual(len(set(levels)), 2, figure.name)
+
 
 class TestPlot(unittest.TestCase):
     """A plot maps times and values to points of its area, and samples a signal along it."""
@@ -645,7 +659,8 @@ def stability_lines(svg: str) -> StabilityLines:
     The unstable output's points are in the order of time, whichever way its line is drawn.
     """
     input_bound, output_bound = drawn_lines(svg, LineKind.BOUND)
-    input_signal, stable_output = drawn_lines(svg, LineKind.SIGNAL)
+    input_signal, = drawn_lines(svg, LineKind.TARGET)
+    stable_output, = drawn_lines(svg, LineKind.SIGNAL)
     unstable_output, = drawn_lines(svg, LineKind.UNSTABLE)
     return StabilityLines(input_bound, input_signal, output_bound, stable_output,
                           sorted(unstable_output, key=lambda point: point.x))

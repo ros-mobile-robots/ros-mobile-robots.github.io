@@ -153,7 +153,7 @@ class LineKind(Enum):
     SIGNAL = 'signal'      # thick, solid: a signal over time
     UNSTABLE = 'unstable'  # thick, dashed: the output of an unstable system
     BOUND = 'bound'        # thin, dotted: a value that a bounded signal never passes
-    TARGET = 'target'      # thin, dashed: the reference that an output should follow
+    TARGET = 'target'      # thin, dashed: the target speed, the reference of the closed loop
     GUIDE = 'guide'        # thin, solid: from a point of a plot to its mark
     SMALLEST = 'smallest'  # thick, short dashes: the smallest wheel and its speed
     LARGEST = 'largest'    # thick, long dashes: the largest wheel and its speed
@@ -570,12 +570,15 @@ def bound_line(figure: Figure, plot: Plot, bound: float) -> None:
 
 
 def stability_input_plot(figure: Figure, plot: Plot) -> None:
-    """Add the plot of the bounded input: the target speed steps up once and stays."""
+    """Add the plot of the bounded input: the target speed steps up once and stays.
+
+    The step has the target's line, as in the plots of the performance and robustness figures.
+    """
     figure.axes(plot)
     bound_line(figure, plot, INPUT_BOUND)
     step = [plot.point(0, 0), plot.point(STEP_TIME, 0), plot.point(STEP_TIME, 1),
             plot.point(plot.duration, 1)]
-    figure.curve(step, LineKind.SIGNAL)
+    figure.curve(step, LineKind.TARGET)
     figure.signal(plot.x_at(0.3 * plot.duration), plot.y_at(1) + 20, 'input',
                   'target wheel speed')
 
