@@ -1076,12 +1076,25 @@ class RobustnessDrawing(NamedTuple):
     target: List[Point]
     speeds: Dict[LineKind, List[Point]]
 
+    @property
+    def rims_below_and_above(self) -> Tuple[float, float]:
+        """Return how far the drawn rims differ from the middle one, in percent of its radius.
+
+        The first number is for the smallest rim, the second one for the largest.
+        """
+        smallest, middle, largest = (wheel.radius for wheel in self.wheels)
+        return ((middle - smallest) / middle * 100, (largest - middle) / middle * 100)
+
     def entered_at(self, kind: LineKind) -> int:
         """Return the index of the first point from which a wheel's speed stays in the band."""
         outside = [index for index, point in enumerate(self.speeds[kind])
                    if not self.plot_band.top <= point.y <= self.plot_band.bottom]
         return outside[-1] + 1
 
+
+# How far a drawn percentage may be from a stated one, in percentage points. The rims' radii
+# are rounded to a tenth of a px, which is half a point for the middle rim
+PERCENT_ROUNDING = 1
 
 # The kinds of line of the three wheels, from the smallest wheel to the largest
 WHEEL_KINDS = [LineKind.SMALLEST, LineKind.SIGNAL, LineKind.LARGEST]
@@ -1123,16 +1136,30 @@ class TestRobustness(unittest.TestCase):
         self.assertIn(f'The smallest radius is {variation} % below the model value and the '
                       f'largest is {variation} % above it.', self.include)
 
+    def test_caption_states_the_radius_variation_that_the_rims_are_drawn_with(self) -> None:
+        stated = re.search(r'The smallest radius is (\d+) % below the model value and the '
+                           r'largest is (\d+) % above it\.', self.include)
+        assert stated is not None
+        stated_below, stated_above = (int(percent) for percent in stated.groups())
+        for drawing in self.layouts:
+            drawn_below, drawn_above = drawing.rims_below_and_above
+            self.assertAlmostEqual(drawn_below, stated_below, delta=PERCENT_ROUNDING)
+            self.assertAlmostEqual(drawn_above, stated_above, delta=PERCENT_ROUNDING)
+
     def test_caption_says_that_the_range_is_chosen_for_the_eye_and_not_measured(self) -> None:
         self.assertIn('The range was chosen so that the three lines can be told apart. '
                       'An example, not a measurement of the robot.', self.include)
 
-    def test_page_states_the_radius_variation_that_the_figure_draws(self) -> None:
+    def test_page_states_the_radius_variation_that_the_rims_are_drawn_with(self) -> None:
         page = (ROOT / 'docs' / 'theory' / 'modeling-control'
                 / 'control-systems-introduction.md').read_text(encoding='utf-8')
-        variation = round(control_systems_figures.RADIUS_VARIATION * 100)
-        self.assertIn(f'The smallest and the largest radius differ by {variation} % from the '
-                      "model's value.", page)
+        stated = re.search(r'The smallest and the largest radius differ by (\d+) % from the '
+                           r"model's value\.", page)
+        assert stated is not None
+        stated_percent = int(stated.group(1))
+        for drawing in self.layouts:
+            for drawn_percent in drawing.rims_below_and_above:
+                self.assertAlmostEqual(drawn_percent, stated_percent, delta=PERCENT_ROUNDING)
 
     def test_accessible_name_is_short_and_says_angular_speed(self) -> None:
         longest = 60
