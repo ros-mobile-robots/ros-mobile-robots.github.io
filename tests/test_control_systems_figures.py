@@ -1118,11 +1118,14 @@ class TestRobustness(unittest.TestCase):
         self.assertLess(self.include.index(self.wide), self.include.index(self.tall))
         self.assertEqual(self.include.count('<figcaption>'), 1)
 
-    def test_caption_says_that_the_range_is_chosen_for_the_eye_and_not_measured(self) -> None:
+    def test_caption_gives_each_end_of_the_range_against_the_model_value(self) -> None:
         variation = round(control_systems_figures.RADIUS_VARIATION * 100)
-        self.assertIn(f'The radii differ by {variation} %, a range chosen so that the three '
-                      'lines can be told apart. An example, not a measurement of the robot.',
-                      self.include)
+        self.assertIn(f'The smallest radius is {variation} % below the model value and the '
+                      f'largest is {variation} % above it.', self.include)
+
+    def test_caption_says_that_the_range_is_chosen_for_the_eye_and_not_measured(self) -> None:
+        self.assertIn('The range was chosen so that the three lines can be told apart. '
+                      'An example, not a measurement of the robot.', self.include)
 
     def test_page_states_the_radius_variation_that_the_figure_draws(self) -> None:
         page = (ROOT / 'docs' / 'theory' / 'modeling-control'

@@ -984,6 +984,20 @@ def agent_figure() -> Figure:
     return figure
 
 
+def robustness_caption() -> str:
+    """Return the robustness figure's caption, with the radius range as RADIUS_VARIATION has it.
+
+    The caption gives each end of the range against the model's value, so that the percentage
+    is not read as the whole span from the smallest radius to the largest.
+    """
+    variation = round(RADIUS_VARIATION * 100)
+    return ('The angular speed of a wheel at three radii, with the same controller: the '
+            "smallest wheel, the model's value and the largest wheel. The smallest radius is "
+            f'{variation} % below the model value and the largest is {variation} % above it. '
+            'The range was chosen so that the three lines can be told apart. An example, not a '
+            'measurement of the robot.')
+
+
 def write_include(path: str, figures: Sequence[Figure], caption: str, style: str = '') -> None:
     """Write a figure with its caption to an include, after the style element if one is given.
 
@@ -1015,11 +1029,7 @@ def main() -> None:
                   'four performance criteria. The curve is an example response, not a '
                   'measurement of the robot.')
     write_include('includes/control-systems-robustness.html',
-                  [wide_robustness_figure(), robustness_figure()],
-                  'The angular speed of a wheel at three radii, with the same controller: '
-                  "the smallest wheel, the model's value and the largest wheel. The radii "
-                  f'differ by {round(RADIUS_VARIATION * 100)} %, a range chosen so that the '
-                  'three lines can be told apart. An example, not a measurement of the robot.')
+                  [wide_robustness_figure(), robustness_figure()], robustness_caption())
     write_include('includes/control-systems-open-loop.html',
                   [wide_open_loop_figure(), open_loop_figure()],
                   "An open loop for a wheel's speed. The chain ends at the outputs, and "
