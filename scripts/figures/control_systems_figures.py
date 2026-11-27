@@ -51,6 +51,8 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
+from board_drawings import Point
+
 WIDTH = 360
 # The closed loop's forward path runs down at FORWARD_X through the boxes of the left column, its
 # feedback path back up at FEEDBACK_X through the sensors' box of the right column
@@ -159,13 +161,6 @@ class LineKind(Enum):
     LARGEST = 'largest'    # thick, long dashes: the largest wheel and its speed
 
 
-class Point(NamedTuple):
-    """A point of a drawing, in px."""
-
-    x: float
-    y: float
-
-
 class Plot(NamedTuple):
     """A plot of signals over time: where it lies in a drawing, in px, and what its axes span.
 
@@ -207,7 +202,8 @@ class SecondOrder(NamedTuple):
     """A textbook system of second order, the example for a system that settles.
 
     Its output follows a step of its input the faster, the higher the natural frequency is. With
-    a damping ratio between 0 and 1, the output swings past its final value once and then settles.
+    a damping ratio between 0 and 1, the output swings around its final value, each swing smaller
+    than the one before, and settles.
     """
 
     natural_frequency: float  # rad/s
@@ -515,7 +511,10 @@ def step_response(system: SecondOrder, time: float) -> float:
 
 
 def fading_swing(system: SecondOrder, time: float) -> float:
-    """Return a system's fading swing at a time: it starts at 0, rises once and dies out."""
+    """Return a system's fading swing at a time.
+
+    It starts at 0 and swings around 0, each swing smaller than the one before.
+    """
     return math.exp(-system.fade_rate * time) * math.sin(system.swing_frequency * time)
 
 
@@ -556,8 +555,12 @@ def unstable_output(time: float) -> float:
     return runaway_response(time - STEP_TIME)
 
 
-def sampled(plot: Plot, signal: Callable[[float], float], end: float) -> List[Point]:
-    """Return a signal's points on a plot from time 0 to end, at most SAMPLE_STEP px apart."""
+def sample_curve(plot: Plot, signal: Callable[[float], float], end: float) -> List[Point]:
+    """Return a signal's points on a plot from time 0 to end.
+
+    Along the time axis, two neighbors are at most SAMPLE_STEP px apart. Where the signal is
+    steep, they are further apart along the line.
+    """
     steps = math.ceil(plot.width * end / plot.duration / SAMPLE_STEP)
     times = [end * step / steps for step in range(steps + 1)]
     return [plot.point(time, signal(time)) for time in times]
@@ -592,20 +595,20 @@ def stability_output_plot(figure: Figure, plot: Plot) -> None:
     leaves_at = STEP_TIME + runaway_time(plot.highest)
     figure.axes(plot)
     bound_line(figure, plot, OUTPUT_BOUND)
-    figure.curve(sampled(plot, stable_output, plot.duration), LineKind.SIGNAL)
-    figure.curve(sampled(plot, unstable_output, leaves_at)[::-1], LineKind.UNSTABLE)
+    figure.curve(sample_curve(plot, stable_output, plot.duration), LineKind.SIGNAL)
+    figure.curve(sample_curve(plot, unstable_output, leaves_at)[::-1], LineKind.UNSTABLE)
     figure.signal(plot.left + 8, plot.top + 10, 'output', 'wheel speed')
     figure.label(plot.x_at(leaves_at) + 10, plot.top + 10, ['unstable:', 'keeps growing'])
     figure.label(plot.right, plot.y_at(1) + 18, ['stable:', 'stays bounded'], 'end')
 
 
-def stability_plots(left: float, input_top: float, input_width: float, output_left: float,
-                    output_top: float, output_width: float) -> Tuple[Plot, Plot]:
-    """Return the input's plot and the outputs' plot of the stability figure, at one scale."""
-    return (Plot(left, input_top, input_width, INPUT_HIGHEST * SPEED_SCALE, STABILITY_DURATION,
-                 INPUT_HIGHEST),
-            Plot(output_left, output_top, output_width, OUTPUT_HIGHEST * SPEED_SCALE,
-                 STABILITY_DURATION, OUTPUT_HIGHEST))
+def stability_plot(left: float, top: float, width: float, highest: float) -> Plot:
+    """Return one plot of the stability figure, at a place and up to a highest value.
+
+    Every plot of the figure spans STABILITY_DURATION and has the scale SPEED_SCALE, so its
+    height follows from its highest value.
+    """
+    return Plot(left, top, width, highest * SPEED_SCALE, STABILITY_DURATION, highest)
 
 
 def stability_figure() -> Figure:
@@ -614,8 +617,8 @@ def stability_figure() -> Figure:
     The input's plot stands above the system's box and the outputs' plot below it. Both plots
     have the same time axis, so the step is at the same place in both.
     """
-    input_plot, output_plot = stability_plots(left=44, input_top=20, input_width=300,
-                                              output_left=44, output_top=238, output_width=300)
+    input_plot = stability_plot(left=44, top=20, width=300, highest=INPUT_HIGHEST)
+    output_plot = stability_plot(left=44, top=238, width=300, highest=OUTPUT_HIGHEST)
     box_y = input_plot.bottom + 42
     height = round(output_plot.bottom + 46)
     figure = Figure('cs-stability', height, STABILITY_TITLE, layout='cs-fig-tall')
@@ -636,10 +639,10 @@ def wide_stability_figure() -> Figure:
     """
     time_axis_y = 176
     box_x, row = 270, time_axis_y - SPEED_SCALE
-    input_plot, output_plot = stability_plots(
-        left=40, input_top=time_axis_y - INPUT_HIGHEST * SPEED_SCALE, input_width=194,
-        output_left=446, output_top=time_axis_y - OUTPUT_HIGHEST * SPEED_SCALE,
-        output_width=218)
+    input_plot = stability_plot(left=40, top=time_axis_y - INPUT_HIGHEST * SPEED_SCALE,
+                                width=194, highest=INPUT_HIGHEST)
+    output_plot = stability_plot(left=446, top=time_axis_y - OUTPUT_HIGHEST * SPEED_SCALE,
+                                 width=218, highest=OUTPUT_HIGHEST)
     height = time_axis_y + 46
     figure = Figure('cs-stability-wide', height, STABILITY_TITLE, width=WIDE_WIDTH,
                     layout='cs-fig-wide')
@@ -669,8 +672,8 @@ def settled_at(signal: Callable[[float], float], end: float) -> float:
     return last_outside + TIME_RESOLUTION
 
 
-def dimension(figure: Figure, start: Point, end: Point) -> None:
-    """Add a measure between two points: a line with an arrowhead at each of them."""
+def draw_dimension_line(figure: Figure, start: Point, end: Point) -> None:
+    """Add a dimension line between two points: a line with an arrowhead at each of them."""
     middle = Point(round((start.x + end.x) / 2, 1), round((start.y + end.y) / 2, 1))
     for tip in (start, end):
         figure.arrow(f'M{middle.x},{middle.y} L{tip.x},{tip.y}')
@@ -686,14 +689,14 @@ def settling_time_mark(figure: Figure, plot: Plot, settled: float) -> None:
     figure.curve([Point(start.x, plot.bottom), Point(start.x, mark_y + 5)], LineKind.GUIDE)
     figure.curve([plot.point(settled, performance_output(settled)),
                   Point(end.x, mark_y + 5)], LineKind.GUIDE)
-    dimension(figure, start, end)
+    draw_dimension_line(figure, start, end)
     figure.number_disc(end.x + 14, mark_y, 1)
 
 
 def error_mark(figure: Figure, plot: Plot) -> None:
     """Add mark 2: the tracking error at ERROR_MARK_TIME, from the speed up to the target."""
     speed = performance_output(ERROR_MARK_TIME)
-    dimension(figure, plot.point(ERROR_MARK_TIME, speed), plot.point(ERROR_MARK_TIME, 1))
+    draw_dimension_line(figure, plot.point(ERROR_MARK_TIME, speed), plot.point(ERROR_MARK_TIME, 1))
     figure.number_disc(plot.x_at(ERROR_MARK_TIME) - 13, plot.y_at((speed + 1) / 2) + 6, 2)
 
 
@@ -732,7 +735,7 @@ def target_and_band(figure: Figure, plot: Plot) -> None:
 def performance_plot(figure: Figure, plot: Plot) -> None:
     """Add the plot of the wheel's speed and its target, the band and the four marks."""
     settled = settled_at(performance_output, DISTURBANCE_TIME)
-    speed = sampled(plot, performance_output, plot.duration)
+    speed = sample_curve(plot, performance_output, plot.duration)
     step_x = plot.x_at(STEP_TIME)
     target_and_band(figure, plot)
     figure.curve(speed, LineKind.SIGNAL)
@@ -808,8 +811,8 @@ def wheel_speed(radius: float, time: float) -> float:
     return step_response(wheel_loop(radius), time - STEP_TIME)
 
 
-def wheel_x(model_x: float, wheel: Wheel) -> float:
-    """Return the x coordinate of a wheel on the scale of the radius.
+def radius_scale_x(model_x: float, wheel: Wheel) -> float:
+    """Return the x coordinate of a wheel's radius on the scale of the radius.
 
     The model's value is at model_x.
     """
@@ -823,12 +826,12 @@ def wheels_on_the_scale(figure: Figure, model_x: float, ground_y: float) -> None
     wheel's radius, with the wheel's name below it. A bracket below the names spans the band
     and carries the band's name.
     """
-    smallest_x, largest_x = wheel_x(model_x, WHEELS[0]), wheel_x(model_x, WHEELS[-1])
+    smallest_x, largest_x = radius_scale_x(model_x, WHEELS[0]), radius_scale_x(model_x, WHEELS[-1])
     figure.curve([Point(smallest_x - 28, ground_y), Point(largest_x + 36, ground_y)],
                  LineKind.GUIDE)
     figure.area(smallest_x, ground_y + 10, largest_x - smallest_x, 8, 'band')
     for wheel in WHEELS:
-        x, radius = wheel_x(model_x, wheel), round(wheel.radius * WHEEL_RADIUS, 1)
+        x, radius = radius_scale_x(model_x, wheel), round(wheel.radius * WHEEL_RADIUS, 1)
         figure.circle(x, round(ground_y - radius, 1), radius, wheel.kind.value)
         figure.circle(x, round(ground_y - radius, 1), 2, 'hub')
         figure.curve([Point(x, ground_y + 6), Point(x, ground_y + 22)], LineKind.GUIDE)
@@ -849,7 +852,7 @@ def robustness_plot(figure: Figure, plot: Plot) -> None:
     target_and_band(figure, plot)
     for wheel in sorted(WHEELS, key=lambda wheel: wheel.kind is LineKind.SIGNAL):
         speed = functools.partial(wheel_speed, wheel.radius)
-        figure.curve(sampled(plot, speed, plot.duration), wheel.kind)
+        figure.curve(sample_curve(plot, speed, plot.duration), wheel.kind)
     figure.signal(plot.x_at(STEP_TIME) + 8, plot.top + 8, 'reference', 'target angular speed')
     figure.text(plot.right, plot.y_at(1 - ALLOWED_ERROR) + 13, TOLERANCE_NAME, anchor='end')
     figure.signal(plot.x_at(0.5 * plot.duration), plot.y_at(0.5), 'output',

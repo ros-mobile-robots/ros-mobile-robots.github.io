@@ -586,12 +586,12 @@ class TestPlot(unittest.TestCase):
 
     def test_sampled_line_runs_from_time_zero_to_the_end_time(self) -> None:
         end_time = 0.9
-        line = control_systems_figures.sampled(self.plot, math.sin, end_time)
+        line = control_systems_figures.sample_curve(self.plot, math.sin, end_time)
         self.assertEqual(line[0], self.plot.point(0, math.sin(0)))
         self.assertEqual(line[-1], self.plot.point(end_time, math.sin(end_time)))
 
     def test_sampled_lines_points_are_no_further_apart_than_the_sample_step(self) -> None:
-        line = control_systems_figures.sampled(self.plot, math.sin, self.plot.duration)
+        line = control_systems_figures.sample_curve(self.plot, math.sin, self.plot.duration)
         rounding = 0.1
         for earlier, later in zip(line, line[1:]):
             self.assertLessEqual(later.x - earlier.x,
