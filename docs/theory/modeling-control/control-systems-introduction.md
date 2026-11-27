@@ -82,7 +82,7 @@ The figure doesn't show the fifth criterion, noise.
 Robustness is the ability of the controller to provide stability and performance even in the presence of uncertainty in the mathematical model of the plant.
 
 The figure shows such an uncertainty for one parameter of the model, the wheel radius.
-The model has one value for the radius, and each real wheel's radius lies somewhere in a band around that value.
+The model has one value for the radius, and the figure assumes that a real wheel's radius lies in a range around that value.
 Follow the three wheels toward the same target angular speed, measured by the encoder in rad/s.
 With the same controller, the smallest wheel (short dashes), the model's wheel (solid line) and the largest wheel (long dashes) all enter the gray tolerance band and stay in it.
 [The feedback loop of one wheel](../../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) on the PID Controllers page shows how the robots measure and control this angular speed.
@@ -90,6 +90,7 @@ With the same controller, the smallest wheel (short dashes), the model's wheel (
 --8<-- "includes/control-systems-robustness.html"
 
 In this example the larger wheel takes longer to reach the tolerance band.
+The three lines show three chosen radii, and they are no proof for every radius in between.
 The radii differ by 25 % from the model's value.
 This range was chosen so that the three lines can be told apart, and it is not the tolerance of the robots' wheels.
 
@@ -102,9 +103,9 @@ Also, the parameters of the system might just change over time because of wear a
 A robust controller would handle these cases well despite the uncertainty.
 Robustness and performance are a trade-off, and striking the right balance is a challenge that really depends on the application.
 
-Model uncertainty is defined as a "bounded variation" of the parameters describing the controlled system's model.
-Choosing completely different sensors (e.g., a camera instead of the planned pressure sensor for altitude control of a hot air balloon)
-might induce a completely different structure in the plant's model, which would therefore not be a "bounded" variation.
+Here the uncertain parameter is the wheel radius.
+The assumed range has a lower and an upper limit.
+The figure calls such a range a "bounded variation".
 
 "Bounded variation" in the system behavior of a mobile robot could count as:
 
