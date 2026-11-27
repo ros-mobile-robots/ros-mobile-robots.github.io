@@ -144,7 +144,10 @@ class TestClosedLoopLayouts(unittest.TestCase):
 
 
 # The width of Roboto's characters as a share of the font size, by width: the regular weight,
-# measured in Chromium with the font files that the site serves. A bold text is BOLD_FACTOR wider
+# measured in Chromium with the font files that the site serves. A bold text is BOLD_FACTOR
+# wider. A character that the table lacks counts as wide as the widest one: an estimate that
+# is too wide can fail a test, which then asks for the character's width, but it can't hide a
+# text that is too long
 ROBOTO_WIDTHS = {
     0.175: "'", 0.197: ',', 0.211: ';', 0.239: 'j', 0.242: ':', 0.243: 'il', 0.248: ' ',
     0.264: '.', 0.272: 'I', 0.276: '-', 0.327: 't', 0.339: 'r', 0.342: '(', 0.348: 'f)',
@@ -157,6 +160,7 @@ ROBOTO_WIDTHS = {
 }
 CHARACTER_WIDTHS = {character: width for width, characters in ROBOTO_WIDTHS.items()
                     for character in characters}
+WIDEST_CHARACTER = max(ROBOTO_WIDTHS)
 BOLD_FACTOR = 1.05
 # How far a text reaches above and below its baseline, as a share of the font size: the height
 # of a letter such as "d", and the depth of a letter such as "p"
@@ -241,7 +245,8 @@ def font_size(classes: List[str]) -> float:
 
 def text_width(text: str, classes: List[str]) -> float:
     """Return the estimated width of a text with these classes, in px."""
-    width = sum(CHARACTER_WIDTHS[character] for character in text) * font_size(classes)
+    width = sum(CHARACTER_WIDTHS.get(character, WIDEST_CHARACTER)
+                for character in text) * font_size(classes)
     bold = any(declaration_of(css_class, 'font-weight') == '700' for css_class in classes)
     return width * BOLD_FACTOR if bold else width
 
@@ -277,8 +282,29 @@ def drawn_rectangles(svg: str, css_class: str) -> List[Area]:
 
 
 def drawn_boxes(svg: str) -> List[Area]:
-    """Return the area of each of a drawing's blocks."""
+    """Return the area of each of a drawing's blocks, in the order in which they are drawn."""
     return drawn_rectangles(svg, 'block')
+
+
+class Labelled(NamedTuple):
+    """A term of a drawing, a signal or a box, with the wheel example's words for it."""
+
+    term: str
+    example: str
+
+
+def labelled_terms(svg: str) -> List[Labelled]:
+    """Return each term of a drawing that has an example, with its example, in drawing order.
+
+    A drawing holds an example right after the term that it belongs to.
+    """
+    pairs = []
+    term = ''
+    for element in ElementTree.fromstring(svg).iter('text'):
+        if 'example' in css_classes(element):
+            pairs.append(Labelled(term, element.text or ''))
+        term = element.text or ''
+    return pairs
 
 
 def drawn_numbers(svg: str) -> List[Tuple[int, Point]]:
@@ -402,6 +428,40 @@ def viewbox(svg: str) -> Area:
     return Area(left, top, left + width, top + height)
 
 
+# The labels that each box of each layout has to hold, box by box in the order of drawing
+ACTUATORS_BOX = ['Actuators', 'motor driver and motor']
+PROCESS_BOX = ['Process and environment', 'wheel, robot and ground']
+SENSORS_BOX = ['Sensors', 'wheel encoder']
+OPEN_LOOP_BOXES = [['Controller', 'plan set in advance'], ACTUATORS_BOX, PROCESS_BOX]
+CLOSED_LOOP_BOXES = [['Controller', 'PID in the firmware'], ACTUATORS_BOX, PROCESS_BOX,
+                     SENSORS_BOX]
+STABILITY_BOXES = [['System', 'wheel with its controller']]
+BOX_LABELS: Dict[str, List[List[str]]] = {
+    'cs-system': [ACTUATORS_BOX, PROCESS_BOX, SENSORS_BOX],
+    'cs-open-wide': OPEN_LOOP_BOXES, 'cs-open': OPEN_LOOP_BOXES,
+    'cs-stability-wide': STABILITY_BOXES, 'cs-stability': STABILITY_BOXES,
+    'cs-performance-wide': [], 'cs-performance': [],
+    'cs-robustness-wide': [], 'cs-robustness': [],
+    'cs-loop-wide': CLOSED_LOOP_BOXES, 'cs-loop': CLOSED_LOOP_BOXES,
+    'cs-agent': [['Sensors'], ['Perception'], ['Planner'], ['Controller'], ['Actuators']],
+}
+
+
+class TestTextWidth(unittest.TestCase):
+    """The tests' estimate of a text's width uses the measured widths of its characters."""
+
+    def test_width_is_the_sum_of_the_characters_widths_times_the_font_size(self) -> None:
+        narrow_letters = 'il'
+        self.assertAlmostEqual(text_width(narrow_letters, []),
+                               2 * CHARACTER_WIDTHS['i'] * font_size([]))
+
+    def test_a_character_without_a_measured_width_counts_as_the_widest(self) -> None:
+        not_in_the_table = '\u00e9'
+        self.assertNotIn(not_in_the_table, CHARACTER_WIDTHS)
+        self.assertAlmostEqual(text_width(not_in_the_table, []),
+                               WIDEST_CHARACTER * font_size([]))
+
+
 class TestEveryDrawing(unittest.TestCase):
     """Every layout keeps its texts inside the drawing, inside their boxes and apart."""
 
@@ -411,7 +471,19 @@ class TestEveryDrawing(unittest.TestCase):
                        if not viewbox(svg).holds(drawn.area)]
             self.assertEqual(outside, [], name)
 
-    def test_every_text_in_a_box_stays_inside_the_box(self) -> None:
+    def test_every_box_holds_its_own_labels(self) -> None:
+        layouts = every_layout()
+        self.assertEqual(sorted(layouts), sorted(BOX_LABELS))
+        for name, svg in layouts.items():
+            boxes, texts = drawn_boxes(svg), drawn_texts(svg)
+            self.assertEqual(len(boxes), len(BOX_LABELS[name]), name)
+            for box, labels in zip(boxes, BOX_LABELS[name]):
+                for label in labels:
+                    inside_the_box = [drawn for drawn in texts
+                                      if drawn.text == label and box.holds(drawn.area)]
+                    self.assertEqual(len(inside_the_box), 1, (name, label))
+
+    def test_no_text_with_its_middle_in_a_box_reaches_out_of_the_box(self) -> None:
         for name, svg in every_layout().items():
             leaving = [drawn.text for drawn in drawn_texts(svg) for box in drawn_boxes(svg)
                        if box.holds_the_middle_of(drawn.area) and not box.holds(drawn.area)]
@@ -1273,12 +1345,21 @@ class TestOpenLoop(unittest.TestCase):
         for svg in closed_layouts:
             self.assertNotEqual(segments_against_the_first_arrow(svg), [])
 
-    def test_open_loop_differs_from_the_closed_loop_only_in_the_controllers_example(
+    def test_open_loop_labels_the_forward_path_as_the_closed_loop_does_but_for_the_controller(
             self) -> None:
-        closed_texts = texts_of(control_systems_figures.wide_closed_loop_figure().svg())
-        for svg in (self.wide, self.tall):
-            own_texts = [text for text in texts_of(svg) if text not in closed_texts]
-            self.assertEqual(own_texts, ['plan set in advance'])
+        # Each signal and each box of the open loop, with its example, in the chain's order
+        closed_layouts = (control_systems_figures.wide_closed_loop_figure().svg(),
+                          control_systems_figures.closed_loop_figure().svg())
+        only_difference = (Labelled('Controller', 'plan set in advance'),
+                           Labelled('Controller', 'PID in the firmware'))
+        for open_svg, closed_svg in zip((self.wide, self.tall), closed_layouts):
+            own = labelled_terms(open_svg)
+            self.assertEqual([labelled.term for labelled in own], OPEN_LOOP_CHAIN)
+            shared = [labelled for labelled in labelled_terms(closed_svg)
+                      if labelled.term in OPEN_LOOP_CHAIN]
+            self.assertEqual(len(own), len(shared))
+            different = [pair for pair in zip(own, shared) if pair[0] != pair[1]]
+            self.assertEqual(different, [only_difference])
 
 
 if __name__ == '__main__':
