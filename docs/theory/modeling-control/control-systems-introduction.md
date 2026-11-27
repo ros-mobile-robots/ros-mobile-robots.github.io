@@ -89,8 +89,9 @@ With the same controller, the smallest wheel (short dashes), the model's wheel (
 
 --8<-- "includes/control-systems-robustness.html"
 
-The figure draws the wheels' differences much larger than they are on a real robot, so that the three lines can be told apart.
-A larger wheel pushes the robot with less force for the same motor torque, so its speed rises more slowly.
+In this example the larger wheel takes longer to reach the tolerance band.
+The radii differ by 25 % from the model's value.
+This range was chosen so that the three lines can be told apart, and it is not the tolerance of the robots' wheels.
 
 The plot shows how fast each wheel turns, not how fast the robot drives.
 A larger wheel rolling without slip travels farther per turn.

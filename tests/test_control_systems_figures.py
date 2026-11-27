@@ -1051,6 +1051,12 @@ class TestRobustness(unittest.TestCase):
                       'lines can be told apart. An example, not a measurement of the robot.',
                       self.include)
 
+    def test_page_states_the_radius_variation_that_the_figure_draws(self) -> None:
+        page = (ROOT / 'docs' / 'theory' / 'modeling-control'
+                / 'control-systems-introduction.md').read_text(encoding='utf-8')
+        variation = round(control_systems_figures.RADIUS_VARIATION * 100)
+        self.assertIn(f"The radii differ by {variation} % from the model's value.", page)
+
     def test_accessible_name_is_short_and_says_angular_speed(self) -> None:
         longest = 60
         for svg in (self.wide, self.tall):

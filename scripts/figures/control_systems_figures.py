@@ -522,9 +522,10 @@ def fading_swing(system: SecondOrder, time: float) -> float:
 def disturbance_response(system: SecondOrder, time: float) -> float:
     """Return how far a lasting load has moved a system's output at a time after it began.
 
-    The result is a share of the largest move. The output moves away once, and the controller
-    brings it back while the load stays. This is the answer of a loop whose controller sums up
-    the error, as a PID does. At the load's start and before it, the output hasn't moved.
+    The result is a share of the largest move. The output moves away, and the controller
+    brings it back while the load stays. This is the answer of the toy model of wheel_loop()
+    to a load torque that starts at time 0: a controller that sums up the error makes up for
+    a load that stays. At the load's start and before it, the output hasn't moved.
     """
     if time <= 0:
         return 0.0
@@ -780,10 +781,24 @@ def wide_performance_figure() -> Figure:
 def wheel_loop(radius: float) -> SecondOrder:
     """Return the example system for a wheel with a radius, a share of the model's value.
 
-    The controller stays the one that gives SETTLING with the model's value. In this example,
-    the robot's mass is all that the motor speeds up. Through a wheel, the mass acts on the
-    motor like an inertia that grows with the radius squared. For a controller that sums up the
-    error, the loop's natural frequency and its damping ratio then both fall with 1 / radius.
+    The scaling is exact for one toy model of a wheel that rolls straight without slip:
+
+    - The robot's mass is all that the motor speeds up. A mass that moves at radius times the
+      angular speed acts at the axle like the inertia J = m_eff * radius ** 2.
+    - A viscous drag with a fixed coefficient b acts at the axle.
+    - The controller is an ideal source of torque. It sums up the error of the angular speed
+      with a fixed gain K_i, and has no proportional part.
+
+    From the target to the angular speed, this loop has the transfer function
+    K_i / (J s ** 2 + b s + K_i): a system of second order with the natural frequency
+    sqrt(K_i / J) and the damping ratio b / (2 sqrt(J K_i)). Both fall with 1 / radius, and the
+    model's value gives SETTLING.
+
+    Without the drag, the loop would not be damped at all. With a proportional part, the step
+    response would have another shape. The robots are no such system either: their wheels and
+    motors have an inertia of their own, the firmware's PID runs in steps and has a
+    proportional part, and the motor command is limited. The figure's lines are an example of
+    how a parameter moves a response, and no prediction for the robots.
     """
     return SecondOrder(SETTLING.natural_frequency / radius, SETTLING.damping_ratio / radius)
 
