@@ -22,8 +22,6 @@ With `main`, the job's log shows industrial_ci's warning `'noetic' is in end-of-
 
 The [simulation test](simulation-test.md) also drives Remo, whose model `remo_description` isn't a released ROS package, so rosdep can't install it. `UPSTREAM_WORKSPACE: diffbot_dev.repos` in the workflow makes industrial_ci clone the repositories in this [vcstool](https://github.com/dirk-thomas/vcstool) file, the same [source dependencies](../packages/packages-setup.md#source-dependencies) that the [dev container](dev-container.md) imports. industrial_ci builds them first, in an upstream workspace, then builds the diffbot packages on top of it and runs only their tests ([workspace management](https://github.com/ros-industrial/industrial_ci/blob/master/doc/index.rst#workspace-management)).
 
-[ccache](https://ccache.dev/) keeps compiled C++ files, so that a later build can reuse them. The workflow saves ccache's folder with `actions/cache` at the end of each successful run. The cache key contains the run ID, so each successful run saves a new cache, and `restore-keys` looks for the newest one at the start of the next run. In the current runs, that step finds the newest cache but logs `Failed to restore`, because `tar` can't create the folder `/github/home` on the runner. The build then starts without a cache.
-
 ### Dev container workflow
 
 [`devcontainers/ci`](https://github.com/devcontainers/ci) creates the container exactly as VS Code or the Dev Container CLI would, including [`setup.sh`]({{ diffbot_repo_url }}/.devcontainer/noetic/setup.sh), which builds the workspace. Then it runs:
