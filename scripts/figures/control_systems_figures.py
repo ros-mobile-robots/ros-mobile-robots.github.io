@@ -997,8 +997,8 @@ def main() -> None:
                   'ones, not a measurement of the robot.')
     write_include('includes/control-systems-open-loop.html',
                   [wide_open_loop_figure(), open_loop_figure()],
-                  'An open loop. Follow the arrows from the reference to the outputs. No arrow '
-                  "leads back from the wheel's speed to the controller.")
+                  "An open loop for a wheel's speed. The chain ends at the outputs, and "
+                  "nothing measures the wheel's speed for the controller.")
     write_include('includes/control-systems-closed-loop.html',
                   [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '
