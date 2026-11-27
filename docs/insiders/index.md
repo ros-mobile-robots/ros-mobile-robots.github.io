@@ -222,11 +222,11 @@ DiffBot and Remo?_
 
 Yes. Whether you're an individual or a company, you may use _DiffBot and Remo
 Insiders_ precisely under the same terms as DiffBot and Remo, which are given
-by the [BSD 3-Clause License]. However, we kindly ask you to respect the following
+by the [BSD 3-Clause License], except for the wheel model described below. However, we kindly ask you to respect the following
 guidelines:
 
 - Please __don't distribute the source code__ of Insiders. You may freely use
-  it for public, private or commercial projects, privately fork or mirror it,
+  it for public, private or commercial projects, except for the wheel model described below, privately fork or mirror it,
   but please don't make the source code public, as it would counteract the 
   sponsorware strategy.
 
@@ -234,6 +234,8 @@ guidelines:
   collaborator and will miss out on all future updates of Insiders. However, you
   may __use the latest version__ that's available to you __as long as you like__.
   Just remember that [GitHub deletes private forks].
+
+The wheel model is an exception to the BSD 3-Clause License. It's the wheel of DiffBot and Remo, [Wheel D65x25](https://grabcad.com/library/wheel-d65x25-1) by KlimukVI from GrabCAD, in Insiders the file `meshes/components/wheel.stl`. GrabCAD's terms apply to it. You may share it for non-commercial use if you credit KlimukVI and link to the model. Commercial use of the wheel model needs KlimukVI's explicit permission and credit to both GrabCAD and KlimukVI ([How can models be used and shared?](https://help.grabcad.com/article/246-how-can-models-be-used-and-shared)). This exception doesn't change the BSD permissions for the rest of Insiders. Sponsorship doesn't grant commercial rights to the wheel model.
 
   [BSD 3-Clause License]: https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/LICENSE
   [GitHub deletes private forks]: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/removing-a-collaborator-from-a-personal-repository
