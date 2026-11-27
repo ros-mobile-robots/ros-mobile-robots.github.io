@@ -278,6 +278,9 @@ class Wheel(NamedTuple):
 # drawn with a radius of WHEEL_RADIUS, and the scale below the wheels shows RADIUS_VARIATION
 # as WHEEL_SPACING
 ROBUSTNESS_TITLE = 'Wheel angular speed at three radii'
+# The robustness figure's blue labels are a parameter and two angular speeds, so its legend
+# says that, in place of LEGEND's "the speed of one of the robot's wheels"
+ROBUSTNESS_LEGEND = 'Blue labels show wheel radius and angular speeds'
 RADIUS_VARIATION = 0.25
 WHEELS = (Wheel(1 - RADIUS_VARIATION, 'smallest', LineKind.SMALLEST),
           Wheel(1, "model's value", LineKind.SIGNAL),
@@ -867,7 +870,7 @@ def robustness_figure() -> Figure:
     figure = Figure('cs-robustness', height, ROBUSTNESS_TITLE, layout='cs-fig-tall')
     wheels_on_the_scale(figure, model_x=SYSTEM_X + 10, ground_y=64)
     robustness_plot(figure, plot)
-    figure.text(WIDTH / 2, height - 6, LEGEND, 'legend', 'middle')
+    figure.text(WIDTH / 2, height - 6, ROBUSTNESS_LEGEND, 'legend', 'middle')
     return figure
 
 
@@ -880,7 +883,7 @@ def wide_robustness_figure() -> Figure:
                     layout='cs-fig-wide')
     wheels_on_the_scale(figure, model_x=196, ground_y=88)
     robustness_plot(figure, plot)
-    figure.text(WIDE_WIDTH / 2, height - 8, LEGEND, 'legend', 'middle')
+    figure.text(WIDE_WIDTH / 2, height - 8, ROBUSTNESS_LEGEND, 'legend', 'middle')
     return figure
 
 

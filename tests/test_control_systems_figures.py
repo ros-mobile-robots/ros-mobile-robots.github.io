@@ -1163,6 +1163,15 @@ class TestRobustness(unittest.TestCase):
             for drawn_percent in drawing.rims_below_and_above:
                 self.assertAlmostEqual(drawn_percent, stated_percent, delta=PERCENT_ROUNDING)
 
+    def test_legend_says_what_the_three_blue_labels_show(self) -> None:
+        for svg in (self.wide, self.tall):
+            texts = list(ElementTree.fromstring(svg).iter('text'))
+            legends = [text.text for text in texts if 'legend' in css_classes(text)]
+            blue_labels = [text.text for text in texts if 'example' in css_classes(text)]
+            self.assertEqual(legends, ['Blue labels show wheel radius and angular speeds'])
+            self.assertEqual(blue_labels,
+                             ['wheel radius', 'target angular speed', 'wheel angular speed'])
+
     def test_accessible_name_is_short_and_says_angular_speed(self) -> None:
         longest = 60
         for svg in (self.wide, self.tall):
