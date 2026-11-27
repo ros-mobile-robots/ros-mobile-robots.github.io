@@ -640,12 +640,15 @@ class StabilityLines(NamedTuple):
 
 
 def stability_lines(svg: str) -> StabilityLines:
-    """Return the lines of a layout of the stability figure: the input's plot is drawn first."""
+    """Return the lines of a layout of the stability figure: the input's plot is drawn first.
+
+    The unstable output's points are in the order of time, whichever way its line is drawn.
+    """
     input_bound, output_bound = drawn_lines(svg, LineKind.BOUND)
     input_signal, stable_output = drawn_lines(svg, LineKind.SIGNAL)
     unstable_output, = drawn_lines(svg, LineKind.UNSTABLE)
     return StabilityLines(input_bound, input_signal, output_bound, stable_output,
-                          unstable_output)
+                          sorted(unstable_output, key=lambda point: point.x))
 
 
 # How far two coordinates of a drawing may differ and still count as the same: they are rounded
@@ -724,6 +727,12 @@ class TestStability(unittest.TestCase):
         for lines in self.layouts:
             self.assertLess(lines.unstable_output[-1].y, lines.unstable_output[-2].y)
             self.assertLess(lines.unstable_output[-1].x, lines.output_bound[-1].x)
+
+    def test_unstable_outputs_dashes_start_where_its_line_leaves_the_plot(self) -> None:
+        # A line's dashes start with a whole dash at the first point that is drawn
+        for svg in (self.wide, self.tall):
+            drawn, = drawn_lines(svg, LineKind.UNSTABLE)
+            self.assertEqual(drawn[0].y, highest_y(drawn))
 
     def test_both_outputs_start_to_rise_where_the_input_steps_in_the_tall_layout(self) -> None:
         lines = self.layouts[1]

@@ -583,13 +583,14 @@ def stability_input_plot(figure: Figure, plot: Plot) -> None:
 def stability_output_plot(figure: Figure, plot: Plot) -> None:
     """Add the plot of the two outputs: the stable one settles, the unstable one leaves the plot.
 
-    The unstable output's line ends where it reaches the plot's upper edge.
+    The unstable output's line ends where it reaches the plot's upper edge. It is drawn from
+    that end, so that its dashes start there with a whole dash.
     """
     leaves_at = STEP_TIME + runaway_time(plot.highest)
     figure.axes(plot)
     bound_line(figure, plot, OUTPUT_BOUND)
     figure.curve(sampled(plot, stable_output, plot.duration), LineKind.SIGNAL)
-    figure.curve(sampled(plot, unstable_output, leaves_at), LineKind.UNSTABLE)
+    figure.curve(sampled(plot, unstable_output, leaves_at)[::-1], LineKind.UNSTABLE)
     figure.signal(plot.left + 8, plot.top + 10, 'output', 'wheel speed')
     figure.label(plot.x_at(leaves_at) + 10, plot.top + 10, ['unstable:', 'keeps growing'])
     figure.label(plot.right, plot.y_at(1) + 18, ['stable:', 'stays bounded'], 'end')

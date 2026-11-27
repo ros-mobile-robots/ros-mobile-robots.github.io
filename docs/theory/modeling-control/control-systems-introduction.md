@@ -34,6 +34,7 @@ The main objectives of the controller are the following:
 
 Mathematically, stability can be formalized as [Bounded Input Bounded Output](https://en.wikipedia.org/wiki/BIBO_stability).
 The output of a system will be bounded for every input to the system that is bounded.
+In other words, if finite energy is provided to the system, then finite energy should exit the system.
 A signal is bounded when it never passes some fixed value, its bound.
 
 The figure shows this for a wheel with its speed controller: the input is the target speed, and the output is the wheel's speed.
@@ -42,8 +43,6 @@ Follow the two outputs after the input's step: the stable system's output (solid
 --8<-- "includes/control-systems-stability.html"
 
 On a real robot, the unstable wheel's speed would not grow forever: it would run away to the fastest speed that the motor can reach.
-
-In other words, if finite energy is provided to the system, then finite energy should exit the system.
 
 According to the definition of stability provided (BIBO stability),
 a system goes unstable when an output of the system diverges (always continues growing in time),
