@@ -101,9 +101,6 @@ might induce a completely different structure in the plant's model, which wouldn
 
 ### Controller Structure
 
-!!! todo "TODO"
-    Add stability, performance, robustness images
-
 With the mentioned objectives in mind, stability, performance, and robustness, it is important to think about the structure of the controller.
 
 - Open Loop Control
@@ -167,9 +164,6 @@ This is required because the raw measurements might include a lot of redundant d
 
 How to structure this agent is up to the designer, to us.
 
-!!! todo "TODO"
-    Add closed loop empty agent image
-
 We could use different approaches, for example, a deep neural network
 trained from real data or a simulation to translate the images from the camera
 directly into commands to the wheels to keep the robot following a desired plan.
@@ -185,9 +179,6 @@ The agent's controller compares the reference with the estimate that perception 
 
 #### Perception
 
-!!! todo "TODO"
-    Add closed loop empty agent image: perception highlighted
-
 The perception block is responsible for transforming the data from the sensors into actionable information for the robot.
 This passage is sometimes called filtering or estimation.
 These estimates of relevant quantities, for example, the position or the orientation of the robot's reference frame with respect
@@ -196,17 +187,11 @@ This belief might be more or less corresponding to the truth depending on the qu
 
 #### Planner
 
-!!! todo "TODO"
-    Add closed loop empty agent image: planner highlighted
-
 The planner instead provides a reference path for the robot to follow.
 For example, between two navigation points in a more general task of reaching a goal position while avoiding obstacles on the road.
 The planner receives the state estimate as input so it can adjust the nominal plan on the fly.
 
 #### Controller
-
-!!! todo "TODO"
-    Add closed loop empty agent image: controller highlighted
 
 The plan and the state estimate are finally fed into the actual controller, which uses them to compute a decision applying a certain logic.
 For a mobile robot, the decision of the controller will be a sequence of commands which will be sent to the motors, finally closing the loop.
