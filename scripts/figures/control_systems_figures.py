@@ -1,12 +1,9 @@
 """Generate the figures on docs/theory/modeling-control/control-systems-introduction.md.
 
-All are inline SVG that follows the site's light and dark colors:
+All are inline SVG that follows the site's light and dark colors. In the page's order:
 
 - includes/control-systems-system.html: a system as actuators, process and sensors, with its
   inputs, outputs and observations. It has the styles for all figures;
-- includes/control-systems-open-loop.html: an open loop, the chain from the reference through the
-  controller, the actuators and the process to the outputs, with no path back. It holds a wide
-  layout, with the chain to the right, and a tall one for phones, with the chain down;
 - includes/control-systems-stability.html: a bounded input and the outputs of a stable and of an
   unstable system over time, with the system between the two plots. In the wide layout the plots
   stand side by side, in the tall one the input's plot stands above the outputs';
@@ -18,6 +15,9 @@ All are inline SVG that follows the site's light and dark colors:
   between the smallest and the largest real one, and a plot shows the speed of each over time
   with the same controller. Each wheel is drawn with the line of its speed. The wheels stand to
   the left of the plot in the wide layout and above it in the tall one;
+- includes/control-systems-open-loop.html: an open loop, the chain from the reference through the
+  controller, the actuators and the process to the outputs, with no path back. It holds a wide
+  layout, with the chain to the right, and a tall one for phones, with the chain down;
 - includes/control-systems-closed-loop.html: the same system with a controller that closes the
   loop from the observations back to the commands. It holds two layouts of the figure, a wide one
   for wider screens, with the forward path to the right and the feedback path back below it, and
@@ -81,10 +81,10 @@ WIDE_RIGHT_WIDTH = 156
 # The id of each figure element, for links to the figure
 FIGURE_IDS = {
     'includes/control-systems-system.html': 'system-figure',
-    'includes/control-systems-open-loop.html': 'open-loop-figure',
     'includes/control-systems-stability.html': 'stability-figure',
     'includes/control-systems-performance.html': 'performance-figure',
     'includes/control-systems-robustness.html': 'robustness-figure',
+    'includes/control-systems-open-loop.html': 'open-loop-figure',
     'includes/control-systems-closed-loop.html': 'closed-loop-figure',
     'includes/control-systems-agent.html': 'agent-figure',
 }
@@ -428,7 +428,7 @@ class Figure:
             self.number_disc(x + DISC_RADIUS, y - 4, number)
             x += 20
         self.text(x, y, name)
-        self.text(x, y + 14, example, 'example')
+        self.text(x, y + LINE_SPACING, example, 'example')
 
     def svg(self) -> str:
         """Return the figure as an SVG element."""
@@ -557,7 +557,7 @@ def unstable_output(time: float) -> float:
 
 
 def sampled(plot: Plot, signal: Callable[[float], float], end: float) -> List[Point]:
-    """Return the points of a signal on a plot from time 0 to end, about SAMPLE_STEP px apart."""
+    """Return a signal's points on a plot from time 0 to end, at most SAMPLE_STEP px apart."""
     steps = math.ceil(plot.width * end / plot.duration / SAMPLE_STEP)
     times = [end * step / steps for step in range(steps + 1)]
     return [plot.point(time, signal(time)) for time in times]
@@ -971,7 +971,7 @@ def write_include(path: str, figures: Sequence[Figure], caption: str, style: str
 
 
 def main() -> None:
-    """Write the includes."""
+    """Write the includes, in the page's order."""
     write_include('includes/control-systems-system.html', [system_figure()],
                   'A system from its actuators to its sensors. Read the figure from top to '
                   'bottom. In the example, the measured wheel speed comes about like this: the '
@@ -979,10 +979,6 @@ def main() -> None:
                   'their edges, and the firmware computes the angular velocity from the change of '
                   'the count and the time it took.',
                   style_element(RULES) + '\n')
-    write_include('includes/control-systems-open-loop.html',
-                  [wide_open_loop_figure(), open_loop_figure()],
-                  'An open loop. Follow the arrows from the reference to the outputs. No arrow '
-                  "leads back from the wheel's speed to the controller.")
     write_include('includes/control-systems-stability.html',
                   [wide_stability_figure(), stability_figure()],
                   'Bounded input, bounded output. The same input goes into a stable and into an '
@@ -998,6 +994,10 @@ def main() -> None:
                   "controller drives the smallest wheel, the model's wheel and the largest "
                   "wheel. An example with the wheels' differences drawn much larger than real "
                   'ones, not a measurement of the robot.')
+    write_include('includes/control-systems-open-loop.html',
+                  [wide_open_loop_figure(), open_loop_figure()],
+                  'An open loop. Follow the arrows from the reference to the outputs. No arrow '
+                  "leads back from the wheel's speed to the controller.")
     write_include('includes/control-systems-closed-loop.html',
                   [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '
