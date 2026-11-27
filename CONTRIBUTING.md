@@ -36,6 +36,7 @@ CI runs the unit tests, the strict build and the spelling check for every pull r
 Write for a reader who is new to the topic. [AGENTS.md](AGENTS.md#writing-rules) has these rules with examples.
 
 - **Why:** explain why, not only what. The reader should understand the robot well enough to change it. Short, plain sentences, one idea per paragraph, few semicolons.
+- **The introduction:** open a page with an introduction in full sentences: what the page is about and why the reader needs the page.
 - **Terms and links:** define a term where the page first uses it, and give every link a text that says what it leads to, never "here" or a bare number. Between two headings, link a code name's destination once, at its first name. A citation next to a claim keeps its link.
 - **Quantities:** give every value its unit, in SI units with a space (`0.5 kg`, `3 s`). Give a quantity its symbol too on a page that has a formula or a figure with that symbol, such as "the yaw rate $\omega_z$ (rad/s)".
 - **Code:** introduce every code excerpt with a full sentence, show the excerpt for every line range that the text names or walks through, and use the code's own names in the text. A configuration list whose meaning lies in the position of its values gets a table with one row per position.

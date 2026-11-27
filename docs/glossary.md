@@ -1,6 +1,6 @@
 # Glossary
 
-Terms and abbreviations used on this site, each with a link to the page that explains it. On every page, hovering an abbreviation, such as URDF, shows its meaning; this page lists them all, which also helps on a phone, where hovering isn't possible.
+This page lists the terms and abbreviations that this site uses, each with a link to the page that explains the term. On every page, hovering an abbreviation such as URDF shows the abbreviation's meaning. The list on this page also helps on a phone, where hovering isn't possible.
 
 {% for t in glossary | sort(attribute='term', case_sensitive=False) %}
 **{{ t.term }}**{% if t.expansion is defined %}, {{ t.expansion }}{% endif %}

@@ -1,6 +1,6 @@
 # Installation
 
-After completing the hardware setup, the next steps that follows consist of
+After the hardware setup, two steps follow:
 
 - Preparing the software on the [processing units](../processing_units/index.md)
 - Installing the [ROS software packages](../packages/index.md)
