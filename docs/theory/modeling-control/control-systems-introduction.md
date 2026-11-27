@@ -32,75 +32,23 @@ The main objectives of the controller are the following:
 
 ### Stability
 
-Mathematically, stability can be formalized as [Bounded Input Bounded Output](https://en.wikipedia.org/wiki/BIBO_stability). 
-The output of a system will be bounded for every input to the system that is bounded. 
+Mathematically, stability can be formalized as [Bounded Input Bounded Output](https://en.wikipedia.org/wiki/BIBO_stability).
+The output of a system will be bounded for every input to the system that is bounded.
+A signal is bounded when it never passes some fixed value, its bound.
 
-!!! todo "TODO"
-    Add stability image
+The figure shows this for a wheel with its speed controller: the input is the target speed, and the output is the wheel's speed.
+Follow the two outputs after the input's step: the stable system's output (solid line) settles and stays below its bound, the dotted line, and the unstable system's output (dashed line) passes the bound and keeps growing.
+
+--8<-- "includes/control-systems-stability.html"
+
+On a real robot, the unstable wheel's speed would not grow forever: it would run away to the fastest speed that the motor can reach.
 
 In other words, if finite energy is provided to the system, then finite energy should exit the system.
 
-
-!!! todo "TODO"
-    Add stability I/O image
-
-According to the definition of stability provided (BIBO stability), 
-a system goes unstable when an output of the system diverges (always continues growing in time), 
-when provided with a finite energy input. When defining the output as "distance from the center of the lane", 
+According to the definition of stability provided (BIBO stability),
+a system goes unstable when an output of the system diverges (always continues growing in time),
+when provided with a finite energy input. When defining the output as "distance from the center of the lane",
 driving outside of the road would be an example of instability.
-
-<div class="row">
-  <div class="column">
-    <script type="text/tikz">
-  \begin{tikzpicture}
-    % Draw axes
-    \draw[help lines, color=gray!30, dashed] (-0.1,-0.1) grid (3.0,2.0);
-    \draw [<->,thick] (0,2) node (a) [above] {$y$}
-        |- (3,0) node (b) [right] {$x$};
-    % Draw two intersecting lines
-    \draw[color=red] (0,0) -- (0,1.5) coordinate (b_1) -- (2.5,1.5) coordinate (b_2);
-  \end{tikzpicture}
-    </script>
-  </div>
-  <div class="column">
-      <script type="text/tikz">    
-\begin{tikzpicture}[node distance=2.5cm,auto]
-    \node [draw, fill=blue!20, minimum size=2em, pin={[pin edge={to-,thin,black}]above:$v_0$}] (a) {$\frac{1}{s}$};
-    \node (b) [left of=a,node distance=2cm, coordinate] {a};
-    \node [draw, fill=blue!20, minimum size=2em, pin={[pin edge={to-,thin,black}]above:$p_0$}] (c) [right of=a] {$\frac{1}{s}$};
-    \node [coordinate] (end) [right of=c, node distance=2cm]{};
-    \path[->] (b) edge node {$a$} (a);
-    \path[->] (a) edge node {$v$} (c);
-    \draw[->] (c) edge node {$p$} (end);
-\end{tikzpicture}
-    </script>
-  </div>
-  <div class="column">
-      <script type="text/tikz">
-  \begin{tikzpicture}
-    % Draw axes
-    \draw[help lines, color=gray!30, dashed] (-0.1,-0.1) grid (3.0,2.0);
-    \draw [<->,thick] (0,2) node (a) [above] {$y$}
-        |- (3,0) node (b) [right] {$x$};
-    % Draw two intersecting lines
-    \draw[color=red] (0,0) -- (0,1.5) coordinate (b_1) -- (2.5,1.5) coordinate (b_2);
-  \end{tikzpicture}
-    </script>
-  </div>
-</div>
-
-<script type="text/tikz">    
-\begin{tikzpicture}[node distance=2.5cm,auto]
-    \node [draw, fill=blue!20, minimum size=2em, pin={[pin edge={to-,thin,black}]above:$v_0$}] (a) {$\frac{1}{s}$};
-    \node (b) [left of=a,node distance=2cm, coordinate] {a};
-    \node [draw, fill=blue!20, minimum size=2em, pin={[pin edge={to-,thin,black}]above:$p_0$}] (c) [right of=a] {$\frac{1}{s}$};
-    \node [coordinate] (end) [right of=c, node distance=2cm]{};
-    \path[->] (b) edge node {$a$} (a);
-    \path[->] (a) edge node {$v$} (c);
-    \draw[->] (c) edge node {$p$} (end);
-\end{tikzpicture}
-</script>
-
 
 ### Performance
 

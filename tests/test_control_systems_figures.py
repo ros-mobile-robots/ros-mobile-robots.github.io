@@ -5,6 +5,7 @@ The script writes the figures of the Introduction to Control Systems page.
 Run from the repository root: python -m unittest discover -s tests
 """
 
+import math
 import os
 from pathlib import Path
 import re
@@ -22,10 +23,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts' / 'figures'))
 
 import control_systems_figures  # noqa: E402
+from control_systems_figures import LineKind  # noqa: E402
+from control_systems_figures import Point  # noqa: E402
 
 SCRIPT = ROOT / 'scripts' / 'figures' / 'control_systems_figures.py'
 INCLUDE_NAMES = ['control-systems-agent.html', 'control-systems-closed-loop.html',
-                 'control-systems-open-loop.html', 'control-systems-system.html']
+                 'control-systems-open-loop.html', 'control-systems-stability.html',
+                 'control-systems-system.html']
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
@@ -296,6 +300,35 @@ def arrow_segments(svg: str) -> List[Segment]:
             if 'arrow' in css_classes(path) for segment in path_segments(path.get('d', ''))]
 
 
+def drawn_lines(svg: str, kind: LineKind) -> List[List[Point]]:
+    """Return the points of each of a drawing's lines of one kind, in the order of the lines."""
+    return [[Point(*(float(number) for number in pair.split(',')))
+             for pair in line.get('points', '').split()]
+            for line in ElementTree.fromstring(svg).iter('polyline')
+            if kind.value in css_classes(line)]
+
+
+def points_along(line: List[Point]) -> List[Point]:
+    """Return points on a drawn line that are at most 1 px apart, its own points included."""
+    points = line[:1]
+    for start, end in zip(line, line[1:]):
+        steps = math.ceil(math.hypot(end.x - start.x, end.y - start.y)) or 1
+        points += [Point(start.x + (end.x - start.x) * step / steps,
+                         start.y + (end.y - start.y) * step / steps)
+                   for step in range(1, steps + 1)]
+    return points
+
+
+def highest_y(line: List[Point]) -> float:
+    """Return the y coordinate of a line's highest point. In a drawing, y grows downwards."""
+    return min(point.y for point in line)
+
+
+def height_at_its_end(line: List[Point]) -> float:
+    """Return how far a signal's line ends above its lowest point, the value 0 on its time axis."""
+    return max(point.y for point in line) - line[-1].y
+
+
 def segments_against_the_first_arrow(svg: str) -> List[Segment]:
     """Return the pieces of a drawing's arrows that run against the direction of its first arrow.
 
@@ -313,6 +346,8 @@ def every_layout() -> Dict[str, str]:
     figures = [control_systems_figures.system_figure(),
                control_systems_figures.wide_open_loop_figure(),
                control_systems_figures.open_loop_figure(),
+               control_systems_figures.wide_stability_figure(),
+               control_systems_figures.stability_figure(),
                control_systems_figures.wide_closed_loop_figure(),
                control_systems_figures.closed_loop_figure(),
                control_systems_figures.agent_figure()]
@@ -357,6 +392,255 @@ class TestEveryDrawing(unittest.TestCase):
                                                max(segment.x1, segment.x2),
                                                max(segment.y1, segment.y2)))]
             self.assertEqual(outside, [], name)
+
+    def test_every_line_of_a_plot_stays_inside_its_drawing(self) -> None:
+        for name, svg in every_layout().items():
+            frame = viewbox(svg)
+            outside = [point for kind in LineKind for line in drawn_lines(svg, kind)
+                       for point in line if not frame.holds(Area(*point, *point))]
+            self.assertEqual(outside, [], name)
+
+    def test_no_line_of_a_plot_crosses_a_text(self) -> None:
+        for name, svg in every_layout().items():
+            texts = drawn_texts(svg)
+            points = [point for kind in LineKind for line in drawn_lines(svg, kind)
+                      for point in points_along(line)]
+            crossed = {drawn.text for drawn in texts for point in points
+                       if drawn.area.holds(Area(*point, *point))}
+            self.assertEqual(crossed, set(), name)
+
+
+class TestLineKinds(unittest.TestCase):
+    """Each kind of line in the plots has a look of its own that doesn't rest on a color."""
+
+    def test_every_line_kind_has_a_style_rule_with_a_stroke(self) -> None:
+        for kind in LineKind:
+            self.assertIsNotNone(declaration_of(kind.value, 'stroke'), kind)
+
+    def test_no_two_line_kinds_share_their_width_and_their_pattern(self) -> None:
+        looks = [(declaration_of(kind.value, 'stroke-width'),
+                  declaration_of(kind.value, 'stroke-dasharray')) for kind in LineKind]
+        self.assertEqual(len(set(looks)), len(looks), looks)
+
+    def test_only_the_signals_line_is_solid(self) -> None:
+        solid = [kind for kind in LineKind
+                 if declaration_of(kind.value, 'stroke-dasharray') is None]
+        self.assertEqual(solid, [LineKind.SIGNAL])
+
+
+class TestPlot(unittest.TestCase):
+    """A plot maps times and values to points of its area, and samples a signal along it."""
+
+    def setUp(self) -> None:
+        self.plot = control_systems_figures.Plot(left=40, top=20, width=300, height=120,
+                                                 duration=1.5, highest=2.0)
+
+    def test_time_zero_and_value_zero_are_at_the_lower_left_corner(self) -> None:
+        self.assertEqual(self.plot.point(0, 0), Point(self.plot.left, self.plot.bottom))
+
+    def test_the_duration_and_the_highest_value_are_at_the_upper_right_corner(self) -> None:
+        self.assertEqual(self.plot.point(self.plot.duration, self.plot.highest),
+                         Point(self.plot.right, self.plot.top))
+
+    def test_half_the_highest_value_is_halfway_up(self) -> None:
+        halfway_up = self.plot.top + self.plot.height / 2
+        self.assertEqual(self.plot.y_at(self.plot.highest / 2), halfway_up)
+
+    def test_sampled_line_runs_from_time_zero_to_the_end_time(self) -> None:
+        end_time = 0.9
+        line = control_systems_figures.sampled(self.plot, math.sin, end_time)
+        self.assertEqual(line[0], self.plot.point(0, math.sin(0)))
+        self.assertEqual(line[-1], self.plot.point(end_time, math.sin(end_time)))
+
+    def test_sampled_lines_points_are_no_further_apart_than_the_sample_step(self) -> None:
+        line = control_systems_figures.sampled(self.plot, math.sin, self.plot.duration)
+        rounding = 0.1
+        for earlier, later in zip(line, line[1:]):
+            self.assertLessEqual(later.x - earlier.x,
+                                 control_systems_figures.SAMPLE_STEP + rounding)
+
+
+class TestResponses(unittest.TestCase):
+    """The example systems answer a step of their input as their formulas say."""
+
+    def test_step_response_is_zero_until_the_step(self) -> None:
+        before_the_step = -0.2
+        for time in (before_the_step, 0):
+            self.assertEqual(
+                control_systems_figures.step_response(control_systems_figures.SETTLING, time), 0)
+
+    def test_step_response_peaks_at_the_textbook_overshoot(self) -> None:
+        system = control_systems_figures.SecondOrder(natural_frequency=8, damping_ratio=0.5)
+        damped = math.sqrt(1 - system.damping_ratio ** 2)
+        peak_time = math.pi / (system.natural_frequency * damped)
+        overshoot = math.exp(-math.pi * system.damping_ratio / damped)
+        self.assertAlmostEqual(control_systems_figures.step_response(system, peak_time),
+                               1 + overshoot)
+
+    def test_step_response_a_quarter_swing_after_the_step_has_the_textbook_value(self) -> None:
+        # There the cosine part is zero, and only the sine part is left
+        system = control_systems_figures.SecondOrder(natural_frequency=8, damping_ratio=0.5)
+        damped = math.sqrt(1 - system.damping_ratio ** 2)
+        quarter_swing = math.pi / 2 / (system.natural_frequency * damped)
+        faded = math.exp(-system.damping_ratio * system.natural_frequency * quarter_swing)
+        self.assertAlmostEqual(control_systems_figures.step_response(system, quarter_swing),
+                               1 - faded * system.damping_ratio / damped)
+
+    def test_step_response_settles_at_one(self) -> None:
+        long_after_the_step = 10
+        self.assertAlmostEqual(control_systems_figures.step_response(
+            control_systems_figures.SETTLING, long_after_the_step), 1)
+
+    def test_runaway_response_is_zero_until_the_step(self) -> None:
+        before_the_step = -0.2
+        for time in (before_the_step, 0):
+            self.assertEqual(control_systems_figures.runaway_response(time), 0)
+
+    def test_runaway_response_grows_by_the_same_factor_in_equal_times(self) -> None:
+        # The output plus 1 is an exponential function of time
+        interval = 0.25
+        grown = [control_systems_figures.runaway_response(count * interval) + 1
+                 for count in (1, 2, 3)]
+        self.assertAlmostEqual(grown[1] / grown[0], grown[2] / grown[1])
+        self.assertGreater(grown[1] / grown[0], 1)
+
+    def test_runaway_time_is_when_the_runaway_response_reaches_the_value(self) -> None:
+        value = 2.2
+        reached_at = control_systems_figures.runaway_time(value)
+        self.assertAlmostEqual(control_systems_figures.runaway_response(reached_at), value)
+
+
+class StabilityLines(NamedTuple):
+    """The lines of one layout of the stability figure."""
+
+    input_bound: List[Point]
+    input_signal: List[Point]
+    output_bound: List[Point]
+    stable_output: List[Point]
+    unstable_output: List[Point]
+
+
+def stability_lines(svg: str) -> StabilityLines:
+    """Return the lines of a layout of the stability figure: the input's plot is drawn first."""
+    input_bound, output_bound = drawn_lines(svg, LineKind.BOUND)
+    input_signal, stable_output = drawn_lines(svg, LineKind.SIGNAL)
+    unstable_output, = drawn_lines(svg, LineKind.UNSTABLE)
+    return StabilityLines(input_bound, input_signal, output_bound, stable_output,
+                          unstable_output)
+
+
+# How far two coordinates of a drawing may differ and still count as the same: they are rounded
+# to a tenth of a px
+ROUNDING = 0.11
+
+
+class TestStability(unittest.TestCase):
+    """Both layouts show a bounded input, a stable output that stays bounded and an unstable one.
+
+    The unstable output passes its bound and keeps growing.
+    """
+
+    def setUp(self) -> None:
+        self.wide = control_systems_figures.wide_stability_figure().svg()
+        self.tall = control_systems_figures.stability_figure().svg()
+        self.layouts = (stability_lines(self.wide), stability_lines(self.tall))
+        self.include = (ROOT / 'includes' / 'control-systems-stability.html').read_text(
+            encoding='utf-8')
+
+    def test_include_holds_the_wide_layout_then_the_tall_one_and_one_caption(self) -> None:
+        self.assertIn('<figure class="cs-figure cs-has-wide" id="stability-figure">',
+                      self.include)
+        self.assertLess(self.include.index(self.wide), self.include.index(self.tall))
+        self.assertEqual(self.include.count('<figcaption>'), 1)
+
+    def test_caption_says_that_the_curves_are_no_measurement(self) -> None:
+        self.assertIn('an example, not a measurement of the robot', self.include)
+
+    def test_each_bound_is_a_level_line(self) -> None:
+        for lines in self.layouts:
+            for bound in (lines.input_bound, lines.output_bound):
+                self.assertEqual(len({point.y for point in bound}), 1)
+
+    def test_input_steps_up_once_and_stays_below_its_bound(self) -> None:
+        for lines in self.layouts:
+            levels = [point.y for point in lines.input_signal]
+            self.assertEqual(levels, sorted(levels, reverse=True))
+            self.assertEqual(len(set(levels)), 2)
+            self.assertGreater(highest_y(lines.input_signal), lines.input_bound[0].y)
+
+    def test_stable_output_stays_below_its_bound(self) -> None:
+        for lines in self.layouts:
+            self.assertGreater(highest_y(lines.stable_output), lines.output_bound[0].y)
+
+    def test_stable_output_settles_at_the_inputs_level(self) -> None:
+        for lines in self.layouts:
+            self.assertAlmostEqual(height_at_its_end(lines.stable_output),
+                                   height_at_its_end(lines.input_signal), delta=1)
+            last_tenth = lines.stable_output[-len(lines.stable_output) // 10:]
+            self.assertLess(max(point.y for point in last_tenth)
+                            - min(point.y for point in last_tenth), 1)
+
+    def test_unstable_output_starts_below_its_bound_and_ends_above_it(self) -> None:
+        for lines in self.layouts:
+            self.assertGreater(lines.unstable_output[0].y, lines.output_bound[0].y)
+            self.assertLess(lines.unstable_output[-1].y, lines.output_bound[0].y)
+
+    def test_unstable_output_ends_above_every_point_of_the_stable_output(self) -> None:
+        for lines in self.layouts:
+            self.assertLess(lines.unstable_output[-1].y, highest_y(lines.stable_output))
+
+    def test_unstable_output_never_falls_and_rises_ever_faster(self) -> None:
+        for lines in self.layouts:
+            rises = [earlier.y - later.y for earlier, later
+                     in zip(lines.unstable_output, lines.unstable_output[1:])]
+            self.assertGreaterEqual(min(rises), 0)
+            for earlier_rise, later_rise in zip(rises, rises[1:]):
+                self.assertGreaterEqual(later_rise, earlier_rise - 2 * ROUNDING)
+            self.assertGreater(rises[-1], rises[len(rises) // 2])
+
+    def test_unstable_output_is_still_rising_where_its_line_ends(self) -> None:
+        for lines in self.layouts:
+            self.assertLess(lines.unstable_output[-1].y, lines.unstable_output[-2].y)
+            self.assertLess(lines.unstable_output[-1].x, lines.output_bound[-1].x)
+
+    def test_both_outputs_start_to_rise_where_the_input_steps_in_the_tall_layout(self) -> None:
+        lines = self.layouts[1]
+        step_x = next(point.x for point in lines.input_signal
+                      if point.y < lines.input_signal[0].y)
+        for output in (lines.stable_output, lines.unstable_output):
+            rises_from = max(point.x for point in output if point.y == output[0].y)
+            self.assertAlmostEqual(rises_from, step_x,
+                                   delta=control_systems_figures.SAMPLE_STEP + ROUNDING)
+
+    def test_both_bounds_are_at_the_same_height_in_the_wide_layout(self) -> None:
+        lines = self.layouts[0]
+        self.assertEqual(lines.input_bound[0].y, lines.output_bound[0].y)
+
+    def test_both_layouts_name_the_plots_the_bounds_and_the_two_outputs(self) -> None:
+        for svg in (self.wide, self.tall):
+            texts = texts_of(svg)
+            for text in ('input', 'target wheel speed', 'output', 'wheel speed', 'System',
+                         'stable:', 'stays bounded', 'unstable:', 'keeps growing'):
+                self.assertEqual(texts.count(text), 1, text)
+            self.assertEqual(texts.count('bound'), 2)
+            self.assertEqual(texts.count('time'), 2)
+
+    def test_the_unstable_outputs_name_stands_next_to_the_end_of_its_line(self) -> None:
+        for svg, lines in zip((self.wide, self.tall), self.layouts):
+            name = next(drawn for drawn in drawn_texts(svg) if drawn.text == 'unstable:')
+            line_end = lines.unstable_output[-1]
+            nearest = 24
+            self.assertLess(math.hypot(name.area.left - line_end.x, name.area.top - line_end.y),
+                            nearest)
+
+    def test_the_stable_outputs_name_stands_right_below_the_end_of_its_line(self) -> None:
+        for svg, lines in zip((self.wide, self.tall), self.layouts):
+            name = next(drawn for drawn in drawn_texts(svg) if drawn.text == 'stable:')
+            line_end = lines.stable_output[-1]
+            nearest = 12
+            self.assertEqual(round(name.area.right), round(line_end.x))
+            self.assertLess(name.area.top - line_end.y, nearest)
+            self.assertGreater(name.area.top, line_end.y)
 
 
 # The open loop's chain, from its first signal to its last

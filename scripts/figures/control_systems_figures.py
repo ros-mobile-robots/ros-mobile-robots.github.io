@@ -7,6 +7,9 @@ All are inline SVG that follows the site's light and dark colors:
 - includes/control-systems-open-loop.html: an open loop, the chain from the reference through the
   controller, the actuators and the process to the outputs, with no path back. It holds a wide
   layout, with the chain to the right, and a tall one for phones, with the chain down;
+- includes/control-systems-stability.html: a bounded input and the outputs of a stable and of an
+  unstable system over time, with the system between the two plots. In the wide layout the plots
+  stand side by side, in the tall one the input's plot stands above the outputs';
 - includes/control-systems-closed-loop.html: the same system with a controller that closes the
   loop from the observations back to the commands. It holds two layouts of the figure, a wide one
   for wider screens, with the forward path to the right and the feedback path back below it, and
@@ -17,15 +20,22 @@ All are inline SVG that follows the site's light and dark colors:
 
 Each figure element has an id (FIGURE_IDS), so that the page can link to the figure itself.
 
-The black words are the page's general terms. The blue words in the first two figures are one
-example, the speed control of a wheel of the robots, which docs/packages/diffbot_base/pid.md
-explains with the firmware's code.
+The black words are the page's general terms. The blue words are one example, the speed control
+of a wheel of the robots, which docs/packages/diffbot_base/pid.md explains with the firmware's
+code.
+
+The curves of the plots are example curves, computed here from two textbook systems. They are no
+measurements and no model of the robots' wheel control. Speeds are in units of the target speed,
+and no plot shows a number.
 
 Run from the repository root after changing a figure:
 
     python3 scripts/figures/control_systems_figures.py
 """
 
+from enum import Enum
+import math
+from typing import Callable
 from typing import List
 from typing import NamedTuple
 from typing import Optional
@@ -63,6 +73,7 @@ WIDE_RIGHT_WIDTH = 156
 FIGURE_IDS = {
     'includes/control-systems-system.html': 'system-figure',
     'includes/control-systems-open-loop.html': 'open-loop-figure',
+    'includes/control-systems-stability.html': 'stability-figure',
     'includes/control-systems-closed-loop.html': 'closed-loop-figure',
     'includes/control-systems-agent.html': 'agent-figure',
 }
@@ -121,6 +132,96 @@ OPEN_WIDE_ROW = 66
 OPEN_WIDE_START = 4
 OPEN_WIDE_GAP = 48
 
+
+class LineKind(Enum):
+    """The kinds of lines in the plots, by their CSS class.
+
+    Each kind has its own weight and pattern (RULES), so that no meaning rests on a color.
+    """
+
+    SIGNAL = 'signal'      # thick, solid: a signal over time
+    UNSTABLE = 'unstable'  # thick, dashed: the output of an unstable system
+    BOUND = 'bound'        # thin, dotted: a value that a bounded signal never passes
+
+
+class Point(NamedTuple):
+    """A point of a drawing, in px."""
+
+    x: float
+    y: float
+
+
+class Plot(NamedTuple):
+    """A plot of signals over time: where it lies in a drawing, in px, and what its axes span.
+
+    The time axis lies on the lower edge and spans duration, in s. The value axis stands on the
+    left edge and spans highest, in units of the target speed, from 0 at the lower edge.
+    """
+
+    left: float
+    top: float
+    width: float
+    height: float
+    duration: float
+    highest: float
+
+    @property
+    def right(self) -> float:
+        """Return the x coordinate of the plot's right edge."""
+        return self.left + self.width
+
+    @property
+    def bottom(self) -> float:
+        """Return the y coordinate of the plot's lower edge, where the time axis lies."""
+        return self.top + self.height
+
+    def x_at(self, time: float) -> float:
+        """Return the x coordinate of a time."""
+        return round(self.left + self.width * time / self.duration, 1)
+
+    def y_at(self, value: float) -> float:
+        """Return the y coordinate of a value."""
+        return round(self.bottom - self.height * value / self.highest, 1)
+
+    def point(self, time: float, value: float) -> Point:
+        """Return the point of a value at a time."""
+        return Point(self.x_at(time), self.y_at(value))
+
+
+class SecondOrder(NamedTuple):
+    """A textbook system of second order, the example for a system that settles.
+
+    Its output follows a step of its input the faster, the higher the natural frequency is. With
+    a damping ratio between 0 and 1, the output swings past its final value once and then settles.
+    """
+
+    natural_frequency: float  # rad/s
+    damping_ratio: float
+
+
+# The example of the stability figure. The target speed steps from 0 to 1 at STEP_TIME and stays
+# there, below INPUT_BOUND. The stable system is SETTLING: its output stays below OUTPUT_BOUND.
+# The unstable system's output grows faster the larger it is, with the time constant
+# RUNAWAY_TIME, so it passes any bound. Both plots have the same scale, SPEED_SCALE
+STABILITY_TITLE = ('A bounded input, a step of the target wheel speed, goes into a system. The '
+                   "output of a stable system, the wheel's speed, settles and stays bounded. "
+                   'The output of an unstable system keeps growing and passes the bound')
+STABILITY_DURATION = 1.5  # s
+STEP_TIME = 0.15  # s
+SETTLING = SecondOrder(natural_frequency=10, damping_ratio=0.7)
+RUNAWAY_TIME = 0.6  # s
+INPUT_BOUND = 1.4
+OUTPUT_BOUND = 1.4
+INPUT_HIGHEST = 1.6
+OUTPUT_HIGHEST = 2.2
+SPEED_SCALE = 60  # px for the target speed
+SYSTEM_BOX: Sequence[Line] = (('System', 'name'), ('wheel with its controller', 'example'))
+# The spacing of the plots' parts, in px: between two points of a sampled curve, from the end of
+# an axis to its arrowhead, and between the lines of a label
+SAMPLE_STEP = 2
+AXIS_OVERHANG = 8
+LINE_SPACING = 14
+
 FG = 'var(--md-default-fg-color)'
 FG_LIGHT = 'var(--md-default-fg-color--light)'
 RULES = (
@@ -145,6 +246,12 @@ RULES = (
     ('.cs-fig .sign', 'font-size:15px;font-weight:700'),
     ('.cs-fig .example', 'fill:var(--cs-example)'),
     ('.cs-fig .legend', 'fill:var(--cs-example)'),
+    (f'.cs-fig .{LineKind.SIGNAL.value}',
+     f'fill:none;stroke:{FG};stroke-width:2;stroke-linejoin:round'),
+    (f'.cs-fig .{LineKind.UNSTABLE.value}',
+     f'fill:none;stroke:{FG};stroke-width:2;stroke-linejoin:round;stroke-dasharray:7 4'),
+    (f'.cs-fig .{LineKind.BOUND.value}',
+     f'fill:none;stroke:{FG_LIGHT};stroke-width:1;stroke-dasharray:2 3'),
 )
 
 
@@ -193,6 +300,22 @@ class Figure:
         """Add a line along an SVG path, with an arrowhead at its end."""
         self.elements.append(
             f'<path class="arrow" d="{path}" marker-end="url(#{self.name}-head)"/>')
+
+    def curve(self, points: Sequence[Point], kind: LineKind) -> None:
+        """Add a line of one kind through points."""
+        path = ' '.join(f'{point.x},{point.y}' for point in points)
+        self.elements.append(f'<polyline class="{kind.value}" points="{path}"/>')
+
+    def axes(self, plot: Plot) -> None:
+        """Add the value axis and the time axis of a plot, and the time axis's name."""
+        self.arrow(f'M{plot.left},{plot.bottom} V{plot.top - AXIS_OVERHANG}')
+        self.arrow(f'M{plot.left},{plot.bottom} H{plot.right + AXIS_OVERHANG}')
+        self.text(plot.right + AXIS_OVERHANG, plot.bottom + LINE_SPACING, 'time', anchor='end')
+
+    def label(self, x: float, y: float, lines: Sequence[str], anchor: str = 'start') -> None:
+        """Add a label of one or more lines of text, the first one at y."""
+        for index, line in enumerate(lines):
+            self.text(x, y + index * LINE_SPACING, line, anchor=anchor)
 
     def text(self, x: float, y: float, text: str, css_class: str = '',
              anchor: str = 'start') -> None:
@@ -281,6 +404,135 @@ def wide_open_loop_figure() -> Figure:
     figure.arrow(f'M{arrow_start},{OPEN_WIDE_ROW} H{WIDE_WIDTH - OPEN_WIDE_START}')
     figure.signal(arrow_start + 6, label_y, OPEN_LOOP_OUTPUTS.name, OPEN_LOOP_OUTPUTS.example)
     figure.text(WIDE_WIDTH / 2, OPEN_WIDE_HEIGHT - 8, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def step_response(system: SecondOrder, time: float) -> float:
+    """Return the output of a system at a time after its input stepped from 0 to 1.
+
+    At the step and before it, the output is 0.
+    """
+    if time <= 0:
+        return 0.0
+    decay_rate = system.damping_ratio * system.natural_frequency
+    swing_frequency = system.natural_frequency * math.sqrt(1 - system.damping_ratio ** 2)
+    swing = (math.cos(swing_frequency * time)
+             + decay_rate / swing_frequency * math.sin(swing_frequency * time))
+    return 1 - math.exp(-decay_rate * time) * swing
+
+
+def runaway_response(time: float) -> float:
+    """Return the output of the unstable system at a time after its input stepped from 0 to 1.
+
+    At the step and before it, the output is 0.
+    """
+    return math.expm1(time / RUNAWAY_TIME) if time > 0 else 0.0
+
+
+def runaway_time(output: float) -> float:
+    """Return the time after the step at which the unstable system's output reaches a value."""
+    return RUNAWAY_TIME * math.log1p(output)
+
+
+def stable_output(time: float) -> float:
+    """Return the stable system's output at a time of the stability figure."""
+    return step_response(SETTLING, time - STEP_TIME)
+
+
+def unstable_output(time: float) -> float:
+    """Return the unstable system's output at a time of the stability figure."""
+    return runaway_response(time - STEP_TIME)
+
+
+def sampled(plot: Plot, signal: Callable[[float], float], end: float) -> List[Point]:
+    """Return the points of a signal on a plot from time 0 to end, about SAMPLE_STEP px apart."""
+    steps = math.ceil(plot.width * end / plot.duration / SAMPLE_STEP)
+    times = [end * step / steps for step in range(steps + 1)]
+    return [plot.point(time, signal(time)) for time in times]
+
+
+def bound_line(figure: Figure, plot: Plot, bound: float) -> None:
+    """Add a bound to a plot: a dotted line over the whole time, with its name below its end."""
+    figure.curve([plot.point(0, bound), plot.point(plot.duration, bound)], LineKind.BOUND)
+    figure.text(plot.right, plot.y_at(bound) + 13, 'bound', anchor='end')
+
+
+def stability_input_plot(figure: Figure, plot: Plot) -> None:
+    """Add the plot of the bounded input: the target speed steps up once and stays."""
+    figure.axes(plot)
+    bound_line(figure, plot, INPUT_BOUND)
+    step = [plot.point(0, 0), plot.point(STEP_TIME, 0), plot.point(STEP_TIME, 1),
+            plot.point(plot.duration, 1)]
+    figure.curve(step, LineKind.SIGNAL)
+    figure.signal(plot.x_at(0.3 * plot.duration), plot.y_at(1) + 20, 'input',
+                  'target wheel speed')
+
+
+def stability_output_plot(figure: Figure, plot: Plot) -> None:
+    """Add the plot of the two outputs: the stable one settles, the unstable one leaves the plot.
+
+    The unstable output's line ends where it reaches the plot's upper edge.
+    """
+    leaves_at = STEP_TIME + runaway_time(plot.highest)
+    figure.axes(plot)
+    bound_line(figure, plot, OUTPUT_BOUND)
+    figure.curve(sampled(plot, stable_output, plot.duration), LineKind.SIGNAL)
+    figure.curve(sampled(plot, unstable_output, leaves_at), LineKind.UNSTABLE)
+    figure.signal(plot.left + 8, plot.top + 10, 'output', 'wheel speed')
+    figure.label(plot.x_at(leaves_at) + 10, plot.top + 10, ['unstable:', 'keeps growing'])
+    figure.label(plot.right, plot.y_at(1) + 18, ['stable:', 'stays bounded'], 'end')
+
+
+def stability_plots(left: float, input_top: float, input_width: float, output_left: float,
+                    output_top: float, output_width: float) -> Tuple[Plot, Plot]:
+    """Return the input's plot and the outputs' plot of the stability figure, at one scale."""
+    return (Plot(left, input_top, input_width, INPUT_HIGHEST * SPEED_SCALE, STABILITY_DURATION,
+                 INPUT_HIGHEST),
+            Plot(output_left, output_top, output_width, OUTPUT_HIGHEST * SPEED_SCALE,
+                 STABILITY_DURATION, OUTPUT_HIGHEST))
+
+
+def stability_figure() -> Figure:
+    """Return the tall layout of the stability figure, for phones.
+
+    The input's plot stands above the system's box and the outputs' plot below it. Both plots
+    have the same time axis, so the step is at the same place in both.
+    """
+    input_plot, output_plot = stability_plots(left=44, input_top=20, input_width=300,
+                                              output_left=44, output_top=238, output_width=300)
+    box_y = input_plot.bottom + 42
+    height = round(output_plot.bottom + 46)
+    figure = Figure('cs-stability', height, STABILITY_TITLE, layout='cs-fig-tall')
+    stability_input_plot(figure, input_plot)
+    figure.arrow(f'M{SYSTEM_X},{box_y - 20} V{box_y - 1}')
+    figure.box(box_y, SYSTEM_BOX, x=SYSTEM_X - BOX_WIDTH / 2)
+    figure.arrow(f'M{SYSTEM_X},{box_y + BOX_HEIGHT} V{box_y + BOX_HEIGHT + 19}')
+    stability_output_plot(figure, output_plot)
+    figure.text(WIDTH / 2, height - 6, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def wide_stability_figure() -> Figure:
+    """Return the wide layout of the stability figure: input, system and outputs in a row.
+
+    Both time axes lie at the same height, and the arrows through the system's box run at the
+    height of the target speed.
+    """
+    time_axis_y = 176
+    box_x, row = 270, time_axis_y - SPEED_SCALE
+    input_plot, output_plot = stability_plots(
+        left=40, input_top=time_axis_y - INPUT_HIGHEST * SPEED_SCALE, input_width=194,
+        output_left=446, output_top=time_axis_y - OUTPUT_HIGHEST * SPEED_SCALE,
+        output_width=218)
+    height = time_axis_y + 46
+    figure = Figure('cs-stability-wide', height, STABILITY_TITLE, width=WIDE_WIDTH,
+                    layout='cs-fig-wide')
+    stability_input_plot(figure, input_plot)
+    figure.arrow(f'M{input_plot.right + AXIS_OVERHANG + 4},{row} H{box_x}')
+    figure.box(row - BOX_HEIGHT / 2, SYSTEM_BOX, x=box_x, width=WIDE_CONTROLLER_WIDTH)
+    figure.arrow(f'M{box_x + WIDE_CONTROLLER_WIDTH},{row} H{output_plot.left - 8}')
+    stability_output_plot(figure, output_plot)
+    figure.text(WIDE_WIDTH / 2, height - 8, LEGEND, 'legend', 'middle')
     return figure
 
 
@@ -409,6 +661,10 @@ def main() -> None:
                   [wide_open_loop_figure(), open_loop_figure()],
                   'An open loop. Follow the arrows from the reference to the outputs. No arrow '
                   "leads back from the wheel's speed to the controller.")
+    write_include('includes/control-systems-stability.html',
+                  [wide_stability_figure(), stability_figure()],
+                  'Bounded input, bounded output. The same input goes into a stable and into an '
+                  'unstable system. The curves are an example, not a measurement of the robot.')
     write_include('includes/control-systems-closed-loop.html',
                   [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '
