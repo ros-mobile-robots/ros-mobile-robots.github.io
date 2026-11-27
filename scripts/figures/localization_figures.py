@@ -754,23 +754,35 @@ def figure_element(parts: Sequence[str], caption: str, css_class: str) -> str:
             + f'\n<figcaption>{caption}</figcaption>\n</figure>')
 
 
+def comment_line(comment: str) -> str:
+    """Return the line that starts an include with a comment, or nothing without a comment."""
+    return f'{comment}\n' if comment else ''
+
+
 def write_parts(path: str, parts: Sequence[str], caption: str,
-                rules: Sequence[Tuple[str, str]] = RULES, css_class: str = '') -> None:
-    """Write an include with the CSS rules, a figure of SVG and HTML parts, and its caption."""
+                rules: Sequence[Tuple[str, str]] = RULES, css_class: str = '',
+                comment: str = '') -> None:
+    """Write an include with the CSS rules, a figure of SVG and HTML parts, and its caption.
+
+    comment is an HTML comment that names the script, which then starts the include.
+    """
     with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{style_element(rules)}\n{figure_element(parts, caption, css_class)}\n')
+        include.write(f'{comment_line(comment)}{style_element(rules)}\n'
+                      f'{figure_element(parts, caption, css_class)}\n')
 
 
 def write_layout_parts(path: str, parts: Sequence[str], caption: str,
-                       rules: Sequence[Tuple[str, str]], css_class: str) -> None:
+                       rules: Sequence[Tuple[str, str]], css_class: str,
+                       comment: str = '') -> None:
     """Write an include of a figure whose drawings each have a narrow and a wide layout.
 
     The figure stands in a block of the class LAYOUT_SPACE, whose width decides which layout
-    shows (LAYOUT_RULES, which the function adds to rules).
+    shows (LAYOUT_RULES, which the function adds to rules). comment is an HTML comment that
+    names the script, which then starts the include.
     """
     figure = figure_element(parts, caption, f'{css_class} lv-layouts')
     with open(path, 'w', encoding='utf-8') as include:
-        include.write(f'{style_element(tuple(rules) + LAYOUT_RULES)}\n'
+        include.write(f'{comment_line(comment)}{style_element(tuple(rules) + LAYOUT_RULES)}\n'
                       f'<div class="{LAYOUT_SPACE}">\n{figure}\n</div>\n')
 
 

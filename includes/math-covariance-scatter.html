@@ -1,0 +1,1089 @@
+<!-- Written by scripts/figures/math_basics_figures.py -->
+<style>
+.md-typeset figure.lv-figure{margin:1em auto;width:100%;max-width:24rem}
+.lv-figure,.lv-fig{--lv-good:#0ca30c;--lv-bad:#d03b3b;--lv-good-fill:rgba(12,163,12,.13);--lv-bad-fill:rgba(208,59,59,.10);--lv-wheels:#2a78d6;--lv-imu:#eb6834;--lv-estimate:#1baf7a}
+[data-md-color-scheme=slate] .lv-figure,[data-md-color-scheme=slate] .lv-fig{--lv-good-fill:rgba(12,163,12,.22);--lv-bad-fill:rgba(208,59,59,.20);--lv-wheels:#3987e5;--lv-imu:#d95926;--lv-estimate:#199e70}
+.lv-fig{width:100%;height:auto;font-family:var(--md-text-font-family,Roboto),sans-serif}
+.lv-fig text{fill:var(--md-default-fg-color);font-size:10px}
+.lv-fig .band{font-weight:700}
+.lv-fig .name{font-size:11px}
+.lv-fig .mono{font-family:var(--md-code-font-family,"Roboto Mono"),monospace;font-size:9.5px}
+.lv-fig .note{font-size:9.5px;fill:var(--md-default-fg-color--light)}
+.lv-fig .strong{font-weight:700}
+.lv-fig .item{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .axis{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-fig .tick{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .now{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.6}
+.lv-fig .dimension{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-fig .pass-zone{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1}
+.lv-fig .drop-zone{fill:var(--lv-bad-fill);stroke:none}
+.lv-fig .pass-mark{fill:var(--md-default-bg-color);stroke:var(--lv-good);stroke-width:1.8}
+.lv-fig .drop-mark{fill:var(--md-default-bg-color);stroke:var(--lv-bad);stroke-width:1.8;stroke-dasharray:2.6 1.8}
+.lv-fig .letter{font-size:9px;font-weight:700}
+.lv-fig .cell{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:.8}
+.lv-fig .cell-fused{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-fig .cell-zero{fill:url(#lv-hatch);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-fig .hatch{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-fig .subscript{font-size:7.5px}
+.md-typeset figure.lv-figure.lv-large:not(.lv-drawing){max-width:20rem}
+.md-typeset figure.lv-figure.lv-grids{max-width:26rem}
+.lv-large .lv-fig text,.lv-grids .lv-fig text{font-size:12px}
+.lv-large .lv-fig .name,.lv-grids .lv-fig .name{font-size:12.5px}
+.lv-large:not(.lv-drawing) .lv-fig .mono,.lv-grids .lv-fig .mono{font-size:11px}
+.lv-large .lv-fig .note,.lv-grids .lv-fig .note{font-size:11px}
+.lv-large .lv-fig .letter{font-size:10.5px}
+.lv-grids .lv-fig .subscript{font-size:9px}
+.lv-grids .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1em}
+.lv-grids .lv-pair .lv-fig{width:11.8rem;max-width:100%}
+.md-typeset .lv-band{margin:.9em 0 .2em;font-weight:700;font-size:.7rem;text-align:left}
+.md-typeset ul.lv-legend{list-style:none;margin:.3em 0 .6em;padding:0;text-align:left;font-size:.7rem}
+.md-typeset ul.lv-legend li{margin:0 0 .25em;padding-left:2em;text-indent:-2em}
+.lv-legend .lv-mark{display:inline-block;box-sizing:border-box;width:1.6em;height:1.6em;line-height:1.35em;border-radius:50%;border:2px solid var(--lv-good);text-align:center;text-indent:0;font-weight:700;font-size:.9em;margin-right:.4em}
+.lv-legend .lv-mark.lv-drop{border:2px dashed var(--lv-bad)}
+.lv-legend .lv-swatch{display:inline-block;box-sizing:border-box;width:1.6em;height:1.2em;line-height:1em;vertical-align:-.2em;border:1px solid var(--md-default-fg-color--light);text-align:center;text-indent:0;font-weight:700;margin-right:.4em}
+.lv-legend .lv-swatch.lv-fused{background:var(--lv-good-fill);border:2px solid var(--lv-good)}
+.lv-legend .lv-swatch.lv-zero{border-style:dashed;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--md-default-fg-color--lighter) 3px 4px)}
+.md-typeset figure.lv-figure.lv-drawing{max-width:18rem}
+.lv-drawing .lv-fig text{font-size:12px}
+.lv-drawing .lv-fig .mono{font-size:11.5px}
+.lv-drawing .lv-fig .quiet{fill:var(--md-default-fg-color--light)}
+.lv-drawing .lv-fig .variable{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic;font-size:14px}
+.lv-drawing .lv-fig .vector{font-family:KaTeX_Main,"Times New Roman",serif;font-weight:700;font-size:14px}
+.lv-drawing .lv-fig .subscript{font-family:KaTeX_Main,"Times New Roman",serif;font-size:11.5px}
+.lv-drawing .lv-fig .index{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
+.lv-drawing .lv-fig .robot-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color--light);stroke-width:1.4}
+.lv-drawing .lv-fig .robot-wheel{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-drawing .lv-fig .robot-part{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1}
+.lv-drawing .lv-fig .frame-axis-line{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .frame-axis-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-drawing .lv-fig .transform{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.3;stroke-dasharray:4 3}
+.lv-drawing .lv-fig .angle{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.4}
+.lv-drawing .lv-fig .pose-body{fill:var(--md-default-bg-color);stroke:var(--md-default-fg-color);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.lv-drawing .lv-fig .pose-wheel{fill:var(--md-default-fg-color);stroke:none}
+.md-typeset figure.lv-figure.lv-symbols{max-width:18rem}
+.lv-symbols .lv-fig .reference{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:3 3}
+.lv-symbols .lv-fig .wheels-dot{fill:var(--lv-wheels);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .imu-dot{fill:var(--lv-imu);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-dot{fill:var(--lv-estimate);stroke:var(--md-default-bg-color);stroke-width:1}
+.lv-symbols .lv-fig .estimate-line{fill:none;stroke:var(--lv-estimate);stroke-width:1.8}
+.lv-symbols .lv-fig .estimate-head{fill:var(--lv-estimate);stroke:none}
+.lv-symbols .lv-fig .imu-line{fill:none;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .imu-head{fill:var(--lv-imu);stroke:none}
+.lv-symbols .lv-fig .bell-prediction{fill:var(--lv-estimate);fill-opacity:.16;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-symbols .lv-fig .bell-imu{fill:var(--lv-imu);fill-opacity:.16;stroke:var(--lv-imu);stroke-width:1.6}
+.lv-symbols .lv-fig .ellipse{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-symbols .lv-fig .threshold{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.6}
+.lv-symbols .lv-fig .subscript.second-index{font-size:9.5px}
+.lv-symbols .lv-fig .card-pass{fill:var(--lv-good-fill);stroke:var(--lv-good);stroke-width:1.4}
+.lv-symbols .lv-fig .card-drop{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.4;stroke-dasharray:4 3}
+.lv-symbols .lv-fig .verdict-pass{fill:var(--lv-good);font-weight:700}
+.lv-symbols .lv-fig .verdict-drop{fill:var(--lv-bad);font-weight:700}
+.lv-symbols .lv-fig .cell-bad{fill:var(--lv-bad-fill);stroke:var(--lv-bad);stroke-width:1.8}
+.lv-symbols .lv-pair .lv-fig.lv-check-grid{width:9.8rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-check-pair{max-width:22rem}
+.lv-symbols .lv-fig .limit-box{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1;stroke-dasharray:5 3}
+.lv-symbols .lv-fig .cell-replaced{fill:url(#lv-hatch-covariance);stroke:var(--md-default-fg-color--light);stroke-width:.8;stroke-dasharray:2 2}
+.lv-symbols .lv-pair{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:.4em 1.2em}
+.lv-symbols .lv-pair .lv-fig.lv-twist{width:12.6rem;max-width:100%}
+.lv-symbols .lv-pair .lv-fig.lv-angular{width:11.6rem;max-width:100%}
+.md-typeset figure.lv-figure.lv-symbols.lv-covariances{max-width:26rem}
+.lv-math .lv-fig .noise-band{fill:var(--lv-imu);fill-opacity:.17;stroke:none}
+.lv-math .lv-fig .noise-curve{fill:none;stroke:var(--lv-imu);stroke-width:2}
+.lv-math .lv-fig .band-edge{fill:none;stroke:var(--lv-imu);stroke-width:1}
+.lv-math .lv-fig .share-bracket{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.1}
+.lv-math .lv-fig .ring-fill{fill:var(--lv-estimate);fill-opacity:.11;stroke:none}
+.lv-math .lv-fig .ring{fill:none;stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-math .lv-fig .no-covariance{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3;stroke-dasharray:5 3}
+.lv-math .lv-fig .semi-axis{fill:none;stroke:var(--md-default-fg-color);stroke-width:2.2}
+.lv-math .lv-fig .zero-line{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:.9}
+.lv-math .lv-fig .pair{fill:var(--md-default-fg-color);fill-opacity:.7;stroke:none}
+.lv-math .lv-fig .sign{font-size:17px;font-weight:700}
+.lv-math .lv-fig .angle-arc{fill:none;stroke:var(--md-default-fg-color);stroke-width:1.2}
+.lv-math .lv-fig .angle-head{fill:var(--md-default-fg-color);stroke:none}
+.lv-math .lv-fig .axis-head{fill:var(--md-default-fg-color--light);stroke:none}
+.lv-math .lv-fig .unit-circle{fill:none;stroke:var(--md-default-fg-color--light);stroke-width:1.3}
+.lv-math .lv-fig .quaternion-radius{fill:none;stroke:var(--lv-estimate);stroke-width:2.2}
+.lv-math .lv-fig .opposite-radius{fill:none;stroke:var(--lv-estimate);stroke-width:1.5;stroke-dasharray:5 3}
+.lv-math .lv-fig .opposite-dot{fill:var(--md-default-bg-color);stroke:var(--lv-estimate);stroke-width:1.6}
+.lv-math .lv-fig .halo{paint-order:stroke;stroke:var(--md-default-bg-color);stroke-width:3px;stroke-linejoin:round}
+.lv-math .lv-fig.lv-layout-wide .note{font-size:11.5px}
+.md-typeset .lv-space{container-type:inline-size;margin:1em 0}
+.md-typeset .lv-space figure.lv-figure{margin-top:0;margin-bottom:0}
+.lv-fig.lv-layout-wide{display:none}
+@container (min-width:33.5rem){.lv-space .lv-fig.lv-layout-narrow{display:none}.lv-space .lv-fig.lv-layout-wide{display:inline}.md-typeset .lv-space figure.lv-figure.lv-large.lv-layouts{max-width:36rem}}
+</style>
+<div class="lv-space">
+<figure class="lv-figure lv-large lv-drawing lv-symbols lv-math lv-layouts">
+<svg class="lv-fig lv-layout-narrow" viewBox="0 0 300 692" role="img" aria-labelledby="math-covariance-scatter-title"><title id="math-covariance-scatter-title">Position errors drawn from two Gaussian models with covariance 3 cm² and 0 cm²</title>
+<defs><mask id="math-covariance-scatter-gaps" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="692"><rect x="0" y="0" width="300" height="692" fill="white"/><rect x="137.6" y="138.2" width="14.9" height="16.0" rx="3" fill="black"/><rect x="119.1" y="119.8" width="14.9" height="16.0" rx="3" fill="black"/><rect x="126.8" y="481.5" width="14.9" height="16.0" rx="3" fill="black"/><rect x="97.6" y="452.2" width="14.9" height="16.0" rx="3" fill="black"/></mask></defs>
+<path class="zero-line" d="M34.0,164.8 H293.0 M163.5,294.2 V26.0"/>
+<circle class="pair" cx="224.5" cy="135.3" r="2"/>
+<circle class="pair" cx="188.1" cy="150.6" r="2"/>
+<circle class="pair" cx="161.3" cy="237.7" r="2"/>
+<circle class="pair" cx="228.8" cy="85.9" r="2"/>
+<circle class="pair" cx="85.6" cy="245.8" r="2"/>
+<circle class="pair" cx="196.4" cy="141.5" r="2"/>
+<circle class="pair" cx="178.3" cy="174.7" r="2"/>
+<circle class="pair" cx="116.6" cy="167.2" r="2"/>
+<circle class="pair" cx="170.0" cy="114.5" r="2"/>
+<circle class="pair" cx="188.2" cy="141.1" r="2"/>
+<circle class="pair" cx="150.7" cy="173.2" r="2"/>
+<circle class="pair" cx="256.8" cy="122.0" r="2"/>
+<circle class="pair" cx="174.1" cy="160.4" r="2"/>
+<circle class="pair" cx="189.6" cy="115.8" r="2"/>
+<circle class="pair" cx="171.0" cy="130.8" r="2"/>
+<circle class="pair" cx="223.9" cy="122.1" r="2"/>
+<circle class="pair" cx="179.1" cy="210.0" r="2"/>
+<circle class="pair" cx="136.6" cy="241.0" r="2"/>
+<circle class="pair" cx="191.2" cy="134.7" r="2"/>
+<circle class="pair" cx="153.5" cy="122.3" r="2"/>
+<circle class="pair" cx="179.7" cy="136.9" r="2"/>
+<circle class="pair" cx="217.6" cy="118.0" r="2"/>
+<circle class="pair" cx="194.2" cy="116.3" r="2"/>
+<circle class="pair" cx="197.7" cy="152.2" r="2"/>
+<circle class="pair" cx="136.8" cy="155.9" r="2"/>
+<circle class="pair" cx="183.6" cy="195.0" r="2"/>
+<circle class="pair" cx="162.5" cy="97.5" r="2"/>
+<circle class="pair" cx="112.0" cy="179.4" r="2"/>
+<circle class="pair" cx="182.0" cy="166.2" r="2"/>
+<circle class="pair" cx="155.0" cy="191.7" r="2"/>
+<circle class="pair" cx="205.1" cy="126.1" r="2"/>
+<circle class="pair" cx="140.5" cy="215.5" r="2"/>
+<circle class="pair" cx="118.4" cy="169.6" r="2"/>
+<circle class="pair" cx="224.8" cy="103.6" r="2"/>
+<circle class="pair" cx="124.7" cy="153.0" r="2"/>
+<circle class="pair" cx="169.2" cy="148.1" r="2"/>
+<circle class="pair" cx="132.1" cy="101.5" r="2"/>
+<circle class="pair" cx="175.9" cy="192.2" r="2"/>
+<circle class="pair" cx="179.8" cy="157.5" r="2"/>
+<circle class="pair" cx="157.0" cy="160.3" r="2"/>
+<circle class="pair" cx="184.7" cy="163.8" r="2"/>
+<circle class="pair" cx="172.1" cy="126.4" r="2"/>
+<circle class="pair" cx="114.4" cy="200.5" r="2"/>
+<circle class="pair" cx="154.3" cy="154.2" r="2"/>
+<circle class="pair" cx="125.8" cy="214.1" r="2"/>
+<circle class="pair" cx="185.8" cy="126.1" r="2"/>
+<circle class="pair" cx="112.3" cy="207.9" r="2"/>
+<circle class="pair" cx="167.4" cy="207.4" r="2"/>
+<circle class="pair" cx="217.4" cy="170.9" r="2"/>
+<circle class="pair" cx="126.7" cy="136.5" r="2"/>
+<circle class="pair" cx="115.7" cy="208.4" r="2"/>
+<circle class="pair" cx="166.0" cy="153.5" r="2"/>
+<circle class="pair" cx="138.0" cy="209.8" r="2"/>
+<circle class="pair" cx="183.1" cy="175.9" r="2"/>
+<circle class="pair" cx="77.2" cy="253.2" r="2"/>
+<circle class="pair" cx="111.5" cy="161.3" r="2"/>
+<circle class="pair" cx="217.4" cy="118.4" r="2"/>
+<circle class="pair" cx="162.1" cy="171.3" r="2"/>
+<circle class="pair" cx="137.2" cy="191.1" r="2"/>
+<circle class="pair" cx="116.7" cy="208.1" r="2"/>
+<circle class="pair" cx="150.3" cy="194.1" r="2"/>
+<circle class="pair" cx="141.5" cy="144.7" r="2"/>
+<circle class="pair" cx="159.9" cy="119.3" r="2"/>
+<circle class="pair" cx="105.0" cy="191.1" r="2"/>
+<circle class="pair" cx="118.7" cy="231.9" r="2"/>
+<circle class="pair" cx="93.6" cy="178.9" r="2"/>
+<circle class="pair" cx="170.0" cy="194.7" r="2"/>
+<circle class="pair" cx="251.3" cy="103.9" r="2"/>
+<circle class="pair" cx="141.8" cy="174.4" r="2"/>
+<circle class="pair" cx="126.7" cy="201.4" r="2"/>
+<circle class="pair" cx="187.1" cy="138.7" r="2"/>
+<circle class="pair" cx="182.3" cy="136.8" r="2"/>
+<circle class="pair" cx="121.1" cy="189.0" r="2"/>
+<circle class="pair" cx="141.8" cy="162.2" r="2"/>
+<circle class="pair" cx="97.6" cy="221.2" r="2"/>
+<circle class="pair" cx="167.5" cy="177.5" r="2"/>
+<circle class="pair" cx="172.0" cy="148.3" r="2"/>
+<circle class="pair" cx="181.6" cy="182.3" r="2"/>
+<circle class="pair" cx="122.2" cy="235.2" r="2"/>
+<circle class="pair" cx="134.7" cy="170.7" r="2"/>
+<circle class="pair" cx="113.2" cy="250.6" r="2"/>
+<circle class="pair" cx="155.4" cy="197.1" r="2"/>
+<circle class="pair" cx="184.8" cy="115.5" r="2"/>
+<circle class="pair" cx="135.8" cy="203.4" r="2"/>
+<circle class="pair" cx="191.5" cy="175.9" r="2"/>
+<circle class="pair" cx="141.6" cy="101.3" r="2"/>
+<circle class="pair" cx="273.1" cy="149.1" r="2"/>
+<circle class="pair" cx="220.5" cy="118.0" r="2"/>
+<circle class="pair" cx="192.5" cy="170.2" r="2"/>
+<circle class="pair" cx="119.8" cy="194.9" r="2"/>
+<circle class="pair" cx="142.9" cy="160.1" r="2"/>
+<circle class="pair" cx="193.1" cy="123.2" r="2"/>
+<circle class="pair" cx="179.8" cy="80.6" r="2"/>
+<circle class="pair" cx="81.4" cy="169.2" r="2"/>
+<circle class="pair" cx="189.1" cy="152.5" r="2"/>
+<circle class="pair" cx="155.4" cy="214.5" r="2"/>
+<circle class="pair" cx="193.3" cy="112.4" r="2"/>
+<circle class="pair" cx="135.4" cy="204.1" r="2"/>
+<circle class="pair" cx="167.6" cy="183.1" r="2"/>
+<circle class="pair" cx="231.2" cy="123.7" r="2"/>
+<circle class="pair" cx="143.7" cy="133.0" r="2"/>
+<circle class="pair" cx="164.7" cy="148.6" r="2"/>
+<circle class="pair" cx="167.1" cy="139.7" r="2"/>
+<circle class="pair" cx="79.4" cy="181.6" r="2"/>
+<circle class="pair" cx="188.2" cy="55.4" r="2"/>
+<circle class="pair" cx="214.9" cy="89.5" r="2"/>
+<circle class="pair" cx="155.7" cy="228.0" r="2"/>
+<circle class="pair" cx="242.1" cy="149.4" r="2"/>
+<circle class="pair" cx="237.0" cy="51.3" r="2"/>
+<circle class="pair" cx="191.9" cy="117.1" r="2"/>
+<circle class="pair" cx="136.0" cy="173.2" r="2"/>
+<circle class="pair" cx="199.0" cy="124.9" r="2"/>
+<circle class="pair" cx="156.2" cy="171.6" r="2"/>
+<circle class="pair" cx="157.0" cy="201.5" r="2"/>
+<circle class="pair" cx="226.1" cy="133.0" r="2"/>
+<circle class="pair" cx="260.2" cy="102.1" r="2"/>
+<circle class="pair" cx="241.2" cy="186.8" r="2"/>
+<circle class="pair" cx="168.1" cy="122.2" r="2"/>
+<circle class="pair" cx="208.7" cy="156.2" r="2"/>
+<circle class="pair" cx="131.0" cy="187.7" r="2"/>
+<circle class="pair" cx="128.8" cy="258.0" r="2"/>
+<circle class="pair" cx="91.5" cy="216.0" r="2"/>
+<circle class="pair" cx="176.6" cy="133.4" r="2"/>
+<circle class="pair" cx="119.7" cy="215.0" r="2"/>
+<circle class="pair" cx="190.1" cy="98.2" r="2"/>
+<circle class="pair" cx="172.6" cy="201.7" r="2"/>
+<circle class="pair" cx="115.1" cy="218.3" r="2"/>
+<circle class="pair" cx="96.9" cy="173.0" r="2"/>
+<circle class="pair" cx="187.1" cy="114.8" r="2"/>
+<circle class="pair" cx="143.6" cy="155.9" r="2"/>
+<circle class="pair" cx="238.1" cy="142.6" r="2"/>
+<circle class="pair" cx="135.8" cy="208.6" r="2"/>
+<circle class="pair" cx="158.0" cy="186.9" r="2"/>
+<circle class="pair" cx="101.5" cy="205.2" r="2"/>
+<circle class="pair" cx="223.0" cy="119.1" r="2"/>
+<circle class="pair" cx="166.8" cy="120.5" r="2"/>
+<circle class="pair" cx="151.7" cy="171.9" r="2"/>
+<circle class="pair" cx="120.1" cy="143.6" r="2"/>
+<circle class="pair" cx="138.0" cy="182.6" r="2"/>
+<circle class="pair" cx="215.7" cy="122.5" r="2"/>
+<circle class="pair" cx="235.7" cy="195.8" r="2"/>
+<circle class="pair" cx="60.6" cy="232.5" r="2"/>
+<circle class="pair" cx="154.0" cy="138.9" r="2"/>
+<circle class="pair" cx="181.8" cy="171.0" r="2"/>
+<circle class="pair" cx="214.9" cy="132.9" r="2"/>
+<circle class="pair" cx="134.8" cy="133.4" r="2"/>
+<circle class="pair" cx="212.9" cy="139.2" r="2"/>
+<circle class="pair" cx="116.4" cy="192.4" r="2"/>
+<circle class="pair" cx="106.2" cy="219.5" r="2"/>
+<circle class="pair" cx="159.1" cy="153.1" r="2"/>
+<circle class="pair" cx="258.9" cy="108.3" r="2"/>
+<circle class="pair" cx="223.2" cy="141.0" r="2"/>
+<circle class="pair" cx="134.7" cy="188.3" r="2"/>
+<circle class="pair" cx="232.5" cy="87.4" r="2"/>
+<circle class="pair" cx="132.0" cy="180.4" r="2"/>
+<circle class="pair" cx="136.2" cy="193.7" r="2"/>
+<circle class="pair" cx="138.2" cy="198.7" r="2"/>
+<circle class="pair" cx="170.0" cy="140.0" r="2"/>
+<circle class="pair" cx="171.1" cy="157.4" r="2"/>
+<circle class="pair" cx="159.3" cy="117.3" r="2"/>
+<circle class="pair" cx="237.5" cy="111.1" r="2"/>
+<circle class="pair" cx="197.1" cy="174.8" r="2"/>
+<circle class="pair" cx="124.6" cy="176.5" r="2"/>
+<circle class="pair" cx="179.9" cy="177.3" r="2"/>
+<circle class="pair" cx="190.9" cy="146.6" r="2"/>
+<circle class="pair" cx="180.1" cy="115.9" r="2"/>
+<circle class="pair" cx="157.2" cy="203.1" r="2"/>
+<circle class="pair" cx="118.9" cy="190.8" r="2"/>
+<circle class="pair" cx="196.1" cy="77.2" r="2"/>
+<circle class="pair" cx="102.5" cy="199.2" r="2"/>
+<circle class="pair" cx="143.8" cy="237.0" r="2"/>
+<circle class="pair" cx="148.9" cy="173.8" r="2"/>
+<circle class="pair" cx="156.8" cy="178.7" r="2"/>
+<circle class="pair" cx="200.5" cy="162.6" r="2"/>
+<circle class="pair" cx="146.6" cy="93.9" r="2"/>
+<circle class="pair" cx="177.7" cy="142.1" r="2"/>
+<circle class="pair" cx="66.0" cy="234.6" r="2"/>
+<circle class="pair" cx="150.5" cy="121.8" r="2"/>
+<circle class="pair" cx="174.9" cy="123.9" r="2"/>
+<circle class="pair" cx="101.5" cy="163.8" r="2"/>
+<circle class="pair" cx="151.3" cy="170.2" r="2"/>
+<circle class="pair" cx="137.5" cy="171.5" r="2"/>
+<circle class="pair" cx="158.0" cy="170.9" r="2"/>
+<circle class="pair" cx="131.9" cy="211.4" r="2"/>
+<circle class="pair" cx="184.0" cy="150.3" r="2"/>
+<circle class="pair" cx="171.4" cy="128.3" r="2"/>
+<circle class="pair" cx="128.0" cy="186.3" r="2"/>
+<circle class="pair" cx="169.0" cy="120.8" r="2"/>
+<circle class="pair" cx="179.0" cy="203.3" r="2"/>
+<circle class="pair" cx="226.4" cy="124.4" r="2"/>
+<circle class="pair" cx="124.9" cy="176.0" r="2"/>
+<circle class="pair" cx="120.9" cy="151.9" r="2"/>
+<circle class="pair" cx="126.2" cy="132.3" r="2"/>
+<circle class="pair" cx="156.8" cy="190.8" r="2"/>
+<circle class="pair" cx="110.2" cy="182.7" r="2"/>
+<circle class="pair" cx="89.3" cy="202.0" r="2"/>
+<circle class="pair" cx="185.1" cy="124.9" r="2"/>
+<circle class="pair" cx="102.5" cy="215.0" r="2"/>
+<circle class="pair" cx="174.0" cy="187.9" r="2"/>
+<circle class="pair" cx="182.6" cy="221.8" r="2"/>
+<path class="ring" d="M200.5,127.8 A52.3,26.2 -45 0 1 126.5,201.8 A52.3,26.2 -45 0 1 200.5,127.8 z" mask="url(#math-covariance-scatter-gaps)"/>
+<path class="ring" d="M237.5,90.8 A104.7,52.3 -45 0 1 89.5,238.8 A104.7,52.3 -45 0 1 237.5,90.8 z" mask="url(#math-covariance-scatter-gaps)"/>
+<text class="sign" x="48.8" y="285.9" text-anchor="middle"><tspan>+</tspan></text>
+<text class="sign" x="48.8" y="56.5" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="278.2" y="285.9" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="278.2" y="56.5" text-anchor="middle"><tspan>+</tspan></text>
+<path class="axis" d="M34.0,26.0 V294.2 H293.0"/>
+<path class="tick" d="M52.5,294.2 v4"/>
+<text class="note" x="52.5" y="311.2" text-anchor="middle">−6</text>
+<path class="tick" d="M34.0,275.8 h-4"/>
+<text class="note" x="27.0" y="279.8" text-anchor="end">−6</text>
+<path class="tick" d="M89.5,294.2 v4"/>
+<text class="note" x="89.5" y="311.2" text-anchor="middle">−4</text>
+<path class="tick" d="M34.0,238.8 h-4"/>
+<text class="note" x="27.0" y="242.8" text-anchor="end">−4</text>
+<path class="tick" d="M126.5,294.2 v4"/>
+<text class="note" x="126.5" y="311.2" text-anchor="middle">−2</text>
+<path class="tick" d="M34.0,201.8 h-4"/>
+<text class="note" x="27.0" y="205.8" text-anchor="end">−2</text>
+<path class="tick" d="M163.5,294.2 v4"/>
+<text class="note" x="163.5" y="311.2" text-anchor="middle">0</text>
+<path class="tick" d="M34.0,164.8 h-4"/>
+<text class="note" x="27.0" y="168.8" text-anchor="end">0</text>
+<path class="tick" d="M200.5,294.2 v4"/>
+<text class="note" x="200.5" y="311.2" text-anchor="middle">2</text>
+<path class="tick" d="M34.0,127.8 h-4"/>
+<text class="note" x="27.0" y="131.8" text-anchor="end">2</text>
+<path class="tick" d="M237.5,294.2 v4"/>
+<text class="note" x="237.5" y="311.2" text-anchor="middle">4</text>
+<path class="tick" d="M34.0,90.8 h-4"/>
+<text class="note" x="27.0" y="94.8" text-anchor="end">4</text>
+<path class="tick" d="M274.5,294.2 v4"/>
+<text class="note" x="274.5" y="311.2" text-anchor="middle">6</text>
+<path class="tick" d="M34.0,53.8 h-4"/>
+<text class="note" x="27.0" y="57.8" text-anchor="end">6</text>
+<text x="293.0" y="330.2" text-anchor="end"><tspan class="variable">x</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text x="4.0" y="14.0" text-anchor="start"><tspan class="variable">y</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text class="strong" x="163.5" y="14.0" text-anchor="middle"><tspan class="variable">σ</tspan><tspan class="subscript index" dy="2.5">xy</tspan><tspan dy="-2.5"> = 3 cm²</tspan></text>
+<text class="strong halo" x="145.0" y="151.6" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
+<text class="strong halo" x="126.5" y="133.1" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
+<path class="zero-line" d="M34.0,518.8 H293.0 M163.5,648.2 V380.0"/>
+<circle class="pair" cx="141.7" cy="475.1" r="2"/>
+<circle class="pair" cx="171.5" cy="527.8" r="2"/>
+<circle class="pair" cx="137.4" cy="493.5" r="2"/>
+<circle class="pair" cx="130.1" cy="568.3" r="2"/>
+<circle class="pair" cx="122.8" cy="546.2" r="2"/>
+<circle class="pair" cx="146.2" cy="416.2" r="2"/>
+<circle class="pair" cx="151.0" cy="461.5" r="2"/>
+<circle class="pair" cx="136.0" cy="592.3" r="2"/>
+<circle class="pair" cx="133.0" cy="574.0" r="2"/>
+<circle class="pair" cx="134.8" cy="592.9" r="2"/>
+<circle class="pair" cx="221.8" cy="529.4" r="2"/>
+<circle class="pair" cx="217.4" cy="534.2" r="2"/>
+<circle class="pair" cx="185.1" cy="495.8" r="2"/>
+<circle class="pair" cx="92.3" cy="527.4" r="2"/>
+<circle class="pair" cx="111.1" cy="507.0" r="2"/>
+<circle class="pair" cx="105.9" cy="483.7" r="2"/>
+<circle class="pair" cx="173.7" cy="510.2" r="2"/>
+<circle class="pair" cx="156.2" cy="601.0" r="2"/>
+<circle class="pair" cx="169.3" cy="466.6" r="2"/>
+<circle class="pair" cx="117.1" cy="536.0" r="2"/>
+<circle class="pair" cx="210.8" cy="545.2" r="2"/>
+<circle class="pair" cx="148.0" cy="566.2" r="2"/>
+<circle class="pair" cx="130.2" cy="472.9" r="2"/>
+<circle class="pair" cx="201.6" cy="551.2" r="2"/>
+<circle class="pair" cx="171.2" cy="541.6" r="2"/>
+<circle class="pair" cx="149.2" cy="538.6" r="2"/>
+<circle class="pair" cx="116.3" cy="540.7" r="2"/>
+<circle class="pair" cx="138.4" cy="517.5" r="2"/>
+<circle class="pair" cx="142.1" cy="544.6" r="2"/>
+<circle class="pair" cx="114.6" cy="505.9" r="2"/>
+<circle class="pair" cx="195.6" cy="463.6" r="2"/>
+<circle class="pair" cx="137.2" cy="508.1" r="2"/>
+<circle class="pair" cx="235.2" cy="526.0" r="2"/>
+<circle class="pair" cx="182.9" cy="572.9" r="2"/>
+<circle class="pair" cx="244.4" cy="561.3" r="2"/>
+<circle class="pair" cx="234.2" cy="513.5" r="2"/>
+<circle class="pair" cx="143.8" cy="440.4" r="2"/>
+<circle class="pair" cx="176.0" cy="451.8" r="2"/>
+<circle class="pair" cx="117.5" cy="535.3" r="2"/>
+<circle class="pair" cx="195.5" cy="493.9" r="2"/>
+<circle class="pair" cx="235.9" cy="477.9" r="2"/>
+<circle class="pair" cx="210.7" cy="502.8" r="2"/>
+<circle class="pair" cx="213.0" cy="495.1" r="2"/>
+<circle class="pair" cx="164.5" cy="559.8" r="2"/>
+<circle class="pair" cx="144.8" cy="517.8" r="2"/>
+<circle class="pair" cx="88.5" cy="527.9" r="2"/>
+<circle class="pair" cx="149.8" cy="538.9" r="2"/>
+<circle class="pair" cx="175.1" cy="527.6" r="2"/>
+<circle class="pair" cx="186.2" cy="544.7" r="2"/>
+<circle class="pair" cx="146.1" cy="451.4" r="2"/>
+<circle class="pair" cx="166.5" cy="518.4" r="2"/>
+<circle class="pair" cx="188.0" cy="487.8" r="2"/>
+<circle class="pair" cx="177.2" cy="591.0" r="2"/>
+<circle class="pair" cx="140.1" cy="529.8" r="2"/>
+<circle class="pair" cx="182.6" cy="546.3" r="2"/>
+<circle class="pair" cx="149.3" cy="510.0" r="2"/>
+<circle class="pair" cx="235.6" cy="548.9" r="2"/>
+<circle class="pair" cx="164.2" cy="520.4" r="2"/>
+<circle class="pair" cx="127.7" cy="434.9" r="2"/>
+<circle class="pair" cx="198.7" cy="521.9" r="2"/>
+<circle class="pair" cx="185.4" cy="578.0" r="2"/>
+<circle class="pair" cx="109.5" cy="535.4" r="2"/>
+<circle class="pair" cx="225.2" cy="485.4" r="2"/>
+<circle class="pair" cx="150.4" cy="549.5" r="2"/>
+<circle class="pair" cx="192.4" cy="504.7" r="2"/>
+<circle class="pair" cx="187.0" cy="521.2" r="2"/>
+<circle class="pair" cx="140.9" cy="440.5" r="2"/>
+<circle class="pair" cx="168.0" cy="450.9" r="2"/>
+<circle class="pair" cx="193.4" cy="572.1" r="2"/>
+<circle class="pair" cx="150.1" cy="512.4" r="2"/>
+<circle class="pair" cx="152.6" cy="497.1" r="2"/>
+<circle class="pair" cx="164.3" cy="560.4" r="2"/>
+<circle class="pair" cx="201.6" cy="476.2" r="2"/>
+<circle class="pair" cx="143.7" cy="544.4" r="2"/>
+<circle class="pair" cx="151.2" cy="525.0" r="2"/>
+<circle class="pair" cx="166.1" cy="525.9" r="2"/>
+<circle class="pair" cx="227.5" cy="533.0" r="2"/>
+<circle class="pair" cx="113.7" cy="615.3" r="2"/>
+<circle class="pair" cx="140.8" cy="553.0" r="2"/>
+<circle class="pair" cx="160.4" cy="431.4" r="2"/>
+<circle class="pair" cx="155.1" cy="504.0" r="2"/>
+<circle class="pair" cx="180.1" cy="567.1" r="2"/>
+<circle class="pair" cx="127.6" cy="513.6" r="2"/>
+<circle class="pair" cx="91.0" cy="487.5" r="2"/>
+<circle class="pair" cx="177.6" cy="384.0" r="2"/>
+<circle class="pair" cx="143.0" cy="554.5" r="2"/>
+<circle class="pair" cx="252.7" cy="610.7" r="2"/>
+<circle class="pair" cx="127.0" cy="511.7" r="2"/>
+<circle class="pair" cx="208.5" cy="493.5" r="2"/>
+<circle class="pair" cx="226.4" cy="509.0" r="2"/>
+<circle class="pair" cx="134.8" cy="539.1" r="2"/>
+<circle class="pair" cx="182.7" cy="518.3" r="2"/>
+<circle class="pair" cx="224.8" cy="562.7" r="2"/>
+<circle class="pair" cx="278.4" cy="510.6" r="2"/>
+<circle class="pair" cx="114.3" cy="587.3" r="2"/>
+<circle class="pair" cx="235.7" cy="525.3" r="2"/>
+<circle class="pair" cx="179.5" cy="462.5" r="2"/>
+<circle class="pair" cx="185.0" cy="524.6" r="2"/>
+<circle class="pair" cx="178.8" cy="548.0" r="2"/>
+<circle class="pair" cx="261.5" cy="471.9" r="2"/>
+<circle class="pair" cx="206.5" cy="509.0" r="2"/>
+<circle class="pair" cx="250.6" cy="527.0" r="2"/>
+<circle class="pair" cx="184.3" cy="517.7" r="2"/>
+<circle class="pair" cx="207.7" cy="501.8" r="2"/>
+<circle class="pair" cx="210.7" cy="500.7" r="2"/>
+<circle class="pair" cx="176.8" cy="628.0" r="2"/>
+<circle class="pair" cx="137.4" cy="559.4" r="2"/>
+<circle class="pair" cx="156.8" cy="502.8" r="2"/>
+<circle class="pair" cx="149.4" cy="550.6" r="2"/>
+<circle class="pair" cx="156.8" cy="488.1" r="2"/>
+<circle class="pair" cx="124.8" cy="509.6" r="2"/>
+<circle class="pair" cx="121.4" cy="510.5" r="2"/>
+<circle class="pair" cx="170.9" cy="590.6" r="2"/>
+<circle class="pair" cx="161.4" cy="511.3" r="2"/>
+<circle class="pair" cx="164.4" cy="543.1" r="2"/>
+<circle class="pair" cx="168.3" cy="520.2" r="2"/>
+<circle class="pair" cx="209.0" cy="530.2" r="2"/>
+<circle class="pair" cx="153.4" cy="540.9" r="2"/>
+<circle class="pair" cx="148.4" cy="488.6" r="2"/>
+<circle class="pair" cx="148.3" cy="548.3" r="2"/>
+<circle class="pair" cx="245.3" cy="517.1" r="2"/>
+<circle class="pair" cx="149.0" cy="586.9" r="2"/>
+<circle class="pair" cx="180.2" cy="491.3" r="2"/>
+<circle class="pair" cx="215.6" cy="459.1" r="2"/>
+<circle class="pair" cx="216.8" cy="521.4" r="2"/>
+<circle class="pair" cx="202.4" cy="441.4" r="2"/>
+<circle class="pair" cx="135.7" cy="434.1" r="2"/>
+<circle class="pair" cx="210.2" cy="446.0" r="2"/>
+<circle class="pair" cx="201.7" cy="528.4" r="2"/>
+<circle class="pair" cx="65.7" cy="542.8" r="2"/>
+<circle class="pair" cx="169.2" cy="480.8" r="2"/>
+<circle class="pair" cx="201.0" cy="571.7" r="2"/>
+<circle class="pair" cx="127.4" cy="535.0" r="2"/>
+<circle class="pair" cx="105.7" cy="419.2" r="2"/>
+<circle class="pair" cx="100.6" cy="426.8" r="2"/>
+<circle class="pair" cx="156.7" cy="516.2" r="2"/>
+<circle class="pair" cx="146.7" cy="515.5" r="2"/>
+<circle class="pair" cx="253.7" cy="525.2" r="2"/>
+<circle class="pair" cx="182.2" cy="466.8" r="2"/>
+<circle class="pair" cx="173.3" cy="516.6" r="2"/>
+<circle class="pair" cx="176.7" cy="507.9" r="2"/>
+<circle class="pair" cx="130.8" cy="536.9" r="2"/>
+<circle class="pair" cx="149.7" cy="545.0" r="2"/>
+<circle class="pair" cx="168.2" cy="493.1" r="2"/>
+<circle class="pair" cx="214.8" cy="466.7" r="2"/>
+<circle class="pair" cx="80.7" cy="553.6" r="2"/>
+<circle class="pair" cx="158.3" cy="576.3" r="2"/>
+<circle class="pair" cx="147.2" cy="579.8" r="2"/>
+<circle class="pair" cx="178.7" cy="505.3" r="2"/>
+<circle class="pair" cx="173.4" cy="470.0" r="2"/>
+<circle class="pair" cx="132.0" cy="519.7" r="2"/>
+<circle class="pair" cx="120.1" cy="574.3" r="2"/>
+<circle class="pair" cx="123.4" cy="584.8" r="2"/>
+<circle class="pair" cx="148.5" cy="481.3" r="2"/>
+<circle class="pair" cx="174.2" cy="496.6" r="2"/>
+<circle class="pair" cx="150.6" cy="543.3" r="2"/>
+<circle class="pair" cx="144.2" cy="546.6" r="2"/>
+<circle class="pair" cx="139.6" cy="552.8" r="2"/>
+<circle class="pair" cx="199.9" cy="584.3" r="2"/>
+<circle class="pair" cx="203.9" cy="509.2" r="2"/>
+<circle class="pair" cx="88.3" cy="525.9" r="2"/>
+<circle class="pair" cx="164.2" cy="540.8" r="2"/>
+<circle class="pair" cx="195.3" cy="493.8" r="2"/>
+<circle class="pair" cx="136.9" cy="450.6" r="2"/>
+<circle class="pair" cx="208.8" cy="525.4" r="2"/>
+<circle class="pair" cx="135.8" cy="523.7" r="2"/>
+<circle class="pair" cx="100.0" cy="549.6" r="2"/>
+<circle class="pair" cx="190.1" cy="506.6" r="2"/>
+<circle class="pair" cx="216.4" cy="525.5" r="2"/>
+<circle class="pair" cx="204.5" cy="570.7" r="2"/>
+<circle class="pair" cx="232.7" cy="555.5" r="2"/>
+<circle class="pair" cx="38.8" cy="550.5" r="2"/>
+<circle class="pair" cx="162.6" cy="564.6" r="2"/>
+<circle class="pair" cx="169.1" cy="500.3" r="2"/>
+<circle class="pair" cx="165.4" cy="455.1" r="2"/>
+<circle class="pair" cx="193.4" cy="549.4" r="2"/>
+<circle class="pair" cx="41.9" cy="496.0" r="2"/>
+<circle class="pair" cx="154.2" cy="506.4" r="2"/>
+<circle class="pair" cx="97.1" cy="479.3" r="2"/>
+<circle class="pair" cx="195.1" cy="531.9" r="2"/>
+<circle class="pair" cx="171.8" cy="558.3" r="2"/>
+<circle class="pair" cx="205.6" cy="501.5" r="2"/>
+<circle class="pair" cx="180.9" cy="551.3" r="2"/>
+<circle class="pair" cx="140.4" cy="499.7" r="2"/>
+<circle class="pair" cx="86.4" cy="499.3" r="2"/>
+<circle class="pair" cx="160.7" cy="541.5" r="2"/>
+<circle class="pair" cx="135.6" cy="514.2" r="2"/>
+<circle class="pair" cx="95.8" cy="508.3" r="2"/>
+<circle class="pair" cx="97.4" cy="519.7" r="2"/>
+<circle class="pair" cx="185.1" cy="530.6" r="2"/>
+<circle class="pair" cx="161.2" cy="482.6" r="2"/>
+<circle class="pair" cx="191.6" cy="513.3" r="2"/>
+<circle class="pair" cx="130.8" cy="500.7" r="2"/>
+<circle class="pair" cx="151.0" cy="471.5" r="2"/>
+<circle class="pair" cx="128.3" cy="483.6" r="2"/>
+<circle class="pair" cx="128.6" cy="451.4" r="2"/>
+<circle class="pair" cx="233.9" cy="496.7" r="2"/>
+<circle class="pair" cx="110.6" cy="504.9" r="2"/>
+<circle class="pair" cx="177.7" cy="511.6" r="2"/>
+<circle class="pair" cx="165.8" cy="569.2" r="2"/>
+<path class="ring" d="M204.9,518.8 A41.4,41.4 0 0 1 122.1,518.8 A41.4,41.4 0 0 1 204.9,518.8 z" mask="url(#math-covariance-scatter-gaps)"/>
+<path class="ring" d="M246.2,518.8 A82.7,82.7 0 0 1 80.8,518.8 A82.7,82.7 0 0 1 246.2,518.8 z" mask="url(#math-covariance-scatter-gaps)"/>
+<text class="sign" x="48.8" y="639.9" text-anchor="middle"><tspan>+</tspan></text>
+<text class="sign" x="48.8" y="410.5" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="278.2" y="639.9" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="278.2" y="410.5" text-anchor="middle"><tspan>+</tspan></text>
+<path class="axis" d="M34.0,380.0 V648.2 H293.0"/>
+<path class="tick" d="M52.5,648.2 v4"/>
+<text class="note" x="52.5" y="665.2" text-anchor="middle">−6</text>
+<path class="tick" d="M34.0,629.8 h-4"/>
+<text class="note" x="27.0" y="633.8" text-anchor="end">−6</text>
+<path class="tick" d="M89.5,648.2 v4"/>
+<text class="note" x="89.5" y="665.2" text-anchor="middle">−4</text>
+<path class="tick" d="M34.0,592.8 h-4"/>
+<text class="note" x="27.0" y="596.8" text-anchor="end">−4</text>
+<path class="tick" d="M126.5,648.2 v4"/>
+<text class="note" x="126.5" y="665.2" text-anchor="middle">−2</text>
+<path class="tick" d="M34.0,555.8 h-4"/>
+<text class="note" x="27.0" y="559.8" text-anchor="end">−2</text>
+<path class="tick" d="M163.5,648.2 v4"/>
+<text class="note" x="163.5" y="665.2" text-anchor="middle">0</text>
+<path class="tick" d="M34.0,518.8 h-4"/>
+<text class="note" x="27.0" y="522.8" text-anchor="end">0</text>
+<path class="tick" d="M200.5,648.2 v4"/>
+<text class="note" x="200.5" y="665.2" text-anchor="middle">2</text>
+<path class="tick" d="M34.0,481.8 h-4"/>
+<text class="note" x="27.0" y="485.8" text-anchor="end">2</text>
+<path class="tick" d="M237.5,648.2 v4"/>
+<text class="note" x="237.5" y="665.2" text-anchor="middle">4</text>
+<path class="tick" d="M34.0,444.8 h-4"/>
+<text class="note" x="27.0" y="448.8" text-anchor="end">4</text>
+<path class="tick" d="M274.5,648.2 v4"/>
+<text class="note" x="274.5" y="665.2" text-anchor="middle">6</text>
+<path class="tick" d="M34.0,407.8 h-4"/>
+<text class="note" x="27.0" y="411.8" text-anchor="end">6</text>
+<text x="293.0" y="684.2" text-anchor="end"><tspan class="variable">x</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text x="4.0" y="368.0" text-anchor="start"><tspan class="variable">y</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text class="strong" x="163.5" y="368.0" text-anchor="middle"><tspan class="variable">σ</tspan><tspan class="subscript index" dy="2.5">xy</tspan><tspan dy="-2.5"> = 0 cm²</tspan></text>
+<text class="strong halo" x="134.2" y="494.8" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
+<text class="strong halo" x="105.0" y="465.6" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
+</svg>
+<svg class="lv-fig lv-layout-wide" viewBox="0 0 600 338" role="img" aria-labelledby="math-covariance-scatter-wide-title"><title id="math-covariance-scatter-wide-title">Position errors drawn from two Gaussian models with covariance 3 cm² and 0 cm²</title>
+<defs><mask id="math-covariance-scatter-wide-gaps" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="338"><rect x="0" y="0" width="600" height="338" fill="white"/><rect x="137.6" y="138.2" width="14.9" height="16.0" rx="3" fill="black"/><rect x="119.1" y="119.8" width="14.9" height="16.0" rx="3" fill="black"/><rect x="426.8" y="127.5" width="14.9" height="16.0" rx="3" fill="black"/><rect x="397.6" y="98.2" width="14.9" height="16.0" rx="3" fill="black"/></mask></defs>
+<path class="zero-line" d="M34.0,164.8 H293.0 M163.5,294.2 V26.0"/>
+<circle class="pair" cx="224.5" cy="135.3" r="2"/>
+<circle class="pair" cx="188.1" cy="150.6" r="2"/>
+<circle class="pair" cx="161.3" cy="237.7" r="2"/>
+<circle class="pair" cx="228.8" cy="85.9" r="2"/>
+<circle class="pair" cx="85.6" cy="245.8" r="2"/>
+<circle class="pair" cx="196.4" cy="141.5" r="2"/>
+<circle class="pair" cx="178.3" cy="174.7" r="2"/>
+<circle class="pair" cx="116.6" cy="167.2" r="2"/>
+<circle class="pair" cx="170.0" cy="114.5" r="2"/>
+<circle class="pair" cx="188.2" cy="141.1" r="2"/>
+<circle class="pair" cx="150.7" cy="173.2" r="2"/>
+<circle class="pair" cx="256.8" cy="122.0" r="2"/>
+<circle class="pair" cx="174.1" cy="160.4" r="2"/>
+<circle class="pair" cx="189.6" cy="115.8" r="2"/>
+<circle class="pair" cx="171.0" cy="130.8" r="2"/>
+<circle class="pair" cx="223.9" cy="122.1" r="2"/>
+<circle class="pair" cx="179.1" cy="210.0" r="2"/>
+<circle class="pair" cx="136.6" cy="241.0" r="2"/>
+<circle class="pair" cx="191.2" cy="134.7" r="2"/>
+<circle class="pair" cx="153.5" cy="122.3" r="2"/>
+<circle class="pair" cx="179.7" cy="136.9" r="2"/>
+<circle class="pair" cx="217.6" cy="118.0" r="2"/>
+<circle class="pair" cx="194.2" cy="116.3" r="2"/>
+<circle class="pair" cx="197.7" cy="152.2" r="2"/>
+<circle class="pair" cx="136.8" cy="155.9" r="2"/>
+<circle class="pair" cx="183.6" cy="195.0" r="2"/>
+<circle class="pair" cx="162.5" cy="97.5" r="2"/>
+<circle class="pair" cx="112.0" cy="179.4" r="2"/>
+<circle class="pair" cx="182.0" cy="166.2" r="2"/>
+<circle class="pair" cx="155.0" cy="191.7" r="2"/>
+<circle class="pair" cx="205.1" cy="126.1" r="2"/>
+<circle class="pair" cx="140.5" cy="215.5" r="2"/>
+<circle class="pair" cx="118.4" cy="169.6" r="2"/>
+<circle class="pair" cx="224.8" cy="103.6" r="2"/>
+<circle class="pair" cx="124.7" cy="153.0" r="2"/>
+<circle class="pair" cx="169.2" cy="148.1" r="2"/>
+<circle class="pair" cx="132.1" cy="101.5" r="2"/>
+<circle class="pair" cx="175.9" cy="192.2" r="2"/>
+<circle class="pair" cx="179.8" cy="157.5" r="2"/>
+<circle class="pair" cx="157.0" cy="160.3" r="2"/>
+<circle class="pair" cx="184.7" cy="163.8" r="2"/>
+<circle class="pair" cx="172.1" cy="126.4" r="2"/>
+<circle class="pair" cx="114.4" cy="200.5" r="2"/>
+<circle class="pair" cx="154.3" cy="154.2" r="2"/>
+<circle class="pair" cx="125.8" cy="214.1" r="2"/>
+<circle class="pair" cx="185.8" cy="126.1" r="2"/>
+<circle class="pair" cx="112.3" cy="207.9" r="2"/>
+<circle class="pair" cx="167.4" cy="207.4" r="2"/>
+<circle class="pair" cx="217.4" cy="170.9" r="2"/>
+<circle class="pair" cx="126.7" cy="136.5" r="2"/>
+<circle class="pair" cx="115.7" cy="208.4" r="2"/>
+<circle class="pair" cx="166.0" cy="153.5" r="2"/>
+<circle class="pair" cx="138.0" cy="209.8" r="2"/>
+<circle class="pair" cx="183.1" cy="175.9" r="2"/>
+<circle class="pair" cx="77.2" cy="253.2" r="2"/>
+<circle class="pair" cx="111.5" cy="161.3" r="2"/>
+<circle class="pair" cx="217.4" cy="118.4" r="2"/>
+<circle class="pair" cx="162.1" cy="171.3" r="2"/>
+<circle class="pair" cx="137.2" cy="191.1" r="2"/>
+<circle class="pair" cx="116.7" cy="208.1" r="2"/>
+<circle class="pair" cx="150.3" cy="194.1" r="2"/>
+<circle class="pair" cx="141.5" cy="144.7" r="2"/>
+<circle class="pair" cx="159.9" cy="119.3" r="2"/>
+<circle class="pair" cx="105.0" cy="191.1" r="2"/>
+<circle class="pair" cx="118.7" cy="231.9" r="2"/>
+<circle class="pair" cx="93.6" cy="178.9" r="2"/>
+<circle class="pair" cx="170.0" cy="194.7" r="2"/>
+<circle class="pair" cx="251.3" cy="103.9" r="2"/>
+<circle class="pair" cx="141.8" cy="174.4" r="2"/>
+<circle class="pair" cx="126.7" cy="201.4" r="2"/>
+<circle class="pair" cx="187.1" cy="138.7" r="2"/>
+<circle class="pair" cx="182.3" cy="136.8" r="2"/>
+<circle class="pair" cx="121.1" cy="189.0" r="2"/>
+<circle class="pair" cx="141.8" cy="162.2" r="2"/>
+<circle class="pair" cx="97.6" cy="221.2" r="2"/>
+<circle class="pair" cx="167.5" cy="177.5" r="2"/>
+<circle class="pair" cx="172.0" cy="148.3" r="2"/>
+<circle class="pair" cx="181.6" cy="182.3" r="2"/>
+<circle class="pair" cx="122.2" cy="235.2" r="2"/>
+<circle class="pair" cx="134.7" cy="170.7" r="2"/>
+<circle class="pair" cx="113.2" cy="250.6" r="2"/>
+<circle class="pair" cx="155.4" cy="197.1" r="2"/>
+<circle class="pair" cx="184.8" cy="115.5" r="2"/>
+<circle class="pair" cx="135.8" cy="203.4" r="2"/>
+<circle class="pair" cx="191.5" cy="175.9" r="2"/>
+<circle class="pair" cx="141.6" cy="101.3" r="2"/>
+<circle class="pair" cx="273.1" cy="149.1" r="2"/>
+<circle class="pair" cx="220.5" cy="118.0" r="2"/>
+<circle class="pair" cx="192.5" cy="170.2" r="2"/>
+<circle class="pair" cx="119.8" cy="194.9" r="2"/>
+<circle class="pair" cx="142.9" cy="160.1" r="2"/>
+<circle class="pair" cx="193.1" cy="123.2" r="2"/>
+<circle class="pair" cx="179.8" cy="80.6" r="2"/>
+<circle class="pair" cx="81.4" cy="169.2" r="2"/>
+<circle class="pair" cx="189.1" cy="152.5" r="2"/>
+<circle class="pair" cx="155.4" cy="214.5" r="2"/>
+<circle class="pair" cx="193.3" cy="112.4" r="2"/>
+<circle class="pair" cx="135.4" cy="204.1" r="2"/>
+<circle class="pair" cx="167.6" cy="183.1" r="2"/>
+<circle class="pair" cx="231.2" cy="123.7" r="2"/>
+<circle class="pair" cx="143.7" cy="133.0" r="2"/>
+<circle class="pair" cx="164.7" cy="148.6" r="2"/>
+<circle class="pair" cx="167.1" cy="139.7" r="2"/>
+<circle class="pair" cx="79.4" cy="181.6" r="2"/>
+<circle class="pair" cx="188.2" cy="55.4" r="2"/>
+<circle class="pair" cx="214.9" cy="89.5" r="2"/>
+<circle class="pair" cx="155.7" cy="228.0" r="2"/>
+<circle class="pair" cx="242.1" cy="149.4" r="2"/>
+<circle class="pair" cx="237.0" cy="51.3" r="2"/>
+<circle class="pair" cx="191.9" cy="117.1" r="2"/>
+<circle class="pair" cx="136.0" cy="173.2" r="2"/>
+<circle class="pair" cx="199.0" cy="124.9" r="2"/>
+<circle class="pair" cx="156.2" cy="171.6" r="2"/>
+<circle class="pair" cx="157.0" cy="201.5" r="2"/>
+<circle class="pair" cx="226.1" cy="133.0" r="2"/>
+<circle class="pair" cx="260.2" cy="102.1" r="2"/>
+<circle class="pair" cx="241.2" cy="186.8" r="2"/>
+<circle class="pair" cx="168.1" cy="122.2" r="2"/>
+<circle class="pair" cx="208.7" cy="156.2" r="2"/>
+<circle class="pair" cx="131.0" cy="187.7" r="2"/>
+<circle class="pair" cx="128.8" cy="258.0" r="2"/>
+<circle class="pair" cx="91.5" cy="216.0" r="2"/>
+<circle class="pair" cx="176.6" cy="133.4" r="2"/>
+<circle class="pair" cx="119.7" cy="215.0" r="2"/>
+<circle class="pair" cx="190.1" cy="98.2" r="2"/>
+<circle class="pair" cx="172.6" cy="201.7" r="2"/>
+<circle class="pair" cx="115.1" cy="218.3" r="2"/>
+<circle class="pair" cx="96.9" cy="173.0" r="2"/>
+<circle class="pair" cx="187.1" cy="114.8" r="2"/>
+<circle class="pair" cx="143.6" cy="155.9" r="2"/>
+<circle class="pair" cx="238.1" cy="142.6" r="2"/>
+<circle class="pair" cx="135.8" cy="208.6" r="2"/>
+<circle class="pair" cx="158.0" cy="186.9" r="2"/>
+<circle class="pair" cx="101.5" cy="205.2" r="2"/>
+<circle class="pair" cx="223.0" cy="119.1" r="2"/>
+<circle class="pair" cx="166.8" cy="120.5" r="2"/>
+<circle class="pair" cx="151.7" cy="171.9" r="2"/>
+<circle class="pair" cx="120.1" cy="143.6" r="2"/>
+<circle class="pair" cx="138.0" cy="182.6" r="2"/>
+<circle class="pair" cx="215.7" cy="122.5" r="2"/>
+<circle class="pair" cx="235.7" cy="195.8" r="2"/>
+<circle class="pair" cx="60.6" cy="232.5" r="2"/>
+<circle class="pair" cx="154.0" cy="138.9" r="2"/>
+<circle class="pair" cx="181.8" cy="171.0" r="2"/>
+<circle class="pair" cx="214.9" cy="132.9" r="2"/>
+<circle class="pair" cx="134.8" cy="133.4" r="2"/>
+<circle class="pair" cx="212.9" cy="139.2" r="2"/>
+<circle class="pair" cx="116.4" cy="192.4" r="2"/>
+<circle class="pair" cx="106.2" cy="219.5" r="2"/>
+<circle class="pair" cx="159.1" cy="153.1" r="2"/>
+<circle class="pair" cx="258.9" cy="108.3" r="2"/>
+<circle class="pair" cx="223.2" cy="141.0" r="2"/>
+<circle class="pair" cx="134.7" cy="188.3" r="2"/>
+<circle class="pair" cx="232.5" cy="87.4" r="2"/>
+<circle class="pair" cx="132.0" cy="180.4" r="2"/>
+<circle class="pair" cx="136.2" cy="193.7" r="2"/>
+<circle class="pair" cx="138.2" cy="198.7" r="2"/>
+<circle class="pair" cx="170.0" cy="140.0" r="2"/>
+<circle class="pair" cx="171.1" cy="157.4" r="2"/>
+<circle class="pair" cx="159.3" cy="117.3" r="2"/>
+<circle class="pair" cx="237.5" cy="111.1" r="2"/>
+<circle class="pair" cx="197.1" cy="174.8" r="2"/>
+<circle class="pair" cx="124.6" cy="176.5" r="2"/>
+<circle class="pair" cx="179.9" cy="177.3" r="2"/>
+<circle class="pair" cx="190.9" cy="146.6" r="2"/>
+<circle class="pair" cx="180.1" cy="115.9" r="2"/>
+<circle class="pair" cx="157.2" cy="203.1" r="2"/>
+<circle class="pair" cx="118.9" cy="190.8" r="2"/>
+<circle class="pair" cx="196.1" cy="77.2" r="2"/>
+<circle class="pair" cx="102.5" cy="199.2" r="2"/>
+<circle class="pair" cx="143.8" cy="237.0" r="2"/>
+<circle class="pair" cx="148.9" cy="173.8" r="2"/>
+<circle class="pair" cx="156.8" cy="178.7" r="2"/>
+<circle class="pair" cx="200.5" cy="162.6" r="2"/>
+<circle class="pair" cx="146.6" cy="93.9" r="2"/>
+<circle class="pair" cx="177.7" cy="142.1" r="2"/>
+<circle class="pair" cx="66.0" cy="234.6" r="2"/>
+<circle class="pair" cx="150.5" cy="121.8" r="2"/>
+<circle class="pair" cx="174.9" cy="123.9" r="2"/>
+<circle class="pair" cx="101.5" cy="163.8" r="2"/>
+<circle class="pair" cx="151.3" cy="170.2" r="2"/>
+<circle class="pair" cx="137.5" cy="171.5" r="2"/>
+<circle class="pair" cx="158.0" cy="170.9" r="2"/>
+<circle class="pair" cx="131.9" cy="211.4" r="2"/>
+<circle class="pair" cx="184.0" cy="150.3" r="2"/>
+<circle class="pair" cx="171.4" cy="128.3" r="2"/>
+<circle class="pair" cx="128.0" cy="186.3" r="2"/>
+<circle class="pair" cx="169.0" cy="120.8" r="2"/>
+<circle class="pair" cx="179.0" cy="203.3" r="2"/>
+<circle class="pair" cx="226.4" cy="124.4" r="2"/>
+<circle class="pair" cx="124.9" cy="176.0" r="2"/>
+<circle class="pair" cx="120.9" cy="151.9" r="2"/>
+<circle class="pair" cx="126.2" cy="132.3" r="2"/>
+<circle class="pair" cx="156.8" cy="190.8" r="2"/>
+<circle class="pair" cx="110.2" cy="182.7" r="2"/>
+<circle class="pair" cx="89.3" cy="202.0" r="2"/>
+<circle class="pair" cx="185.1" cy="124.9" r="2"/>
+<circle class="pair" cx="102.5" cy="215.0" r="2"/>
+<circle class="pair" cx="174.0" cy="187.9" r="2"/>
+<circle class="pair" cx="182.6" cy="221.8" r="2"/>
+<path class="ring" d="M200.5,127.8 A52.3,26.2 -45 0 1 126.5,201.8 A52.3,26.2 -45 0 1 200.5,127.8 z" mask="url(#math-covariance-scatter-wide-gaps)"/>
+<path class="ring" d="M237.5,90.8 A104.7,52.3 -45 0 1 89.5,238.8 A104.7,52.3 -45 0 1 237.5,90.8 z" mask="url(#math-covariance-scatter-wide-gaps)"/>
+<text class="sign" x="48.8" y="285.9" text-anchor="middle"><tspan>+</tspan></text>
+<text class="sign" x="48.8" y="56.5" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="278.2" y="285.9" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="278.2" y="56.5" text-anchor="middle"><tspan>+</tspan></text>
+<path class="axis" d="M34.0,26.0 V294.2 H293.0"/>
+<path class="tick" d="M52.5,294.2 v4"/>
+<text class="note" x="52.5" y="311.2" text-anchor="middle">−6</text>
+<path class="tick" d="M34.0,275.8 h-4"/>
+<text class="note" x="27.0" y="279.8" text-anchor="end">−6</text>
+<path class="tick" d="M89.5,294.2 v4"/>
+<text class="note" x="89.5" y="311.2" text-anchor="middle">−4</text>
+<path class="tick" d="M34.0,238.8 h-4"/>
+<text class="note" x="27.0" y="242.8" text-anchor="end">−4</text>
+<path class="tick" d="M126.5,294.2 v4"/>
+<text class="note" x="126.5" y="311.2" text-anchor="middle">−2</text>
+<path class="tick" d="M34.0,201.8 h-4"/>
+<text class="note" x="27.0" y="205.8" text-anchor="end">−2</text>
+<path class="tick" d="M163.5,294.2 v4"/>
+<text class="note" x="163.5" y="311.2" text-anchor="middle">0</text>
+<path class="tick" d="M34.0,164.8 h-4"/>
+<text class="note" x="27.0" y="168.8" text-anchor="end">0</text>
+<path class="tick" d="M200.5,294.2 v4"/>
+<text class="note" x="200.5" y="311.2" text-anchor="middle">2</text>
+<path class="tick" d="M34.0,127.8 h-4"/>
+<text class="note" x="27.0" y="131.8" text-anchor="end">2</text>
+<path class="tick" d="M237.5,294.2 v4"/>
+<text class="note" x="237.5" y="311.2" text-anchor="middle">4</text>
+<path class="tick" d="M34.0,90.8 h-4"/>
+<text class="note" x="27.0" y="94.8" text-anchor="end">4</text>
+<path class="tick" d="M274.5,294.2 v4"/>
+<text class="note" x="274.5" y="311.2" text-anchor="middle">6</text>
+<path class="tick" d="M34.0,53.8 h-4"/>
+<text class="note" x="27.0" y="57.8" text-anchor="end">6</text>
+<text x="293.0" y="330.2" text-anchor="end"><tspan class="variable">x</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text x="4.0" y="14.0" text-anchor="start"><tspan class="variable">y</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text class="strong" x="163.5" y="14.0" text-anchor="middle"><tspan class="variable">σ</tspan><tspan class="subscript index" dy="2.5">xy</tspan><tspan dy="-2.5"> = 3 cm²</tspan></text>
+<text class="strong halo" x="145.0" y="151.6" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
+<text class="strong halo" x="126.5" y="133.1" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
+<path class="zero-line" d="M334.0,164.8 H593.0 M463.5,294.2 V26.0"/>
+<circle class="pair" cx="441.7" cy="121.1" r="2"/>
+<circle class="pair" cx="471.5" cy="173.8" r="2"/>
+<circle class="pair" cx="437.4" cy="139.5" r="2"/>
+<circle class="pair" cx="430.1" cy="214.3" r="2"/>
+<circle class="pair" cx="422.8" cy="192.2" r="2"/>
+<circle class="pair" cx="446.2" cy="62.2" r="2"/>
+<circle class="pair" cx="451.0" cy="107.5" r="2"/>
+<circle class="pair" cx="436.0" cy="238.3" r="2"/>
+<circle class="pair" cx="433.0" cy="220.0" r="2"/>
+<circle class="pair" cx="434.8" cy="238.9" r="2"/>
+<circle class="pair" cx="521.8" cy="175.4" r="2"/>
+<circle class="pair" cx="517.4" cy="180.2" r="2"/>
+<circle class="pair" cx="485.1" cy="141.8" r="2"/>
+<circle class="pair" cx="392.3" cy="173.4" r="2"/>
+<circle class="pair" cx="411.1" cy="153.0" r="2"/>
+<circle class="pair" cx="405.9" cy="129.7" r="2"/>
+<circle class="pair" cx="473.7" cy="156.2" r="2"/>
+<circle class="pair" cx="456.2" cy="247.0" r="2"/>
+<circle class="pair" cx="469.3" cy="112.6" r="2"/>
+<circle class="pair" cx="417.1" cy="182.0" r="2"/>
+<circle class="pair" cx="510.8" cy="191.2" r="2"/>
+<circle class="pair" cx="448.0" cy="212.2" r="2"/>
+<circle class="pair" cx="430.2" cy="118.9" r="2"/>
+<circle class="pair" cx="501.6" cy="197.2" r="2"/>
+<circle class="pair" cx="471.2" cy="187.6" r="2"/>
+<circle class="pair" cx="449.2" cy="184.6" r="2"/>
+<circle class="pair" cx="416.3" cy="186.7" r="2"/>
+<circle class="pair" cx="438.4" cy="163.5" r="2"/>
+<circle class="pair" cx="442.1" cy="190.6" r="2"/>
+<circle class="pair" cx="414.6" cy="151.9" r="2"/>
+<circle class="pair" cx="495.6" cy="109.6" r="2"/>
+<circle class="pair" cx="437.2" cy="154.1" r="2"/>
+<circle class="pair" cx="535.2" cy="172.0" r="2"/>
+<circle class="pair" cx="482.9" cy="218.9" r="2"/>
+<circle class="pair" cx="544.4" cy="207.3" r="2"/>
+<circle class="pair" cx="534.2" cy="159.5" r="2"/>
+<circle class="pair" cx="443.8" cy="86.4" r="2"/>
+<circle class="pair" cx="476.0" cy="97.8" r="2"/>
+<circle class="pair" cx="417.5" cy="181.3" r="2"/>
+<circle class="pair" cx="495.5" cy="139.9" r="2"/>
+<circle class="pair" cx="535.9" cy="123.9" r="2"/>
+<circle class="pair" cx="510.7" cy="148.8" r="2"/>
+<circle class="pair" cx="513.0" cy="141.1" r="2"/>
+<circle class="pair" cx="464.5" cy="205.8" r="2"/>
+<circle class="pair" cx="444.8" cy="163.8" r="2"/>
+<circle class="pair" cx="388.5" cy="173.9" r="2"/>
+<circle class="pair" cx="449.8" cy="184.9" r="2"/>
+<circle class="pair" cx="475.1" cy="173.6" r="2"/>
+<circle class="pair" cx="486.2" cy="190.7" r="2"/>
+<circle class="pair" cx="446.1" cy="97.4" r="2"/>
+<circle class="pair" cx="466.5" cy="164.4" r="2"/>
+<circle class="pair" cx="488.0" cy="133.8" r="2"/>
+<circle class="pair" cx="477.2" cy="237.0" r="2"/>
+<circle class="pair" cx="440.1" cy="175.8" r="2"/>
+<circle class="pair" cx="482.6" cy="192.3" r="2"/>
+<circle class="pair" cx="449.3" cy="156.0" r="2"/>
+<circle class="pair" cx="535.6" cy="194.9" r="2"/>
+<circle class="pair" cx="464.2" cy="166.4" r="2"/>
+<circle class="pair" cx="427.7" cy="80.9" r="2"/>
+<circle class="pair" cx="498.7" cy="167.9" r="2"/>
+<circle class="pair" cx="485.4" cy="224.0" r="2"/>
+<circle class="pair" cx="409.5" cy="181.4" r="2"/>
+<circle class="pair" cx="525.2" cy="131.4" r="2"/>
+<circle class="pair" cx="450.4" cy="195.5" r="2"/>
+<circle class="pair" cx="492.4" cy="150.7" r="2"/>
+<circle class="pair" cx="487.0" cy="167.2" r="2"/>
+<circle class="pair" cx="440.9" cy="86.5" r="2"/>
+<circle class="pair" cx="468.0" cy="96.9" r="2"/>
+<circle class="pair" cx="493.4" cy="218.1" r="2"/>
+<circle class="pair" cx="450.1" cy="158.4" r="2"/>
+<circle class="pair" cx="452.6" cy="143.1" r="2"/>
+<circle class="pair" cx="464.3" cy="206.4" r="2"/>
+<circle class="pair" cx="501.6" cy="122.2" r="2"/>
+<circle class="pair" cx="443.7" cy="190.4" r="2"/>
+<circle class="pair" cx="451.2" cy="171.0" r="2"/>
+<circle class="pair" cx="466.1" cy="171.9" r="2"/>
+<circle class="pair" cx="527.5" cy="179.0" r="2"/>
+<circle class="pair" cx="413.7" cy="261.3" r="2"/>
+<circle class="pair" cx="440.8" cy="199.0" r="2"/>
+<circle class="pair" cx="460.4" cy="77.4" r="2"/>
+<circle class="pair" cx="455.1" cy="150.0" r="2"/>
+<circle class="pair" cx="480.1" cy="213.1" r="2"/>
+<circle class="pair" cx="427.6" cy="159.6" r="2"/>
+<circle class="pair" cx="391.0" cy="133.5" r="2"/>
+<circle class="pair" cx="477.6" cy="30.0" r="2"/>
+<circle class="pair" cx="443.0" cy="200.5" r="2"/>
+<circle class="pair" cx="552.7" cy="256.7" r="2"/>
+<circle class="pair" cx="427.0" cy="157.7" r="2"/>
+<circle class="pair" cx="508.5" cy="139.5" r="2"/>
+<circle class="pair" cx="526.4" cy="155.0" r="2"/>
+<circle class="pair" cx="434.8" cy="185.1" r="2"/>
+<circle class="pair" cx="482.7" cy="164.3" r="2"/>
+<circle class="pair" cx="524.8" cy="208.7" r="2"/>
+<circle class="pair" cx="578.4" cy="156.6" r="2"/>
+<circle class="pair" cx="414.3" cy="233.3" r="2"/>
+<circle class="pair" cx="535.7" cy="171.3" r="2"/>
+<circle class="pair" cx="479.5" cy="108.5" r="2"/>
+<circle class="pair" cx="485.0" cy="170.6" r="2"/>
+<circle class="pair" cx="478.8" cy="194.0" r="2"/>
+<circle class="pair" cx="561.5" cy="117.9" r="2"/>
+<circle class="pair" cx="506.5" cy="155.0" r="2"/>
+<circle class="pair" cx="550.6" cy="173.0" r="2"/>
+<circle class="pair" cx="484.3" cy="163.7" r="2"/>
+<circle class="pair" cx="507.7" cy="147.8" r="2"/>
+<circle class="pair" cx="510.7" cy="146.7" r="2"/>
+<circle class="pair" cx="476.8" cy="274.0" r="2"/>
+<circle class="pair" cx="437.4" cy="205.4" r="2"/>
+<circle class="pair" cx="456.8" cy="148.8" r="2"/>
+<circle class="pair" cx="449.4" cy="196.6" r="2"/>
+<circle class="pair" cx="456.8" cy="134.1" r="2"/>
+<circle class="pair" cx="424.8" cy="155.6" r="2"/>
+<circle class="pair" cx="421.4" cy="156.5" r="2"/>
+<circle class="pair" cx="470.9" cy="236.6" r="2"/>
+<circle class="pair" cx="461.4" cy="157.3" r="2"/>
+<circle class="pair" cx="464.4" cy="189.1" r="2"/>
+<circle class="pair" cx="468.3" cy="166.2" r="2"/>
+<circle class="pair" cx="509.0" cy="176.2" r="2"/>
+<circle class="pair" cx="453.4" cy="186.9" r="2"/>
+<circle class="pair" cx="448.4" cy="134.6" r="2"/>
+<circle class="pair" cx="448.3" cy="194.3" r="2"/>
+<circle class="pair" cx="545.3" cy="163.1" r="2"/>
+<circle class="pair" cx="449.0" cy="232.9" r="2"/>
+<circle class="pair" cx="480.2" cy="137.3" r="2"/>
+<circle class="pair" cx="515.6" cy="105.1" r="2"/>
+<circle class="pair" cx="516.8" cy="167.4" r="2"/>
+<circle class="pair" cx="502.4" cy="87.4" r="2"/>
+<circle class="pair" cx="435.7" cy="80.1" r="2"/>
+<circle class="pair" cx="510.2" cy="92.0" r="2"/>
+<circle class="pair" cx="501.7" cy="174.4" r="2"/>
+<circle class="pair" cx="365.7" cy="188.8" r="2"/>
+<circle class="pair" cx="469.2" cy="126.8" r="2"/>
+<circle class="pair" cx="501.0" cy="217.7" r="2"/>
+<circle class="pair" cx="427.4" cy="181.0" r="2"/>
+<circle class="pair" cx="405.7" cy="65.2" r="2"/>
+<circle class="pair" cx="400.6" cy="72.8" r="2"/>
+<circle class="pair" cx="456.7" cy="162.2" r="2"/>
+<circle class="pair" cx="446.7" cy="161.5" r="2"/>
+<circle class="pair" cx="553.7" cy="171.2" r="2"/>
+<circle class="pair" cx="482.2" cy="112.8" r="2"/>
+<circle class="pair" cx="473.3" cy="162.6" r="2"/>
+<circle class="pair" cx="476.7" cy="153.9" r="2"/>
+<circle class="pair" cx="430.8" cy="182.9" r="2"/>
+<circle class="pair" cx="449.7" cy="191.0" r="2"/>
+<circle class="pair" cx="468.2" cy="139.1" r="2"/>
+<circle class="pair" cx="514.8" cy="112.7" r="2"/>
+<circle class="pair" cx="380.7" cy="199.6" r="2"/>
+<circle class="pair" cx="458.3" cy="222.3" r="2"/>
+<circle class="pair" cx="447.2" cy="225.8" r="2"/>
+<circle class="pair" cx="478.7" cy="151.3" r="2"/>
+<circle class="pair" cx="473.4" cy="116.0" r="2"/>
+<circle class="pair" cx="432.0" cy="165.7" r="2"/>
+<circle class="pair" cx="420.1" cy="220.3" r="2"/>
+<circle class="pair" cx="423.4" cy="230.8" r="2"/>
+<circle class="pair" cx="448.5" cy="127.3" r="2"/>
+<circle class="pair" cx="474.2" cy="142.6" r="2"/>
+<circle class="pair" cx="450.6" cy="189.3" r="2"/>
+<circle class="pair" cx="444.2" cy="192.6" r="2"/>
+<circle class="pair" cx="439.6" cy="198.8" r="2"/>
+<circle class="pair" cx="499.9" cy="230.3" r="2"/>
+<circle class="pair" cx="503.9" cy="155.2" r="2"/>
+<circle class="pair" cx="388.3" cy="171.9" r="2"/>
+<circle class="pair" cx="464.2" cy="186.8" r="2"/>
+<circle class="pair" cx="495.3" cy="139.8" r="2"/>
+<circle class="pair" cx="436.9" cy="96.6" r="2"/>
+<circle class="pair" cx="508.8" cy="171.4" r="2"/>
+<circle class="pair" cx="435.8" cy="169.7" r="2"/>
+<circle class="pair" cx="400.0" cy="195.6" r="2"/>
+<circle class="pair" cx="490.1" cy="152.6" r="2"/>
+<circle class="pair" cx="516.4" cy="171.5" r="2"/>
+<circle class="pair" cx="504.5" cy="216.7" r="2"/>
+<circle class="pair" cx="532.7" cy="201.5" r="2"/>
+<circle class="pair" cx="338.8" cy="196.5" r="2"/>
+<circle class="pair" cx="462.6" cy="210.6" r="2"/>
+<circle class="pair" cx="469.1" cy="146.3" r="2"/>
+<circle class="pair" cx="465.4" cy="101.1" r="2"/>
+<circle class="pair" cx="493.4" cy="195.4" r="2"/>
+<circle class="pair" cx="341.9" cy="142.0" r="2"/>
+<circle class="pair" cx="454.2" cy="152.4" r="2"/>
+<circle class="pair" cx="397.1" cy="125.3" r="2"/>
+<circle class="pair" cx="495.1" cy="177.9" r="2"/>
+<circle class="pair" cx="471.8" cy="204.3" r="2"/>
+<circle class="pair" cx="505.6" cy="147.5" r="2"/>
+<circle class="pair" cx="480.9" cy="197.3" r="2"/>
+<circle class="pair" cx="440.4" cy="145.7" r="2"/>
+<circle class="pair" cx="386.4" cy="145.3" r="2"/>
+<circle class="pair" cx="460.7" cy="187.5" r="2"/>
+<circle class="pair" cx="435.6" cy="160.2" r="2"/>
+<circle class="pair" cx="395.8" cy="154.3" r="2"/>
+<circle class="pair" cx="397.4" cy="165.7" r="2"/>
+<circle class="pair" cx="485.1" cy="176.6" r="2"/>
+<circle class="pair" cx="461.2" cy="128.6" r="2"/>
+<circle class="pair" cx="491.6" cy="159.3" r="2"/>
+<circle class="pair" cx="430.8" cy="146.7" r="2"/>
+<circle class="pair" cx="451.0" cy="117.5" r="2"/>
+<circle class="pair" cx="428.3" cy="129.6" r="2"/>
+<circle class="pair" cx="428.6" cy="97.4" r="2"/>
+<circle class="pair" cx="533.9" cy="142.7" r="2"/>
+<circle class="pair" cx="410.6" cy="150.9" r="2"/>
+<circle class="pair" cx="477.7" cy="157.6" r="2"/>
+<circle class="pair" cx="465.8" cy="215.2" r="2"/>
+<path class="ring" d="M504.9,164.8 A41.4,41.4 0 0 1 422.1,164.8 A41.4,41.4 0 0 1 504.9,164.8 z" mask="url(#math-covariance-scatter-wide-gaps)"/>
+<path class="ring" d="M546.2,164.8 A82.7,82.7 0 0 1 380.8,164.8 A82.7,82.7 0 0 1 546.2,164.8 z" mask="url(#math-covariance-scatter-wide-gaps)"/>
+<text class="sign" x="348.8" y="285.9" text-anchor="middle"><tspan>+</tspan></text>
+<text class="sign" x="348.8" y="56.5" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="578.2" y="285.9" text-anchor="middle"><tspan>−</tspan></text>
+<text class="sign" x="578.2" y="56.5" text-anchor="middle"><tspan>+</tspan></text>
+<path class="axis" d="M334.0,26.0 V294.2 H593.0"/>
+<path class="tick" d="M352.5,294.2 v4"/>
+<text class="note" x="352.5" y="311.2" text-anchor="middle">−6</text>
+<path class="tick" d="M334.0,275.8 h-4"/>
+<text class="note" x="327.0" y="279.8" text-anchor="end">−6</text>
+<path class="tick" d="M389.5,294.2 v4"/>
+<text class="note" x="389.5" y="311.2" text-anchor="middle">−4</text>
+<path class="tick" d="M334.0,238.8 h-4"/>
+<text class="note" x="327.0" y="242.8" text-anchor="end">−4</text>
+<path class="tick" d="M426.5,294.2 v4"/>
+<text class="note" x="426.5" y="311.2" text-anchor="middle">−2</text>
+<path class="tick" d="M334.0,201.8 h-4"/>
+<text class="note" x="327.0" y="205.8" text-anchor="end">−2</text>
+<path class="tick" d="M463.5,294.2 v4"/>
+<text class="note" x="463.5" y="311.2" text-anchor="middle">0</text>
+<path class="tick" d="M334.0,164.8 h-4"/>
+<text class="note" x="327.0" y="168.8" text-anchor="end">0</text>
+<path class="tick" d="M500.5,294.2 v4"/>
+<text class="note" x="500.5" y="311.2" text-anchor="middle">2</text>
+<path class="tick" d="M334.0,127.8 h-4"/>
+<text class="note" x="327.0" y="131.8" text-anchor="end">2</text>
+<path class="tick" d="M537.5,294.2 v4"/>
+<text class="note" x="537.5" y="311.2" text-anchor="middle">4</text>
+<path class="tick" d="M334.0,90.8 h-4"/>
+<text class="note" x="327.0" y="94.8" text-anchor="end">4</text>
+<path class="tick" d="M574.5,294.2 v4"/>
+<text class="note" x="574.5" y="311.2" text-anchor="middle">6</text>
+<path class="tick" d="M334.0,53.8 h-4"/>
+<text class="note" x="327.0" y="57.8" text-anchor="end">6</text>
+<text x="593.0" y="330.2" text-anchor="end"><tspan class="variable">x</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">x</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text x="304.0" y="14.0" text-anchor="start"><tspan class="variable">y</tspan><tspan> − </tspan><tspan class="variable">μ</tspan><tspan class="subscript index" dy="2.5">y</tspan><tspan dy="-2.5"> in cm</tspan></text>
+<text class="strong" x="463.5" y="14.0" text-anchor="middle"><tspan class="variable">σ</tspan><tspan class="subscript index" dy="2.5">xy</tspan><tspan dy="-2.5"> = 0 cm²</tspan></text>
+<text class="strong halo" x="434.2" y="140.8" text-anchor="middle"><tspan>1</tspan><tspan class="variable">σ</tspan></text>
+<text class="strong halo" x="405.0" y="111.6" text-anchor="middle"><tspan>2</tspan><tspan class="variable">σ</tspan></text>
+</svg>
+<figcaption>Each cloud contains 200 simulated pairs from a model with the variance 5 cm² on each axis. The deviations have the same sign for 151 pairs in the tilted cloud and 100 pairs in the round cloud. The sample covariances are about 3.014 cm² and −0.009 cm². The ellipses show distances of 1 and 2 from each model's mean.</figcaption>
+</figure>
+</div>

@@ -18,6 +18,7 @@ from pathlib import Path
 import re
 import socket
 import sys
+import tempfile
 from types import ModuleType
 from typing import Dict
 from typing import List
@@ -681,6 +682,37 @@ class TestIncludes(unittest.TestCase):
     def test_gazebo_test_script_writes_the_repository_includes_with_an_ascii_locale(
             self) -> None:
         self.assert_script_writes_the_repository_includes('localization_gazebo_test_figures.py')
+
+
+class TestIncludeComment(unittest.TestCase):
+    """write_parts() and write_layout_parts() start an include with the comment they are given."""
+
+    def written_include(self, function_name: str, comment: str) -> str:
+        """Return the include that a function writes for one drawing, with or without comment."""
+        figures = load_script()
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'include.html'
+            getattr(figures, function_name)(str(path), ['<svg/>'], 'A caption', figures.RULES,
+                                            'lv-large', comment)
+            return path.read_text(encoding='utf-8')
+
+    def test_writers_start_an_include_with_the_given_comment_on_a_line_of_its_own(self) -> None:
+        comment = '<!-- Written by scripts/figures/some_figures.py -->'
+        for function_name in ('write_parts', 'write_layout_parts'):
+            include = self.written_include(function_name, comment)
+            self.assertTrue(include.startswith(f'{comment}\n<style>\n'), function_name)
+
+    def test_writers_start_an_include_with_its_style_element_without_a_comment(self) -> None:
+        for function_name in ('write_parts', 'write_layout_parts'):
+            include = self.written_include(function_name, '')
+            self.assertTrue(include.startswith('<style>\n'), function_name)
+
+    def test_write_layout_parts_puts_the_figure_into_the_block_that_the_css_measures(
+            self) -> None:
+        figures = load_script()
+        include = self.written_include('write_layout_parts', '')
+        self.assertIn(f'<div class="{figures.LAYOUT_SPACE}">\n'
+                      '<figure class="lv-figure lv-large lv-layouts">\n<svg/>\n', include)
 
 
 class TestLayouts(unittest.TestCase):

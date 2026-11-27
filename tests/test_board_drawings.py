@@ -3,8 +3,10 @@
 Run from the repository root: python -m unittest discover -s tests
 """
 
+import math
 from pathlib import Path
 import re
+import statistics
 import sys
 from typing import Callable
 from typing import Set
@@ -29,6 +31,17 @@ DRAWINGS = (
     lambda drawing: board_drawings.draw_camera(drawing, 0, 0),
     lambda drawing: board_drawings.draw_grove_motor_driver(drawing, 0, 0),
 )
+
+
+# The first two values between 0 and 1 that Python's generator gives for the seed 1, from which
+# normal_values() makes its first value
+SEED = 1
+FIRST_UNIFORM_VALUE = 0.13436424411240122
+SECOND_UNIFORM_VALUE = 0.8474337369372327
+# The mean and the variance of MANY_VALUES standard normal values lie this close to 0 and to 1:
+# three and a half times the standard error of the variance, about 0.01
+MANY_VALUES = 20000
+MOMENT_TOLERANCE = 0.035
 
 
 def classes_drawn(draw: Callable[[board_drawings.Drawing], None]) -> Set[str]:
@@ -209,6 +222,31 @@ class TestNumberDisc(unittest.TestCase):
         self.assertEqual(drawing.elements,
                          ['<circle class="disc" cx="16" cy="20" r="8"/>',
                           '<text class="number" x="16" y="23.8" text-anchor="middle">3</text>'])
+
+
+class TestNormalValues(unittest.TestCase):
+    """normal_values() gives the same standard normal values for the same seed."""
+
+    def test_normal_values_gives_as_many_values_as_asked_for(self) -> None:
+        self.assertEqual(len(board_drawings.normal_values(SEED, 5)), 5)
+
+    def test_normal_values_are_the_same_for_the_same_seed(self) -> None:
+        self.assertEqual(board_drawings.normal_values(SEED, 50),
+                         board_drawings.normal_values(SEED, 50))
+
+    def test_normal_values_differ_for_another_seed(self) -> None:
+        self.assertNotEqual(board_drawings.normal_values(SEED, 50),
+                            board_drawings.normal_values(SEED + 1, 50))
+
+    def test_normal_values_start_with_box_and_mullers_value_of_the_seeds_first_two(self) -> None:
+        radius = math.sqrt(-2 * math.log(1 - FIRST_UNIFORM_VALUE))
+        expected = radius * math.cos(2 * math.pi * SECOND_UNIFORM_VALUE)
+        self.assertAlmostEqual(board_drawings.normal_values(SEED, 1)[0], expected, places=12)
+
+    def test_normal_values_have_the_mean_0_and_the_variance_1(self) -> None:
+        values = board_drawings.normal_values(SEED, MANY_VALUES)
+        self.assertAlmostEqual(statistics.fmean(values), 0, delta=MOMENT_TOLERANCE)
+        self.assertAlmostEqual(statistics.variance(values), 1, delta=MOMENT_TOLERANCE)
 
 
 if __name__ == '__main__':

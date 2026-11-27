@@ -23,7 +23,7 @@ The IMU's gyroscope measures the turn directly. The gyroscope's yaw rate $\omega
 With [`ekf:=true`](#what-the-launch-files-do-with-ekf), an **extended Kalman filter (EKF)** from the [`robot_localization`](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html) package combines both sensors:
 
 - **The forward speed $v_x$:** the filter takes the forward speed from the wheels.
-- **The yaw rate $\omega_z$:** the filter takes the yaw rate mostly from the gyroscope, because the gyroscope's variance $\sigma^2$ is far smaller than the wheels'. A variance says how far a value's errors spread. The smaller the variance, the more the filter trusts the value.
+- **The yaw rate $\omega_z$:** the filter takes the yaw rate mostly from the gyroscope. A [variance](../../theory/preliminaries/noise-and-covariance.md#the-variance-and-the-standard-deviation) $\sigma^2$ measures how far the readings spread around their mean. The filter gives the gyroscope more weight because its yaw-rate variance is smaller than the wheels'.
 
 The filter publishes its estimate in two forms, which navigation and RViz use:
 
@@ -78,7 +78,7 @@ $$
 \mathbf{z}_\text{IMU} = (\,\omega_z\,)
 $$
 
-The topic carries the estimated pose in the `odom` frame and the estimated velocities in the frame `base_footprint`. With [`two_d_mode`](#what-two_d_mode-does), the height, roll, pitch and their velocities stay at 0. The message stores the orientation as a quaternion, which here holds the heading $\theta$. The six values that can differ from 0 form this vector:
+The topic carries the estimated pose in the `odom` frame and the estimated velocities in the frame `base_footprint`. With [`two_d_mode`](#what-two_d_mode-does), the height, roll, pitch and their velocities stay at 0. The message stores the heading $\theta$ as a [yaw-only quaternion](../../theory/preliminaries/quaternions.md#roll-pitch-and-yaw). The six values that can differ from 0 form this vector:
 
 $$
 \hat{\mathbf{x}}_\text{published} = (\,x,\ y,\ \theta,\ v_x,\ v_y,\ \omega_z\,)
@@ -93,7 +93,7 @@ The list says more about each part:
 
 ### The two outputs
 
-- **The topic `/diffbot/odometry/filtered`:** carries the pose and the velocities of the filter's estimate, with their covariances, as a [`nav_msgs/Odometry`](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/Odometry.html) message. The message has the pose $x$, $y$, $\theta$ in the `odom` frame and the velocities $v_x$, $v_y$, $\omega_z$ in the robot's frame `base_footprint`. The message has no field for the accelerations of the filter's state. A node that needs the velocities or the uncertainty subscribes to this topic.
+- **The topic `/diffbot/odometry/filtered`:** carries the pose and the velocities of the filter's estimate, with their [covariances](../../theory/preliminaries/noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid), as a [`nav_msgs/Odometry`](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/Odometry.html) message. The message has the pose $x$, $y$, $\theta$ in the `odom` frame and the velocities $v_x$, $v_y$, $\omega_z$ in the robot's frame `base_footprint`. The message has no field for the accelerations of the filter's state. A node that needs the velocities or the uncertainty subscribes to this topic.
 - **The transform `odom → base_footprint` on the topic `/tf`:** carries only the pose, as a translation and a rotation. A transform has no velocity and no covariance. TF, ROS's transform library, joins this transform with the robot's other transforms. So a node can ask TF where any frame of the robot is in the `odom` frame, without knowing which node estimated the pose.
 
 The two forms hold the same pose. Each time the filter publishes, the filter builds the odometry message `filteredPosition` from its state and copies the message's pose into the transform `worldBaseLinkTransMsg_`, as [lines 1955–1965 of `ros_filter.cpp`](https://github.com/cra-ros-pkg/robot_localization/blob/ef5ad3c89457209530e262f3bac39b0f35d07b2b/src/ros_filter.cpp#L1955-L1965) in robot_localization 2.7.7 show:
@@ -507,23 +507,14 @@ The filter doesn't read the sample's `orientation` and `linear_acceleration`, be
 
 #### The variances
 
-A covariance matrix $\boldsymbol\Sigma$ holds the uncertainties of several values at once. Its element in row $i$ and column $j$ is the covariance of the $i$-th and the $j$-th value. On the diagonal, where $i = j$, the element is the variance $\sigma^2$ of one value. Off the diagonal, the element says how the errors of two different values go together. For the IMU's angular velocity $\boldsymbol\omega$, the matrix is:
+Each input's message carries the uncertainties of its values as a covariance matrix. The variance $\sigma^2$ of each value lies on the matrix's diagonal, and an element off the diagonal says how the errors of two different values go together. The message stores the matrix as an array, row by row, as the comments in its definition say ([The messages and their fields](#the-messages-and-their-fields)). With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k = n\,i + j$ in the array. [The covariance matrix and its ellipsoid](../../theory/preliminaries/noise-and-covariance.md#the-covariance-matrix-and-its-ellipsoid) on the Noise and Covariance page explains the matrix, and [How ROS messages store a covariance](../../theory/preliminaries/noise-and-covariance.md#how-ros-messages-store-a-covariance) explains the order of its elements in the array.
 
-$$
-\boldsymbol\Sigma_{\boldsymbol\omega} = \begin{pmatrix}
-\sigma^2_{\omega_x} & \sigma_{\omega_x \omega_y} & \sigma_{\omega_x \omega_z} \\
-\sigma_{\omega_y \omega_x} & \sigma^2_{\omega_y} & \sigma_{\omega_y \omega_z} \\
-\sigma_{\omega_z \omega_x} & \sigma_{\omega_z \omega_y} & \sigma^2_{\omega_z}
-\end{pmatrix}
-$$
+The two inputs carry these matrices:
 
-A message has no type for a matrix, so it stores the matrix as an array, row by row, as the comments in [`TwistWithCovariance.msg`](#the-messages-and-their-fields) and [`Imu.msg`](#the-messages-and-their-fields) say: first the elements of row 0, then those of row 1, and so on. With $n$ rows and $n$ columns, counted from 0, the element in row $i$ and column $j$ has the index $k$ in the array:
+- **The wheel odometry:** `twist.covariance` of a `nav_msgs/Odometry` message holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n$ = 6. Its variances lie at the indices 0, 7, 14, 21, 28 and 35.
+- **The IMU:** `angular_velocity_covariance` of a `sensor_msgs/Imu` message holds the 3 × 3 matrix of the angular velocity $\boldsymbol\omega = (\omega_x, \omega_y, \omega_z)$, with $n$ = 3. Its variances lie at the indices 0, 4 and 8.
 
-$$
-k = n\,i + j
-$$
-
-[`twist.covariance`](#the-messages-and-their-fields), the field of a [`nav_msgs/Odometry`](#the-messages-and-their-fields) message, holds the 6 × 6 matrix of the velocities $v_x$, $v_y$, $v_z$, $\omega_x$, $\omega_y$ and $\omega_z$, with $n = 6$. Its variances lie at the indices 0, 7, 14, 21, 28 and 35. [`angular_velocity_covariance`](#the-messages-and-their-fields) of a [`sensor_msgs/Imu`](#the-messages-and-their-fields) message holds the 3 × 3 matrix above, with $n = 3$ and the variances at 0, 4 and 8. The figure shows both matrices with the index of each element:
+The figure shows both matrices with the index of each element:
 
 --8<-- "includes/localization-covariances.html"
 
@@ -532,7 +523,7 @@ What fills the elements, and what the filter does with them:
 - **Only the diagonals are filled:** the drive controller and the firmware write a variance onto each element of the diagonal and leave every other element at 0. So both messages say that the errors of two different values don't go together.
 - **The filter copies all elements:** [robot_localization](https://docs.ros.org/en/noetic/api/robot_localization/html/index.html) copies each array into a matrix, element by element, and rotates the matrix into [`base_footprint`](#the-frames). The wheel odometry's velocities are in `base_footprint` already. The z axis of `imu_link` points up like the robot's, so the rotation leaves the yaw rate's variance at index 8 as it is.
 - **The filter fuses four variances:** the three of the wheel odometry's fused velocities, at 0, 7 and 35, and the IMU's yaw rate's, at 8. These are the cells with a check mark.
-- **[`two_d_mode`](#what-two_d_mode-does) replaces the hatched variances:** the variance of $v_z$ becomes 10⁻⁶ (m/s)², and those of $\omega_x$ and $\omega_y$ become 10⁻⁶ (rad/s)², as [What `two_d_mode` does](#what-two_d_mode-does) explains.
+- **[`two_d_mode`](#what-two_d_mode-does) replaces the hatched variances:** the variance of $v_z$ becomes 10⁻⁶ (m/s)², and those of $\omega_x$ and $\omega_y$ become 10⁻⁶ (rad/s)².
 
 ??? quote "The code that fills the arrays and copies them into matrices"
     The drive controller writes the six values of its parameter [`twist_covariance_diagonal`]({{ ekf_src_url }}/diffbot_control/config/diffbot_control.yaml#L37) onto the diagonal of `twist.covariance` and 0 everywhere else, in its function [`setOdomPubFields()`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L689), as [lines 722–728 of `diff_drive_controller.cpp`](https://github.com/ros-controls/ros_controllers/blob/0.22.0/diff_drive_controller/src/diff_drive_controller.cpp#L722-L728) in [ros_controllers](https://github.com/ros-controls/ros_controllers/tree/0.22.0) 0.22.0 show:

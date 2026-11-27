@@ -28,6 +28,7 @@ from typing import Sequence
 from typing import Tuple
 
 from board_drawings import board_rules
+from board_drawings import Box
 from board_drawings import draw_bno055_breakout
 from board_drawings import draw_gear_motor_with_wheel
 from board_drawings import draw_motor_driver_board
@@ -35,6 +36,7 @@ from board_drawings import draw_raspberry_pi
 from board_drawings import draw_teensy
 from board_drawings import Drawing
 from board_drawings import ENCODER_BOARD_OFFSET
+from board_drawings import Point
 from board_drawings import style_element
 from board_drawings import svg_element
 
@@ -51,22 +53,6 @@ CODE_FONT = 'var(--md-code-font-family,"Roboto Mono"),monospace'
 
 # A text line in a box: the text and its CSS class
 Line = Tuple[str, str]
-
-
-class Point(NamedTuple):
-    """A point of a layout, in px from the top left corner."""
-
-    x: float
-    y: float
-
-
-class Box(NamedTuple):
-    """A rectangle of a layout: its top left corner, its width and its height."""
-
-    x: float
-    y: float
-    width: float
-    height: float
 
 
 class LineKind(Enum):

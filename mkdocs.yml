@@ -319,6 +319,8 @@ nav:
     - theory/index.md
     # Hidden until written: Linear Algebra, Programming, Pinhole Camera Model, Recursive State Estimation
     - Preliminaries:
+      - Noise and Covariance: theory/preliminaries/noise-and-covariance.md
+      - Quaternions: theory/preliminaries/quaternions.md
       - Probability: theory/preliminaries/probability.md
     - Modeling and Control:
       - Introduction to Control Systems: theory/modeling-control/control-systems-introduction.md
