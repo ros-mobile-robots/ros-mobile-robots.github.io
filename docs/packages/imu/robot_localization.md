@@ -200,10 +200,13 @@ The [`ekf`](#what-the-launch-files-do-with-ekf) argument switches the EKF on. Th
 |:--|:--|
 | On the robot, when you start the bringup yourself | `roslaunch diffbot_bringup bringup.launch model:=remo ekf:=true` (or [`bringup_with_laser.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup_with_laser.launch)) |
 | In the simulation | `roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true` |
+| In the simulation, with an RViz window | `roslaunch diffbot_control diffbot.launch model:=remo ekf:=true` |
 | Simulation with navigation | `roslaunch diffbot_navigation diffbot.launch model:=remo ekf:=true` |
 | Navigation on the development PC, for a robot that runs with the EKF | `roslaunch diffbot_navigation diffbot_hw.launch model:=remo ekf:=true` |
 
-The four commands start these launch files: [`diffbot_bringup/launch/bringup.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup.launch), [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_navigation/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot.launch) and [`diffbot_navigation/launch/diffbot_hw.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot_hw.launch).
+The five commands start these launch files: [`diffbot_bringup/launch/bringup.launch`]({{ ekf_src_url }}/diffbot_bringup/launch/bringup.launch), [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_control/launch/diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/diffbot.launch), [`diffbot_navigation/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot.launch) and [`diffbot_navigation/launch/diffbot_hw.launch`]({{ ekf_src_url }}/diffbot_navigation/launch/diffbot_hw.launch).
+
+The second and the third command start the same simulation: Gazebo with the robot, the robot's controllers, the IMU sample validator and the EKF. The third command also starts RViz. [What RViz shows with the EKF](#what-rviz-shows-with-the-ekf) describes the RViz window.
 
 ### Which launch file starts what
 
@@ -263,13 +266,13 @@ This command also starts the following nodes, which the figure leaves out:
 
 #### In the simulation
 
-In the simulation, you start `diffbot_gazebo`'s [`diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch):
+In the simulation, you start one of two launch files that are both named [`diffbot.launch`](#running-it). [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch) starts the simulation. [`diffbot_control/launch/diffbot.launch`]({{ ekf_switch_src_url }}/diffbot_control/launch/diffbot.launch) starts the same simulation and also RViz. This command starts the file in [`diffbot_gazebo`](../../diffbot_gazebo.md#simulate-diffbot-in-gazebo):
 
 ```console
 roslaunch diffbot_gazebo diffbot.launch model:=remo ekf:=true
 ```
 
-The figure shows which files this command reads in the simulation, [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch), [`diffbot_control.launch`]({{ ekf_src_url }}/diffbot_control/launch/diffbot_control.launch) and [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
+The figure shows which files this command reads in the simulation, `diffbot_gazebo/launch/diffbot.launch`, [`diffbot_control.launch`]({{ ekf_src_url }}/diffbot_control/launch/diffbot_control.launch) and [`ekf.launch`]({{ ekf_src_url }}/diffbot_control/launch/ekf.launch), and which nodes they start:
 
 <p class="lv-badge-line"><span class="lv-badge">Simulation</span></p>
 
@@ -289,7 +292,15 @@ graph TB
   class STATE_PUBLISHER view;
 ```
 
-This command also reads one more file, which the figure leaves out. [`diffbot_gazebo/launch/diffbot.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot.launch) also includes [`diffbot_view.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot_view.launch). That file starts Gazebo through gazebo_ros's [`empty_world.launch`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/launch/empty_world.launch), the adapter [`imu_raw_adapter.py`]({{ ekf_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) and the node that puts the robot into Gazebo. Gazebo runs the drive controller.
+This command also reads one more file, which the figure leaves out. `diffbot_gazebo/launch/diffbot.launch` also includes [`diffbot_view.launch`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot_view.launch). That file starts Gazebo through [gazebo_ros](https://github.com/ros-simulation/gazebo_ros_pkgs/tree/2.9.3/gazebo_ros)'s [`empty_world.launch`](https://github.com/ros-simulation/gazebo_ros_pkgs/blob/2.9.3/gazebo_ros/launch/empty_world.launch), the adapter [`imu_raw_adapter.py`]({{ ekf_src_url }}/diffbot_gazebo/scripts/imu_raw_adapter.py) and the node that puts the robot into Gazebo. Gazebo runs the drive controller.
+
+`diffbot_control/launch/diffbot.launch` includes the same two files, `diffbot_control.launch` and `diffbot_view.launch`, and passes [`ekf`](#what-the-launch-files-do-with-ekf) to `diffbot_control.launch` in the same way. So the figure also holds for the following command, with `diffbot_control: diffbot.launch` in the place of `diffbot_gazebo: diffbot.launch`:
+
+```console
+roslaunch diffbot_control diffbot.launch model:=remo ekf:=true
+```
+
+`diffbot_control/launch/diffbot.launch` also starts RViz. [What RViz shows with the EKF](#what-rviz-shows-with-the-ekf) describes the RViz window.
 
 #### What the launch files do with `ekf`
 
@@ -347,6 +358,34 @@ So with `ekf:=true`, the planner's velocities and the transform come from the sa
     ```xml linenums="28"
     --8<-- "{{ ekf_src_raw }}/diffbot_mbf/launch/includes/move_base.launch.xml:28:29"
     ```
+
+### What RViz shows with the EKF
+
+`roslaunch diffbot_control diffbot.launch model:=remo ekf:=true` starts RViz with the configuration [`diffbot_control/rviz/diffbot.rviz`]({{ ekf_src_url }}/diffbot_control/rviz/diffbot.rviz). The configuration sets RViz's [Fixed Frame](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/visualization_manager.cpp#L176) to [`odom`](#where-the-odom-frame-sits), as the excerpt of its global options shows, from [`diffbot.rviz`, lines 212–216]({{ ekf_src_url }}/diffbot_control/rviz/diffbot.rviz#L212-L216):
+
+```yaml title="diffbot.rviz: the Fixed Frame is odom" linenums="212"
+--8<-- "{{ ekf_src_raw }}/diffbot_control/rviz/diffbot.rviz:212:216"
+```
+
+The configuration has four displays:
+
+- **[Grid](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/grid_display.h#L51):** a grid with cells of 1 m on the ground plane of the `odom` frame.
+- **[RobotModel](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/robot_model_display.h#L62):** the robot's URDF model, which the included `diffbot_view.launch` loads into the parameter [`/diffbot/robot_description`]({{ ekf_src_url }}/diffbot_gazebo/launch/diffbot_view.launch#L35). The display is set to draw the URDF model's visual shapes and not its collision shapes.
+- **[TF](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/tf_display.h#L65):** the `odom` frame and the frames of the robot's links, as axes with their names.
+- **[LaserScan](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/laser_scan_display.h#L48):** the lidar's scan from the topic [`/diffbot/scan`](../../diffbot_slam.md#launch-files).
+
+RViz draws the robot's frames and the URDF model at the pose that the transform [`odom → base_footprint`](#the-two-outputs) gives. With [`ekf:=true`](#what-the-launch-files-do-with-ekf), the EKF publishes this transform. So the pose of the robot's frames in the RViz window is the EKF's estimate. What the RobotModel display adds to the frames depends on the robot:
+
+- **DiffBot:** the display draws DiffBot's body.
+- **Remo:** with these settings and the placeholder meshes of the public [`remo_description`](../remo_description.md) repository, the window shows Remo's frames and the scan, and no body. With Remo's mesh files installed, the same settings draw Remo's body, because the configuration shows the URDF model's visual shapes. [STL files](../remo_description.md#stl-files) on the Remo Description page says which mesh files that repository has and how to get Remo's meshes. To see Remo's body without the meshes, tick **[Collision Enabled](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/robot_model_display.cpp#L64)** in the RobotModel display. The display then draws the collision shapes of Remo's URDF model, as in the picture of [Comparing the two odometries](#comparing-the-two-odometries).
+
+The configuration has no Odometry display, so the window doesn't draw the messages of the topic `/diffbot/odometry/filtered`. To see these messages, add an Odometry display in the RViz window:
+
+1. Click **Add** in the Displays panel.
+2. Select **[Odometry](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/default_plugin/odometry_display.h#L61)** on the tab **By display type** and click **OK**.
+3. Set the **[Topic](https://github.com/ros-visualization/rviz/blob/1.14.26/src/rviz/message_filter_display.h#L58)** of the new display to `/diffbot/odometry/filtered`.
+
+RViz then draws arrows at poses of the EKF's odometry messages. With the display's default settings, an arrow is 1.3 m long, far longer than the robot. The next section, Comparing the two odometries, lists the settings that fit a small robot and adds a second display for the wheel odometry.
 
 ### Comparing the two odometries
 
