@@ -13,6 +13,11 @@ All are inline SVG that follows the site's light and dark colors:
 - includes/control-systems-performance.html: a wheel's speed over time after a step of its target
   speed, with four performance criteria marked by numbers, and a key to the numbers. The key
   stands next to the plot in the wide layout and below it in the tall one;
+- includes/control-systems-robustness.html: model uncertainty as a bounded variation of one
+  parameter, the wheel radius. Three wheels stand on a scale of the radius, the model's wheel
+  between the smallest and the largest real one, and a plot shows the speed of each over time
+  with the same controller. Each wheel is drawn with the line of its speed. The wheels stand to
+  the left of the plot in the wide layout and above it in the tall one;
 - includes/control-systems-closed-loop.html: the same system with a controller that closes the
   loop from the observations back to the commands. It holds two layouts of the figure, a wide one
   for wider screens, with the forward path to the right and the feedback path back below it, and
@@ -37,6 +42,7 @@ Run from the repository root after changing a figure:
 """
 
 from enum import Enum
+import functools
 import math
 from typing import Callable
 from typing import List
@@ -78,6 +84,7 @@ FIGURE_IDS = {
     'includes/control-systems-open-loop.html': 'open-loop-figure',
     'includes/control-systems-stability.html': 'stability-figure',
     'includes/control-systems-performance.html': 'performance-figure',
+    'includes/control-systems-robustness.html': 'robustness-figure',
     'includes/control-systems-closed-loop.html': 'closed-loop-figure',
     'includes/control-systems-agent.html': 'agent-figure',
 }
@@ -148,6 +155,8 @@ class LineKind(Enum):
     BOUND = 'bound'        # thin, dotted: a value that a bounded signal never passes
     TARGET = 'target'      # thin, dashed: the reference that an output should follow
     GUIDE = 'guide'        # thin, solid: from a point of a plot to its mark
+    SMALLEST = 'smallest'  # thick, short dashes: the smallest wheel and its speed
+    LARGEST = 'largest'    # thick, long dashes: the largest wheel and its speed
 
 
 class Point(NamedTuple):
@@ -250,6 +259,37 @@ ERROR_MARK_TIME = STEP_TIME + 0.2  # s
 DISTURBANCE_TIME = 1.2  # s
 DIP_DEPTH = 0.1
 TIME_RESOLUTION = 0.001  # s, of the time from which the speed stays at the target
+
+
+class Wheel(NamedTuple):
+    """One of the robustness figure's wheels.
+
+    radius is a share of the wheel radius that the model has. The wheel and the line of its
+    speed are drawn with the same kind of line.
+    """
+
+    radius: float
+    name: str
+    kind: LineKind
+
+
+# The example of the robustness figure. The model's parameter is the wheel radius. The real
+# wheels' radii differ from the model's value by up to RADIUS_VARIATION, which is far more than
+# real wheels differ, so that the three speeds can be told apart. The model's wheel is drawn
+# with a radius of WHEEL_RADIUS, and the scale below the wheels shows RADIUS_VARIATION as
+# WHEEL_SPACING
+ROBUSTNESS_TITLE = ("Model uncertainty as a bounded variation of a parameter. The model's value "
+                    'of the wheel radius lies in a band between the smallest and the largest '
+                    'real wheel. With the same controller, the speed of each of the three '
+                    'wheels follows the target speed into the band of the largest acceptable '
+                    'error and stays there')
+RADIUS_VARIATION = 0.25
+WHEELS = (Wheel(1 - RADIUS_VARIATION, 'smallest', LineKind.SMALLEST),
+          Wheel(1, "model's value", LineKind.SIGNAL),
+          Wheel(1 + RADIUS_VARIATION, 'largest', LineKind.LARGEST))
+ROBUSTNESS_DURATION = 1.4  # s
+WHEEL_RADIUS = 18  # px
+WHEEL_SPACING = 80  # px
 # The spacing of the plots' parts, in px: between two points of a sampled curve, from the end of
 # an axis to its arrowhead, between the lines of a label, between the rows of a key, and the
 # radius of a number's disc
@@ -293,6 +333,11 @@ RULES = (
      f'fill:none;stroke:{FG};stroke-width:1.3;stroke-dasharray:6 3'),
     (f'.cs-fig .{LineKind.GUIDE.value}', f'fill:none;stroke:{FG_LIGHT};stroke-width:1'),
     ('.cs-fig .band', 'fill:var(--md-default-fg-color--lightest);stroke:none'),
+    (f'.cs-fig .{LineKind.SMALLEST.value}',
+     f'fill:none;stroke:{FG};stroke-width:2;stroke-linejoin:round;stroke-dasharray:4 3'),
+    (f'.cs-fig .{LineKind.LARGEST.value}',
+     f'fill:none;stroke:{FG};stroke-width:2;stroke-linejoin:round;stroke-dasharray:11 4'),
+    ('.cs-fig .hub', f'fill:{FG}'),
 )
 
 
@@ -663,16 +708,25 @@ def disturbance_mark(figure: Figure, plot: Plot, speed: Sequence[Point]) -> None
     figure.number_disc(dip.x, plot.y_at(1 - ACCEPTABLE_ERROR) + 14, 4)
 
 
-def performance_plot(figure: Figure, plot: Plot) -> None:
-    """Add the plot of the wheel's speed and its target, the band and the four marks."""
-    reached_at = time_at_the_target(performance_output, DISTURBANCE_TIME)
-    speed = sampled(plot, performance_output, plot.duration)
+def target_and_band(figure: Figure, plot: Plot) -> None:
+    """Add a plot's axes, the target's step and, from the step on, the band around the target.
+
+    The band reaches ACCEPTABLE_ERROR above and below the target.
+    """
     band_top, step_x = plot.y_at(1 + ACCEPTABLE_ERROR), plot.x_at(STEP_TIME)
     figure.area(step_x, band_top, plot.right - step_x,
                 round(plot.y_at(1 - ACCEPTABLE_ERROR) - band_top, 1), 'band')
     figure.axes(plot)
     figure.curve([plot.point(0, 0), plot.point(STEP_TIME, 0), plot.point(STEP_TIME, 1),
                   plot.point(plot.duration, 1)], LineKind.TARGET)
+
+
+def performance_plot(figure: Figure, plot: Plot) -> None:
+    """Add the plot of the wheel's speed and its target, the band and the four marks."""
+    reached_at = time_at_the_target(performance_output, DISTURBANCE_TIME)
+    speed = sampled(plot, performance_output, plot.duration)
+    step_x = plot.x_at(STEP_TIME)
+    target_and_band(figure, plot)
     figure.curve(speed, LineKind.SIGNAL)
     figure.signal(step_x + 8, plot.top + 8, 'reference', 'target wheel speed')
     figure.signal(plot.x_at(reached_at) + 18, plot.y_at(0.5), 'output', 'wheel speed')
@@ -712,6 +766,94 @@ def wide_performance_figure() -> Figure:
                     layout='cs-fig-wide')
     performance_plot(figure, plot)
     performance_key(figure, plot.right + 44, plot.top + 52)
+    figure.text(WIDE_WIDTH / 2, height - 8, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def wheel_loop(radius: float) -> SecondOrder:
+    """Return the example system for a wheel with a radius, a share of the model's value.
+
+    The controller stays the one that gives SETTLING with the model's value. In this example,
+    the robot's mass is all that the motor speeds up. Through a wheel, the mass acts on the
+    motor like an inertia that grows with the radius squared. For a controller that sums up the
+    error, the loop's natural frequency and its damping ratio then both fall with 1 / radius.
+    """
+    return SecondOrder(SETTLING.natural_frequency / radius, SETTLING.damping_ratio / radius)
+
+
+def wheel_speed(radius: float, time: float) -> float:
+    """Return the speed of a wheel with a radius at a time of the robustness figure."""
+    return step_response(wheel_loop(radius), time - STEP_TIME)
+
+
+def wheel_x(model_x: float, wheel: Wheel) -> float:
+    """Return the x coordinate of a wheel on the scale of the radius.
+
+    The model's value is at model_x.
+    """
+    return round(model_x + (wheel.radius - 1) / RADIUS_VARIATION * WHEEL_SPACING, 1)
+
+
+def wheels_on_the_scale(figure: Figure, model_x: float, ground_y: float) -> None:
+    """Add the three wheels on the ground, and below them the scale of the wheel radius.
+
+    The scale's band reaches from the smallest wheel to the largest one. A tick marks each
+    wheel's radius, with the wheel's name below it. A bracket below the names spans the band
+    and carries the band's name.
+    """
+    smallest_x, largest_x = wheel_x(model_x, WHEELS[0]), wheel_x(model_x, WHEELS[-1])
+    figure.curve([Point(smallest_x - 28, ground_y), Point(largest_x + 36, ground_y)],
+                 LineKind.GUIDE)
+    figure.area(smallest_x, ground_y + 10, largest_x - smallest_x, 8, 'band')
+    for wheel in WHEELS:
+        x, radius = wheel_x(model_x, wheel), round(wheel.radius * WHEEL_RADIUS, 1)
+        figure.circle(x, round(ground_y - radius, 1), radius, wheel.kind.value)
+        figure.circle(x, round(ground_y - radius, 1), 2, 'hub')
+        figure.curve([Point(x, ground_y + 6), Point(x, ground_y + 22)], LineKind.GUIDE)
+        figure.text(x, ground_y + 38, wheel.name, anchor='middle')
+    bracket_y = ground_y + 46
+    figure.curve([Point(smallest_x, bracket_y), Point(smallest_x, bracket_y + 5),
+                  Point(largest_x, bracket_y + 5), Point(largest_x, bracket_y)], LineKind.GUIDE)
+    figure.text(model_x, bracket_y + 5 + LINE_SPACING, 'bounded variation', anchor='middle')
+    figure.signal(smallest_x - 92, ground_y - 46, 'parameter', 'wheel radius')
+
+
+def robustness_plot(figure: Figure, plot: Plot) -> None:
+    """Add the plot of the three wheels' speeds, with their target and the band around it.
+
+    The model's wheel is drawn last, on top of the two others.
+    """
+    target_and_band(figure, plot)
+    for wheel in sorted(WHEELS, key=lambda wheel: wheel.kind is LineKind.SIGNAL):
+        speed = functools.partial(wheel_speed, wheel.radius)
+        figure.curve(sampled(plot, speed, plot.duration), wheel.kind)
+    figure.signal(plot.x_at(STEP_TIME) + 8, plot.top + 8, 'reference', 'target wheel speed')
+    figure.text(plot.right, plot.y_at(1 + ACCEPTABLE_ERROR) - 6, 'largest acceptable error',
+                anchor='end')
+    figure.signal(plot.x_at(0.5 * plot.duration), plot.y_at(0.5), 'output', 'wheel speed')
+
+
+def robustness_figure() -> Figure:
+    """Return the tall layout of the robustness figure, for phones: the wheels above the plot."""
+    plot = Plot(left=44, top=164, width=300, height=152, duration=ROBUSTNESS_DURATION,
+                highest=PERFORMANCE_HIGHEST)
+    height = round(plot.bottom + 46)
+    figure = Figure('cs-robustness', height, ROBUSTNESS_TITLE, layout='cs-fig-tall')
+    wheels_on_the_scale(figure, model_x=SYSTEM_X + 10, ground_y=64)
+    robustness_plot(figure, plot)
+    figure.text(WIDTH / 2, height - 6, LEGEND, 'legend', 'middle')
+    return figure
+
+
+def wide_robustness_figure() -> Figure:
+    """Return the wide layout of the robustness figure: the wheels to the left of the plot."""
+    plot = Plot(left=352, top=20, width=310, height=152, duration=ROBUSTNESS_DURATION,
+                highest=PERFORMANCE_HIGHEST)
+    height = round(plot.bottom + 46)
+    figure = Figure('cs-robustness-wide', height, ROBUSTNESS_TITLE, width=WIDE_WIDTH,
+                    layout='cs-fig-wide')
+    wheels_on_the_scale(figure, model_x=196, ground_y=88)
+    robustness_plot(figure, plot)
     figure.text(WIDE_WIDTH / 2, height - 8, LEGEND, 'legend', 'middle')
     return figure
 
@@ -850,6 +992,12 @@ def main() -> None:
                   "How a wheel's speed follows a step of its target speed. The numbers mark "
                   'four performance criteria. The curve is an example response, not a '
                   'measurement of the robot.')
+    write_include('includes/control-systems-robustness.html',
+                  [wide_robustness_figure(), robustness_figure()],
+                  'Model uncertainty as a bounded variation of one parameter. The same '
+                  "controller drives the smallest wheel, the model's wheel and the largest "
+                  "wheel. An example with the wheels' differences drawn much larger than real "
+                  'ones, not a measurement of the robot.')
     write_include('includes/control-systems-closed-loop.html',
                   [wide_closed_loop_figure(), closed_loop_figure()],
                   'A closed loop. Start at the reference (1) and follow the numbers around '

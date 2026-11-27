@@ -30,7 +30,8 @@ from control_systems_figures import Point  # noqa: E402
 SCRIPT = ROOT / 'scripts' / 'figures' / 'control_systems_figures.py'
 INCLUDE_NAMES = ['control-systems-agent.html', 'control-systems-closed-loop.html',
                  'control-systems-open-loop.html', 'control-systems-performance.html',
-                 'control-systems-stability.html', 'control-systems-system.html']
+                 'control-systems-robustness.html', 'control-systems-stability.html',
+                 'control-systems-system.html']
 # With these variables, Python's default encoding for a text file is ASCII: the C locale, without
 # Python's own switch to UTF-8 for that locale
 ASCII_LOCALE = {'LC_ALL': 'C', 'LANG': 'C', 'PYTHONCOERCECLOCALE': '0', 'PYTHONUTF8': '0'}
@@ -386,6 +387,8 @@ def every_layout() -> Dict[str, str]:
                control_systems_figures.stability_figure(),
                control_systems_figures.wide_performance_figure(),
                control_systems_figures.performance_figure(),
+               control_systems_figures.wide_robustness_figure(),
+               control_systems_figures.robustness_figure(),
                control_systems_figures.wide_closed_loop_figure(),
                control_systems_figures.closed_loop_figure(),
                control_systems_figures.agent_figure()]
@@ -605,6 +608,25 @@ class TestResponses(unittest.TestCase):
             control_systems_figures.DISTURBANCE_TIME + step * millisecond)
             for step in range(a_second)]
         self.assertAlmostEqual(1 - min(speeds), control_systems_figures.DIP_DEPTH, places=2)
+
+    def test_wheel_loop_of_the_models_value_is_the_settling_system(self) -> None:
+        self.assertEqual(control_systems_figures.wheel_loop(1), control_systems_figures.SETTLING)
+
+    def test_wheel_loop_of_twice_the_radius_has_half_the_frequency_and_half_the_damping(
+            self) -> None:
+        twice = control_systems_figures.wheel_loop(2)
+        self.assertAlmostEqual(twice.natural_frequency,
+                               control_systems_figures.SETTLING.natural_frequency / 2)
+        self.assertAlmostEqual(twice.damping_ratio,
+                               control_systems_figures.SETTLING.damping_ratio / 2)
+
+    def test_wheel_speed_of_the_models_value_is_the_step_response_after_the_step(self) -> None:
+        after_the_step = 0.3
+        self.assertAlmostEqual(
+            control_systems_figures.wheel_speed(
+                1, control_systems_figures.STEP_TIME + after_the_step),
+            control_systems_figures.step_response(control_systems_figures.SETTLING,
+                                                  after_the_step))
 
 
 class StabilityLines(NamedTuple):
@@ -932,6 +954,216 @@ class TestPerformance(unittest.TestCase):
             texts = texts_of(drawing.svg)
             for text in ('reference', 'target wheel speed', 'output', 'wheel speed', 'time'):
                 self.assertEqual(texts.count(text), 1, text)
+
+
+class DrawnWheel(NamedTuple):
+    """A wheel of the robustness figure as it is drawn: its rim, and the name below its tick."""
+
+    kind: LineKind
+    center: Point
+    radius: float
+
+    @property
+    def ground_y(self) -> float:
+        """Return the y coordinate of the wheel's lowest point."""
+        return self.center.y + self.radius
+
+
+class RobustnessDrawing(NamedTuple):
+    """What one layout of the robustness figure draws."""
+
+    svg: str
+    wheels: List[DrawnWheel]
+    scale_band: Area
+    plot_band: Area
+    target: List[Point]
+    speeds: Dict[LineKind, List[Point]]
+
+    def entered_at(self, kind: LineKind) -> int:
+        """Return the index of the first point from which a wheel's speed stays in the band."""
+        outside = [index for index, point in enumerate(self.speeds[kind])
+                   if not self.plot_band.top <= point.y <= self.plot_band.bottom]
+        return outside[-1] + 1
+
+
+# The kinds of line of the three wheels, from the smallest wheel to the largest
+WHEEL_KINDS = [LineKind.SMALLEST, LineKind.SIGNAL, LineKind.LARGEST]
+
+
+def robustness_drawing(svg: str) -> RobustnessDrawing:
+    """Return what a layout of the robustness figure draws. The wheels' scale is drawn first."""
+    wheels = [DrawnWheel(kind, Point(float(circle.get('cx', 0)), float(circle.get('cy', 0))),
+                         float(circle.get('r', 0)))
+              for circle in ElementTree.fromstring(svg).iter('circle')
+              for kind in WHEEL_KINDS if kind.value in css_classes(circle)]
+    scale_band, plot_band = drawn_rectangles(svg, 'band')
+    target, = drawn_lines(svg, LineKind.TARGET)
+    speeds = {kind: drawn_lines(svg, kind)[0] for kind in WHEEL_KINDS}
+    return RobustnessDrawing(svg, wheels, scale_band, plot_band, target, speeds)
+
+
+class TestRobustness(unittest.TestCase):
+    """Both layouts show three wheels in a band of the radius, and each wheel's speed.
+
+    All three speeds reach the band around the target and stay in it.
+    """
+
+    def setUp(self) -> None:
+        self.wide = control_systems_figures.wide_robustness_figure().svg()
+        self.tall = control_systems_figures.robustness_figure().svg()
+        self.layouts = (robustness_drawing(self.wide), robustness_drawing(self.tall))
+        self.include = (ROOT / 'includes' / 'control-systems-robustness.html').read_text(
+            encoding='utf-8')
+
+    def test_include_holds_the_wide_layout_then_the_tall_one_and_one_caption(self) -> None:
+        self.assertIn('<figure class="cs-figure cs-has-wide" id="robustness-figure">',
+                      self.include)
+        self.assertLess(self.include.index(self.wide), self.include.index(self.tall))
+        self.assertEqual(self.include.count('<figcaption>'), 1)
+
+    def test_caption_says_that_the_differences_are_enlarged_and_not_measured(self) -> None:
+        self.assertIn("the wheels' differences drawn much larger than real ones, "
+                      'not a measurement of the robot', self.include)
+
+    def test_three_wheels_stand_side_by_side_from_the_smallest_to_the_largest(self) -> None:
+        for drawing in self.layouts:
+            self.assertEqual([wheel.kind for wheel in drawing.wheels], WHEEL_KINDS)
+            radii = [wheel.radius for wheel in drawing.wheels]
+            places = [wheel.center.x for wheel in drawing.wheels]
+            self.assertEqual(radii, sorted(set(radii)))
+            self.assertEqual(places, sorted(set(places)))
+
+    def test_no_two_wheels_touch(self) -> None:
+        for drawing in self.layouts:
+            for left, right in zip(drawing.wheels, drawing.wheels[1:]):
+                self.assertGreater(right.center.x - right.radius, left.center.x + left.radius)
+
+    def test_all_wheels_stand_on_the_same_ground(self) -> None:
+        for drawing in self.layouts:
+            grounds = {round(wheel.ground_y, 1) for wheel in drawing.wheels}
+            self.assertEqual(len(grounds), 1)
+
+    def test_each_wheel_stands_on_the_scale_where_its_radius_is(self) -> None:
+        # Equal steps of the radius are equal steps along the scale
+        for drawing in self.layouts:
+            smallest, model, largest = drawing.wheels
+            self.assertAlmostEqual(
+                (model.center.x - smallest.center.x) / (model.radius - smallest.radius),
+                (largest.center.x - model.center.x) / (largest.radius - model.radius),
+                delta=0.5)
+
+    def test_scales_band_reaches_from_the_smallest_wheel_to_the_largest(self) -> None:
+        for drawing in self.layouts:
+            smallest, model, largest = drawing.wheels
+            self.assertEqual(drawing.scale_band.left, smallest.center.x)
+            self.assertEqual(drawing.scale_band.right, largest.center.x)
+            self.assertLess(drawing.scale_band.left, model.center.x)
+            self.assertLess(model.center.x, drawing.scale_band.right)
+            self.assertGreater(drawing.scale_band.top, model.ground_y)
+
+    def test_a_tick_marks_each_wheels_place_on_the_scale(self) -> None:
+        for drawing in self.layouts:
+            ticks = [line for line in drawn_lines(drawing.svg, LineKind.GUIDE)
+                     if len(line) == 2 and line[0].x == line[1].x]
+            self.assertEqual([tick[0].x for tick in ticks],
+                             [wheel.center.x for wheel in drawing.wheels])
+            for tick in ticks:
+                self.assertLess(tick[0].y, drawing.scale_band.top)
+                self.assertGreater(tick[1].y, drawing.scale_band.bottom)
+
+    def test_each_wheels_name_stands_below_its_tick(self) -> None:
+        names = ['smallest', "model's value", 'largest']
+        for drawing in self.layouts:
+            texts = {drawn.text: drawn.area for drawn in drawn_texts(drawing.svg)}
+            for name, wheel in zip(names, drawing.wheels):
+                self.assertAlmostEqual((texts[name].left + texts[name].right) / 2,
+                                       wheel.center.x, delta=1)
+                self.assertGreater(texts[name].top, drawing.scale_band.bottom)
+
+    def test_a_bracket_with_the_name_bounded_variation_spans_the_scales_band(self) -> None:
+        for drawing in self.layouts:
+            bracket, = [line for line in drawn_lines(drawing.svg, LineKind.GUIDE)
+                        if len(line) > 2]
+            self.assertEqual(min(point.x for point in bracket), drawing.scale_band.left)
+            self.assertEqual(max(point.x for point in bracket), drawing.scale_band.right)
+            name = next(drawn.area for drawn in drawn_texts(drawing.svg)
+                        if drawn.text == 'bounded variation')
+            self.assertGreater(name.top, max(point.y for point in bracket))
+            self.assertLess(name.top - max(point.y for point in bracket), 10)
+            self.assertGreater(name.left, drawing.scale_band.left)
+            self.assertLess(name.right, drawing.scale_band.right)
+
+    def test_each_wheels_speed_has_the_line_of_its_wheel(self) -> None:
+        for drawing in self.layouts:
+            self.assertEqual(list(drawing.speeds), [wheel.kind for wheel in drawing.wheels])
+            for kind in WHEEL_KINDS:
+                self.assertEqual(len(drawn_lines(drawing.svg, kind)), 1, kind)
+
+    def test_plots_band_lies_evenly_around_the_target(self) -> None:
+        for drawing in self.layouts:
+            target_y = drawing.target[-1].y
+            self.assertAlmostEqual(target_y - drawing.plot_band.top,
+                                   drawing.plot_band.bottom - target_y, delta=2 * ROUNDING)
+
+    def test_every_wheels_speed_enters_the_band_once_and_stays_in_it(self) -> None:
+        for drawing in self.layouts:
+            band = drawing.plot_band
+            for kind, speed in drawing.speeds.items():
+                self.assertGreater(speed[0].y, band.bottom, kind)
+                first_in_the_band = next(index for index, point in enumerate(speed)
+                                         if band.top <= point.y <= band.bottom)
+                self.assertEqual(drawing.entered_at(kind), first_in_the_band, kind)
+                self.assertGreater(len(speed[first_in_the_band:]), len(speed) / 2, kind)
+
+    def test_every_wheels_speed_starts_to_rise_where_the_target_steps(self) -> None:
+        for drawing in self.layouts:
+            step_x = next(point.x for point in drawing.target
+                          if point.y < drawing.target[0].y)
+            for kind, speed in drawing.speeds.items():
+                rises_from = max(point.x for point in speed if point.y == speed[0].y)
+                self.assertAlmostEqual(rises_from, step_x, msg=kind,
+                                       delta=control_systems_figures.SAMPLE_STEP + ROUNDING)
+
+    def test_every_wheels_speed_ends_close_to_the_target(self) -> None:
+        close = 3
+        for drawing in self.layouts:
+            for kind, speed in drawing.speeds.items():
+                self.assertAlmostEqual(speed[-1].y, drawing.target[-1].y, delta=close, msg=kind)
+
+    def test_smaller_wheel_enters_the_band_earlier(self) -> None:
+        for drawing in self.layouts:
+            entries = [drawing.speeds[kind][drawing.entered_at(kind)].x for kind in WHEEL_KINDS]
+            self.assertEqual(entries, sorted(set(entries)))
+
+    def test_larger_wheel_swings_further_past_the_target(self) -> None:
+        for drawing in self.layouts:
+            peaks = [highest_y(drawing.speeds[kind]) for kind in WHEEL_KINDS]
+            self.assertEqual(peaks, sorted(set(peaks), reverse=True))
+            self.assertGreater(peaks[-1], drawing.plot_band.top)
+
+    def test_the_three_speeds_can_be_told_apart_while_they_rise(self) -> None:
+        apart = 4
+        for drawing in self.layouts:
+            halfway = (drawing.target[0].y + drawing.target[-1].y) / 2
+            crossings = [next(point.x for point in drawing.speeds[kind] if point.y <= halfway)
+                         for kind in WHEEL_KINDS]
+            for earlier, later in zip(crossings, crossings[1:]):
+                self.assertGreaterEqual(later - earlier, apart)
+
+    def test_both_layouts_name_the_parameter_the_target_the_band_and_the_output(self) -> None:
+        for drawing in self.layouts:
+            texts = texts_of(drawing.svg)
+            for text in ('parameter', 'wheel radius', 'reference', 'target wheel speed',
+                         'largest acceptable error', 'output', 'wheel speed', 'time'):
+                self.assertEqual(texts.count(text), 1, text)
+
+    def test_the_bands_name_stands_right_above_the_plots_band(self) -> None:
+        for drawing in self.layouts:
+            name = next(drawn.area for drawn in drawn_texts(drawing.svg)
+                        if drawn.text == 'largest acceptable error')
+            self.assertLess(name.bottom, drawing.plot_band.top)
+            self.assertLess(drawing.plot_band.top - name.bottom, 8)
+            self.assertAlmostEqual(name.right, drawing.plot_band.right, delta=1)
 
 
 # The open loop's chain, from its first signal to its last

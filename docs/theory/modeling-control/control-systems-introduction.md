@@ -76,8 +76,14 @@ The figure doesn't show the fifth criterion, noise.
 
 Robustness, is the ability of the controller to provide stability and performance even in the presence of uncertainty in the mathematical model of the plant.
 
-!!! todo "TODO"
-    Add model uncertainty image
+The figure shows such an uncertainty for one parameter of the model, the wheel radius.
+The model has one value for the radius, and each real wheel's radius lies somewhere in a band around that value.
+Follow the three lines of the plot, one for each wheel: with the same controller, the speed of the smallest wheel (short dashes), of the model's wheel (solid line) and of the largest wheel (long dashes) all enter the gray band of the largest acceptable error and stay in it.
+
+--8<-- "includes/control-systems-robustness.html"
+
+The figure draws the wheels' differences much larger than they are on a real robot, so that the three lines can be told apart.
+A larger wheel pushes the robot with less force for the same motor torque, so its speed rises more slowly.
 
 Model uncertainty can mean that the wheels of the robot are slightly of different sizes or the disposition of mass is different than what's assumed.
 Also the parameters parameters of the system might just change over time because of wear and tear.
