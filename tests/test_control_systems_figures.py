@@ -145,9 +145,10 @@ class TestClosedLoopLayouts(unittest.TestCase):
 
 # The width of Roboto's characters as a share of the font size, by width: the regular weight,
 # measured in Chromium with the font files that the site serves. A bold text is BOLD_FACTOR
-# wider. A character that the table lacks counts as wide as the widest one: an estimate that
-# is too wide can fail a test, which then asks for the character's width, but it can't hide a
-# text that is too long
+# wider. A character that the table lacks counts as wide as the widest one in the table. That
+# is an estimate, and it can err either way: most characters are narrower, and a few are
+# wider, such as "@" with 0.898. The widths here are estimates as a whole. What a text really
+# takes up is measured in the browser, with the font that the page loads
 ROBOTO_WIDTHS = {
     0.175: "'", 0.197: ',', 0.211: ';', 0.239: 'j', 0.242: ':', 0.243: 'il', 0.248: ' ',
     0.264: '.', 0.272: 'I', 0.276: '-', 0.327: 't', 0.339: 'r', 0.342: '(', 0.348: 'f)',
@@ -455,7 +456,8 @@ class TestTextWidth(unittest.TestCase):
         self.assertAlmostEqual(text_width(narrow_letters, []),
                                2 * CHARACTER_WIDTHS['i'] * font_size([]))
 
-    def test_a_character_without_a_measured_width_counts_as_the_widest(self) -> None:
+    def test_a_character_without_a_measured_width_counts_as_the_widest_of_the_table(
+            self) -> None:
         not_in_the_table = '\u00e9'
         self.assertNotIn(not_in_the_table, CHARACTER_WIDTHS)
         self.assertAlmostEqual(text_width(not_in_the_table, []),
