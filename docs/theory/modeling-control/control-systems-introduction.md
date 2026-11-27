@@ -175,7 +175,8 @@ The measurements themselves, though, generally need to be processed before being
 This is required because the raw measurements might include a lot of redundant data straight out of the sensors.
 
 
-How to structure the agent, the part between the observations and the commands, is up to the designer, to us.
+The part of the robot between the observations and the commands is called the agent.
+How to structure the agent is up to the designer, to us.
 
 We could use different approaches, for example, a deep neural network
 trained from real data or a simulation to translate the images from the camera
@@ -183,9 +184,9 @@ directly into commands to the wheels to keep the robot following a desired plan.
 
 Traditionally, agents are designed with three main components, perception,
 planning, and control: to see, to plan, and to act.
-In the figure, the agent is everything between the observations and the commands.
-In the [closed loop figure](#closed-loop-figure), that is the comparison and the controller, and the reference comes from outside.
-In the agent, the planner supplies the reference.
+The figure shows such an agent.
+In the [closed loop figure](#closed-loop-figure), the agent is the comparison and the controller, and the reference comes from outside.
+In the agent of the figure, the planner supplies the reference.
 The agent's controller compares the reference with the estimate that perception computes from the observations.
 
 --8<-- "includes/control-systems-agent.html"
