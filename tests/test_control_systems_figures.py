@@ -318,9 +318,9 @@ def drawn_numbers(svg: str) -> List[Tuple[int, Point]]:
 
 
 def drawn_dimensions(svg: str) -> List[Tuple[Point, Point]]:
-    """Return the two ends of each of a drawing's measures, in the order of the measures.
+    """Return the two ends of each of a drawing's dimension lines, in the order of the lines.
 
-    A measure is drawn as two arrows that leave one point in opposite directions.
+    A dimension line is drawn as two arrows that leave one point in opposite directions.
     """
     arrows = [path_segments(path.get('d', ''))[0]
               for path in ElementTree.fromstring(svg).iter('path')
@@ -584,13 +584,14 @@ class TestPlot(unittest.TestCase):
         halfway_up = self.plot.top + self.plot.height / 2
         self.assertEqual(self.plot.y_at(self.plot.highest / 2), halfway_up)
 
-    def test_sampled_line_runs_from_time_zero_to_the_end_time(self) -> None:
+    def test_sampled_curve_runs_from_time_zero_to_the_end_time(self) -> None:
         end_time = 0.9
         line = control_systems_figures.sample_curve(self.plot, math.sin, end_time)
         self.assertEqual(line[0], self.plot.point(0, math.sin(0)))
         self.assertEqual(line[-1], self.plot.point(end_time, math.sin(end_time)))
 
-    def test_sampled_lines_points_are_no_further_apart_than_the_sample_step(self) -> None:
+    def test_sampled_curves_points_are_at_most_the_sample_step_apart_along_the_time_axis(
+            self) -> None:
         line = control_systems_figures.sample_curve(self.plot, math.sin, self.plot.duration)
         rounding = 0.1
         for earlier, later in zip(line, line[1:]):
@@ -873,8 +874,8 @@ class PerformanceDrawing(NamedTuple):
     band: Area
     target: List[Point]
     speed: List[Point]
-    time_measure: Tuple[Point, Point]
-    error_measure: Tuple[Point, Point]
+    settling_time_line: Tuple[Point, Point]
+    error_line: Tuple[Point, Point]
     band_bracket: List[Point]
     numbers: List[Tuple[int, Point]]
 
@@ -912,9 +913,9 @@ def performance_drawing(svg: str) -> PerformanceDrawing:
     band, = drawn_rectangles(svg, 'band')
     target, = drawn_lines(svg, LineKind.TARGET)
     speed, = drawn_lines(svg, LineKind.SIGNAL)
-    time_measure, error_measure = drawn_dimensions(svg)
+    settling_time_line, error_line = drawn_dimensions(svg)
     band_bracket = next(line for line in drawn_lines(svg, LineKind.GUIDE) if len(line) > 2)
-    return PerformanceDrawing(svg, band, target, speed, time_measure, error_measure,
+    return PerformanceDrawing(svg, band, target, speed, settling_time_line, error_line,
                               band_bracket, drawn_numbers(svg))
 
 
@@ -974,7 +975,7 @@ class TestPerformance(unittest.TestCase):
     def test_mark_1_spans_from_the_targets_step_to_where_the_speed_enters_the_band(
             self) -> None:
         for drawing in self.layouts:
-            start, end = drawing.time_measure
+            start, end = drawing.settling_time_line
             self.assertEqual(start.y, end.y)
             self.assertEqual(start.x, drawing.step_x)
             self.assertAlmostEqual(end.x, drawing.speed[drawing.entered_at].x,
@@ -982,7 +983,7 @@ class TestPerformance(unittest.TestCase):
 
     def test_a_guide_leads_from_where_the_speed_enters_the_band_down_to_mark_1(self) -> None:
         for drawing in self.layouts:
-            end = drawing.time_measure[1]
+            end = drawing.settling_time_line[1]
             guide = next(line for line in drawn_lines(drawing.svg, LineKind.GUIDE)
                          if line[0].x == end.x and len(line) == 2)
             self.assertAlmostEqual(guide[0].y, drawing.band.bottom, delta=1)
@@ -990,7 +991,7 @@ class TestPerformance(unittest.TestCase):
 
     def test_mark_2_spans_from_the_speed_up_to_the_target_at_one_time(self) -> None:
         for drawing in self.layouts:
-            at_the_speed, at_the_target = drawing.error_measure
+            at_the_speed, at_the_target = drawing.error_line
             self.assertEqual(at_the_speed.x, at_the_target.x)
             self.assertEqual(at_the_target.y, drawing.target_y)
             self.assertAlmostEqual(at_the_speed.y, y_on(drawing.speed, at_the_speed.x), delta=1)
@@ -1017,9 +1018,9 @@ class TestPerformance(unittest.TestCase):
     def test_each_of_the_first_three_numbers_stands_next_to_its_mark(self) -> None:
         nearest = 2 * control_systems_figures.DISC_RADIUS
         for drawing in self.layouts:
-            marks = {1: drawing.time_measure[1],
-                     2: Point(drawing.error_measure[0].x,
-                              (drawing.error_measure[0].y + drawing.error_measure[1].y) / 2),
+            marks = {1: drawing.settling_time_line[1],
+                     2: Point(drawing.error_line[0].x,
+                              (drawing.error_line[0].y + drawing.error_line[1].y) / 2),
                      3: min(drawing.band_bracket, key=lambda point: point.y)}
             for number, mark in marks.items():
                 disc = drawing.mark(number)
