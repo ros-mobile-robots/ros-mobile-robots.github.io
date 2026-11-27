@@ -83,7 +83,9 @@ Robustness is the ability of the controller to provide stability and performance
 
 The figure shows such an uncertainty for one parameter of the model, the wheel radius.
 The model has one value for the radius, and the figure assumes that a real wheel's radius lies in a range around that value.
-Follow the three wheels toward the same target angular speed, measured by the encoder in rad/s.
+All three cases use the same target angular speed.
+Follow each wheel's response toward that target.
+On the robot, the firmware uses encoder ticks to measure the wheel's actual angular speed in rad/s.
 [The feedback loop of one wheel](../../packages/diffbot_base/pid.md#the-feedback-loop-of-one-wheel) on the PID Controllers page shows how the robots measure and control this angular speed.
 With the same controller, the smallest wheel (short dashes), the model's wheel (solid line) and the largest wheel (long dashes) all enter the gray tolerance band and stay in it.
 
