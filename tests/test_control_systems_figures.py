@@ -593,17 +593,17 @@ class TestResponses(unittest.TestCase):
         self.assertAlmostEqual(control_systems_figures.disturbance_response(
             control_systems_figures.SETTLING, long_after_the_load_began), 0)
 
-    def test_time_at_the_target_is_when_a_rising_signal_enters_the_band(self) -> None:
-        # A signal that rises by 1 per second is within the band of 1 from 1 - ACCEPTABLE_ERROR on
+    def test_a_rising_signal_has_settled_when_it_enters_the_band(self) -> None:
+        # A signal that rises by 1 per second is within the band of 1 from 1 - ALLOWED_ERROR on
         end = 1.0
-        entered_at = control_systems_figures.time_at_the_target(lambda time: time, end)
-        self.assertAlmostEqual(entered_at, 1 - control_systems_figures.ACCEPTABLE_ERROR,
+        entered_at = control_systems_figures.settled_at(lambda time: time, end)
+        self.assertAlmostEqual(entered_at, 1 - control_systems_figures.ALLOWED_ERROR,
                                delta=2 * control_systems_figures.TIME_RESOLUTION)
 
-    def test_time_at_the_target_is_after_the_last_time_a_signal_left_the_band(self) -> None:
+    def test_a_signal_has_settled_after_the_last_time_it_left_the_band(self) -> None:
         # A signal that is in the band at first, leaves it at 0.5 s and is back at 0.75 s
         left_at, back_at, end = 0.5, 0.75, 1.0
-        entered_at = control_systems_figures.time_at_the_target(
+        entered_at = control_systems_figures.settled_at(
             lambda time: 0 if left_at <= time < back_at else 1, end)
         self.assertAlmostEqual(entered_at, back_at,
                                delta=2 * control_systems_figures.TIME_RESOLUTION)
@@ -790,8 +790,8 @@ class TestStability(unittest.TestCase):
 
 
 # What each number of the performance figure marks on the plot, as the key has to name it
-PERFORMANCE_KEY = {1: 'time to reach the target', 2: 'tracking error',
-                   3: 'largest acceptable error', 4: 'disturbance and recovery'}
+PERFORMANCE_KEY = {1: 'settling time', 2: 'tracking error',
+                   3: 'allowed error after settling', 4: 'disturbance and recovery'}
 
 
 class PerformanceDrawing(NamedTuple):
@@ -1178,16 +1178,20 @@ class TestRobustness(unittest.TestCase):
         for drawing in self.layouts:
             texts = texts_of(drawing.svg)
             for text in ('parameter', 'wheel radius', 'reference', 'target wheel speed',
-                         'largest acceptable error', 'output', 'wheel speed', 'time'):
+                         'allowed error after settling', 'output', 'wheel speed', 'time'):
                 self.assertEqual(texts.count(text), 1, text)
 
-    def test_the_bands_name_stands_right_above_the_plots_band(self) -> None:
+    def test_the_bands_name_stands_right_below_the_plots_band(self) -> None:
         for drawing in self.layouts:
             name = next(drawn.area for drawn in drawn_texts(drawing.svg)
-                        if drawn.text == 'largest acceptable error')
-            self.assertLess(name.bottom, drawing.plot_band.top)
-            self.assertLess(drawing.plot_band.top - name.bottom, 8)
+                        if drawn.text == 'allowed error after settling')
+            self.assertGreater(name.top, drawing.plot_band.bottom)
+            self.assertLess(name.top - drawing.plot_band.bottom, 8)
             self.assertAlmostEqual(name.right, drawing.plot_band.right, delta=1)
+
+    def test_the_band_has_the_name_of_the_performance_figures_third_mark(self) -> None:
+        for drawing in self.layouts:
+            self.assertIn(PERFORMANCE_KEY[3], texts_of(drawing.svg))
 
 
 # The open loop's chain, from its first signal to its last

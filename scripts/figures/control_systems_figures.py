@@ -242,23 +242,24 @@ OUTPUT_HIGHEST = 2.2
 SPEED_SCALE = 60  # px for the target speed
 SYSTEM_BOX: Sequence[Line] = (('System', 'name'), ('wheel with its controller', 'example'))
 # The example of the performance figure. The wheel is SETTLING again. Its target speed steps
-# at STEP_TIME, and its speed counts as at the target while it is within ACCEPTABLE_ERROR of
-# the target. From DISTURBANCE_TIME on, a load slows the wheel, by up to DIP_DEPTH, until the
-# controller has made up for the load. The tracking error is marked at ERROR_MARK_TIME
-PERFORMANCE_MARKS = ('time to reach the target', 'tracking error', 'largest acceptable error',
+# at STEP_TIME. The speed has settled from the time on from which it stays in the tolerance
+# band, within ALLOWED_ERROR of the target. The settling time runs from the step to that time.
+# It ends before the speed first reaches the target itself. From DISTURBANCE_TIME on, a load
+# slows the wheel, by up to DIP_DEPTH, until the controller has made up for the load. The
+# tracking error is marked at ERROR_MARK_TIME
+TOLERANCE_NAME = 'allowed error after settling'
+PERFORMANCE_MARKS = ('settling time', 'tracking error', TOLERANCE_NAME,
                      'disturbance and recovery')
-PERFORMANCE_TITLE = ("A wheel's speed over time. The target speed steps up, and the speed "
-                     'follows it into the band of the largest acceptable error and stays '
-                     'there, also when a disturbance slows the wheel. Numbers mark: '
+PERFORMANCE_TITLE = ("A wheel's speed after a step of its target speed. Numbers mark: "
                      + ', '.join(f'{number} {mark}'
                                  for number, mark in enumerate(PERFORMANCE_MARKS, start=1)))
 PERFORMANCE_DURATION = 2.2  # s
 PERFORMANCE_HIGHEST = 1.45
-ACCEPTABLE_ERROR = 0.15
+ALLOWED_ERROR = 0.15
 ERROR_MARK_TIME = STEP_TIME + 0.2  # s
 DISTURBANCE_TIME = 1.2  # s
 DIP_DEPTH = 0.1
-TIME_RESOLUTION = 0.001  # s, of the time from which the speed stays at the target
+TIME_RESOLUTION = 0.001  # s, of the settling time
 
 
 class Wheel(NamedTuple):
@@ -281,8 +282,8 @@ class Wheel(NamedTuple):
 ROBUSTNESS_TITLE = ("Model uncertainty as a bounded variation of a parameter. The model's value "
                     'of the wheel radius lies in a band between the smallest and the largest '
                     'real wheel. With the same controller, the speed of each of the three '
-                    'wheels follows the target speed into the band of the largest acceptable '
-                    'error and stays there')
+                    'wheels follows the target speed into the tolerance band and stays '
+                    'there')
 RADIUS_VARIATION = 0.25
 WHEELS = (Wheel(1 - RADIUS_VARIATION, 'smallest', LineKind.SMALLEST),
           Wheel(1, "model's value", LineKind.SIGNAL),
@@ -658,13 +659,14 @@ def performance_output(time: float) -> float:
             - DIP_DEPTH * disturbance_response(SETTLING, time - DISTURBANCE_TIME))
 
 
-def time_at_the_target(signal: Callable[[float], float], end: float) -> float:
-    """Return the time from which a signal stays within ACCEPTABLE_ERROR of 1, until end.
+def settled_at(signal: Callable[[float], float], end: float) -> float:
+    """Return the time from which a signal stays within ALLOWED_ERROR of 1, until end.
 
-    The result is a multiple of TIME_RESOLUTION.
+    That is where the signal enters the tolerance band for good, which can be before it first
+    reaches 1. The result is a multiple of TIME_RESOLUTION.
     """
     times = [step * TIME_RESOLUTION for step in range(round(end / TIME_RESOLUTION), -1, -1)]
-    last_outside = next(time for time in times if abs(signal(time) - 1) > ACCEPTABLE_ERROR)
+    last_outside = next(time for time in times if abs(signal(time) - 1) > ALLOWED_ERROR)
     return last_outside + TIME_RESOLUTION
 
 
@@ -675,15 +677,15 @@ def dimension(figure: Figure, start: Point, end: Point) -> None:
         figure.arrow(f'M{middle.x},{middle.y} L{tip.x},{tip.y}')
 
 
-def reach_time_mark(figure: Figure, plot: Plot, reached_at: float) -> None:
-    """Add mark 1 below the time axis: from the target's step until the speed is at the target.
+def settling_time_mark(figure: Figure, plot: Plot, settled: float) -> None:
+    """Add mark 1 below the time axis: the settling time, from the target's step to settled.
 
     A guide leads down from the step, and one from the point where the speed enters the band.
     """
     mark_y = plot.bottom + 12
-    start, end = Point(plot.x_at(STEP_TIME), mark_y), Point(plot.x_at(reached_at), mark_y)
+    start, end = Point(plot.x_at(STEP_TIME), mark_y), Point(plot.x_at(settled), mark_y)
     figure.curve([Point(start.x, plot.bottom), Point(start.x, mark_y + 5)], LineKind.GUIDE)
-    figure.curve([plot.point(reached_at, performance_output(reached_at)),
+    figure.curve([plot.point(settled, performance_output(settled)),
                   Point(end.x, mark_y + 5)], LineKind.GUIDE)
     dimension(figure, start, end)
     figure.number_disc(end.x + 14, mark_y, 1)
@@ -697,9 +699,12 @@ def error_mark(figure: Figure, plot: Plot) -> None:
 
 
 def band_mark(figure: Figure, plot: Plot) -> None:
-    """Add mark 3 at the band's right end: a bracket from the target to the band's upper edge."""
+    """Add mark 3 at the band's right end: the allowed error after settling.
+
+    A bracket spans it, from the target to the band's upper edge.
+    """
     bracket_x = plot.right + 6
-    band_top, target_y = plot.y_at(1 + ACCEPTABLE_ERROR), plot.y_at(1)
+    band_top, target_y = plot.y_at(1 + ALLOWED_ERROR), plot.y_at(1)
     figure.curve([Point(bracket_x - 4, band_top), Point(bracket_x, band_top),
                   Point(bracket_x, target_y), Point(bracket_x - 4, target_y)], LineKind.GUIDE)
     figure.number_disc(bracket_x, band_top - 12, 3)
@@ -709,17 +714,17 @@ def disturbance_mark(figure: Figure, plot: Plot, speed: Sequence[Point]) -> None
     """Add mark 4 below the band, under the lowest point of the speed's dip."""
     dip = max((point for point in speed if point.x >= plot.x_at(DISTURBANCE_TIME)),
               key=lambda point: point.y)
-    figure.number_disc(dip.x, plot.y_at(1 - ACCEPTABLE_ERROR) + 14, 4)
+    figure.number_disc(dip.x, plot.y_at(1 - ALLOWED_ERROR) + 14, 4)
 
 
 def target_and_band(figure: Figure, plot: Plot) -> None:
-    """Add a plot's axes, the target's step and, from the step on, the band around the target.
+    """Add a plot's axes, the target's step and, from the step on, the tolerance band.
 
-    The band reaches ACCEPTABLE_ERROR above and below the target.
+    The band reaches ALLOWED_ERROR above and below the target.
     """
-    band_top, step_x = plot.y_at(1 + ACCEPTABLE_ERROR), plot.x_at(STEP_TIME)
+    band_top, step_x = plot.y_at(1 + ALLOWED_ERROR), plot.x_at(STEP_TIME)
     figure.area(step_x, band_top, plot.right - step_x,
-                round(plot.y_at(1 - ACCEPTABLE_ERROR) - band_top, 1), 'band')
+                round(plot.y_at(1 - ALLOWED_ERROR) - band_top, 1), 'band')
     figure.axes(plot)
     figure.curve([plot.point(0, 0), plot.point(STEP_TIME, 0), plot.point(STEP_TIME, 1),
                   plot.point(plot.duration, 1)], LineKind.TARGET)
@@ -727,14 +732,14 @@ def target_and_band(figure: Figure, plot: Plot) -> None:
 
 def performance_plot(figure: Figure, plot: Plot) -> None:
     """Add the plot of the wheel's speed and its target, the band and the four marks."""
-    reached_at = time_at_the_target(performance_output, DISTURBANCE_TIME)
+    settled = settled_at(performance_output, DISTURBANCE_TIME)
     speed = sampled(plot, performance_output, plot.duration)
     step_x = plot.x_at(STEP_TIME)
     target_and_band(figure, plot)
     figure.curve(speed, LineKind.SIGNAL)
     figure.signal(step_x + 8, plot.top + 8, 'reference', 'target wheel speed')
-    figure.signal(plot.x_at(reached_at) + 18, plot.y_at(0.5), 'output', 'wheel speed')
-    reach_time_mark(figure, plot, reached_at)
+    figure.signal(plot.x_at(settled) + 18, plot.y_at(0.5), 'output', 'wheel speed')
+    settling_time_mark(figure, plot, settled)
     error_mark(figure, plot)
     band_mark(figure, plot)
     disturbance_mark(figure, plot, speed)
@@ -823,17 +828,17 @@ def wheels_on_the_scale(figure: Figure, model_x: float, ground_y: float) -> None
 
 
 def robustness_plot(figure: Figure, plot: Plot) -> None:
-    """Add the plot of the three wheels' speeds, with their target and the band around it.
+    """Add the plot of the three wheels' speeds, with their target and the tolerance band.
 
-    The model's wheel is drawn last, on top of the two others.
+    The model's wheel is drawn last, on top of the two others. The band has the name of the
+    performance figure's mark 3, below its right end.
     """
     target_and_band(figure, plot)
     for wheel in sorted(WHEELS, key=lambda wheel: wheel.kind is LineKind.SIGNAL):
         speed = functools.partial(wheel_speed, wheel.radius)
         figure.curve(sampled(plot, speed, plot.duration), wheel.kind)
     figure.signal(plot.x_at(STEP_TIME) + 8, plot.top + 8, 'reference', 'target wheel speed')
-    figure.text(plot.right, plot.y_at(1 + ACCEPTABLE_ERROR) - 6, 'largest acceptable error',
-                anchor='end')
+    figure.text(plot.right, plot.y_at(1 - ALLOWED_ERROR) + 13, TOLERANCE_NAME, anchor='end')
     figure.signal(plot.x_at(0.5 * plot.duration), plot.y_at(0.5), 'output', 'wheel speed')
 
 

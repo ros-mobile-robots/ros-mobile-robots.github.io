@@ -54,20 +54,23 @@ Other unstable systems oscillate with a growing amplitude.
 
 Besides being stable, a system also needs to perform well. Performance can be measured in several ways:
 
-- Time before reaching the target state: How quickly does the system converge to the plan?
+- Settling time: the time from a step of the target until the output enters a tolerance band around the target and stays in it.
+  How quickly does the system converge to the plan?
 - Tracking error: how closely a reference signal is followed or how precisely does the system converge.
-- Maximum acceptable error at any point in time
+- Allowed error after settling: how far the output may be from the target once it has settled.
+  The tolerance band reaches this far above and below the target.
 - Disturbance rejection: the ability to compensate for external stimuli.
-  How well can the system recover from unexpected external stimuli, such as the noise in the measurements
-  or disturbances, like a sudden gust of wind or hitting a bump on the road?
+  How well can the system recover from a disturbance, such as a load that slows a wheel?
 - Noise attenuation: the ability to minimize the effect of high-frequency signals added to the measurements or inputs.
 
 These are all good examples of performance criteria for controller design.
 
 The figure shows the first four criteria for the speed of a wheel, each with its number.
 Follow the solid line, the wheel's speed, from the step of its target speed on the left.
-The speed takes the time (1) to get into the gray band around the target, and its tracking error (2) shrinks on the way.
-Inside the band, the error is smaller than the largest acceptable error (3), also when a disturbance slows the wheel for a moment (4).
+The settling time (1) runs from the step until the speed enters the gray tolerance band and stays in it.
+The speed is then still below the target, and the tracking error (2) has shrunk on the way.
+The band reaches as far above and below the target as the allowed error after settling (3).
+A disturbance slows the wheel for a moment (4), and the speed stays inside the band.
 
 --8<-- "includes/control-systems-performance.html"
 
@@ -80,7 +83,7 @@ Robustness is the ability of the controller to provide stability and performance
 
 The figure shows such an uncertainty for one parameter of the model, the wheel radius.
 The model has one value for the radius, and each real wheel's radius lies somewhere in a band around that value.
-Follow the three lines of the plot, one for each wheel: with the same controller, the speed of the smallest wheel (short dashes), of the model's wheel (solid line) and of the largest wheel (long dashes) all enter the gray band of the largest acceptable error and stay in it.
+Follow the three lines of the plot, one for each wheel: with the same controller, the speed of the smallest wheel (short dashes), of the model's wheel (solid line) and of the largest wheel (long dashes) all enter the gray tolerance band and stay in it.
 
 --8<-- "includes/control-systems-robustness.html"
 
