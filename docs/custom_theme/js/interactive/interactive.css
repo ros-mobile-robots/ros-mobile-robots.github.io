@@ -1,0 +1,181 @@
+/* Interactive figures (class ix): the frame, controls and tables that they share, in the site's
+   colors. main.html loads this file on pages that have such a figure. The three views differ in
+   line style and end symbol as well as in color, and each color has at least 3:1 contrast
+   against the drawing's background in both color schemes. */
+.ix {
+  --ix-command: #6b7280;
+  --ix-odometry: #1f6fd0;
+  --ix-model: #c74a12;
+  --ix-axle: #0f8a5f;
+  --ix-pass: #0a6e0a;
+  --ix-fail: #b3261e;
+  --ix-surface: var(--md-code-bg-color);
+  --ix-line: var(--md-default-fg-color--lighter);
+}
+[data-md-color-scheme="slate"] .ix {
+  --ix-command: #a3a9b6;
+  --ix-odometry: #5b9cf0;
+  --ix-model: #f0763a;
+  --ix-axle: #2fc48d;
+  --ix-pass: #4ccf4c;
+  --ix-fail: #f28b82;
+}
+.md-typeset figure.ix { display: block; width: 100%; max-width: 100%; margin: 1.2em 0; text-align: left; container-type: inline-size; }
+.md-typeset .ix figcaption { max-width: none; margin: 1em 0 0; font-style: normal; font-size: .7rem; color: var(--md-default-fg-color--light); }
+.md-typeset .ix figcaption > p { margin: 0; }
+.md-typeset .ix [hidden] { display: none !important; }
+
+/* The row above the drawing: the command, and the legend with a line-and-symbol sample per view */
+.ix .ix-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4em 1.2em; margin: .8em 0 .4em; }
+.ix .ix-toolbar .ix-choice { font-size: .7rem; }
+.md-typeset .ix .ix-legend { display: flex; flex-wrap: wrap; gap: .1em 1.2em; margin: 0; padding: 0; list-style: none; font-size: .7rem; }
+.md-typeset .ix .ix-legend li { display: inline-flex; align-items: center; gap: .4em; margin: 0; }
+.ix .ix-glyph { flex: none; width: 28px; height: 12px; overflow: visible; }
+
+/* The drawing. Its box keeps its shape while the static version is replaced */
+.ix .ix-plot { width: 100%; background: var(--ix-surface); border: 1px solid var(--ix-line); border-radius: .2rem; overflow: hidden; }
+.ix .ix-plot svg { display: block; width: 100%; height: 100%; }
+.ix .ix-live-plot { display: none; }
+.ix.ix-is-live .ix-live-plot { display: block; }
+.ix.ix-is-live .ix-static, .ix.ix-is-live .ix-static-only { display: none; }
+.ix .ix-grid line { stroke: var(--md-default-fg-color--lightest); stroke-width: 1; }
+.ix .ix-path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.ix .ix-path.ix-command { stroke: var(--ix-command); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.ix .ix-path.ix-odometry { stroke: var(--ix-odometry); stroke-width: 2; }
+.ix .ix-path.ix-model { stroke: var(--ix-model); stroke-width: 3.6; }
+.ix .ix-path.ix-axle { stroke: var(--ix-axle); stroke-width: 2.4; stroke-dasharray: .1 6; }
+.ix .ix-robot line, .ix .ix-robot .ix-wheel { fill: none; stroke-width: 1.6; }
+.ix .ix-robot.ix-model line, .ix .ix-robot.ix-model .ix-wheel { stroke: var(--ix-model); stroke-width: 2; }
+.ix .ix-robot.ix-model .ix-wheel { fill: var(--md-default-bg-color); fill-opacity: .8; }
+.ix .ix-robot.ix-model .ix-head, .ix .ix-dot { fill: var(--ix-model); }
+.ix .ix-dot { stroke: var(--ix-surface); stroke-width: 1.5; }
+.ix .ix-dot.ix-axle { fill: var(--ix-axle); }
+.ix .ix-robot .ix-link { stroke-width: 1; stroke-dasharray: 2 2; }
+.ix .ix-robot.ix-odometry line, .ix .ix-robot.ix-odometry .ix-wheel { stroke: var(--ix-odometry); stroke-dasharray: 5 3; }
+.ix .ix-robot.ix-odometry .ix-head { fill: var(--ix-odometry); }
+.ix .ix-ring { fill: none; stroke: var(--ix-odometry); stroke-width: 2; }
+.ix .ix-robot.ix-command line { stroke: var(--ix-command); stroke-dasharray: 3 3; }
+.ix .ix-cross { fill: none; stroke: var(--ix-command); stroke-width: 2.2; stroke-linecap: round; }
+.ix .ix-robot.ix-start { opacity: .45; }
+.ix .ix-robot.ix-start line, .ix .ix-robot.ix-start .ix-wheel { stroke: var(--md-default-fg-color--light); stroke-dasharray: 2 3; }
+.ix .ix-robot.ix-start .ix-head { fill: var(--md-default-fg-color--light); }
+.md-typeset .ix .ix-plotnote { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 1em; margin: .2em 0 0; font-size: .64rem; color: var(--md-default-fg-color--light); font-variant-numeric: tabular-nums; }
+
+/* Buttons and sliders */
+.ix button { font: inherit; font-size: .7rem; font-weight: 700; line-height: 1.4; padding: .25em .8em; color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--light); border-radius: .2rem; cursor: pointer; }
+.ix button:hover { border-color: var(--md-accent-fg-color); }
+.ix button[aria-pressed="true"] { color: var(--md-default-bg-color); background: var(--md-default-fg-color); border-color: var(--md-default-fg-color); }
+.ix button:focus-visible, .ix input:focus-visible, .ix select:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
+.ix input[type="range"] { width: 100%; margin: 0; accent-color: var(--ix-odometry); }
+.ix select { font: inherit; font-size: .7rem; padding: .2em .4em; color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--light); border-radius: .2rem; }
+.ix .ix-playbar { display: flex; align-items: center; gap: .6em; margin: .4em 0 0; }
+.ix .ix-playbar button { min-width: 4.2em; white-space: nowrap; }
+
+/* Guided examples: a numbered list in the static version. Once the script runs, one example at a
+   time: the questions share one grid cell, so the place above the drawing is as high as the
+   longest question at any width */
+.md-typeset .ix .ix-steps > p { margin: 0 0 .2em; }
+.md-typeset .ix .ix-examples { margin: 0 0 0 1.2em; padding: 0; }
+.md-typeset .ix .ix-examples li { margin: .5em 0; }
+.md-typeset .ix.ix-is-live .ix-examples { display: grid; grid-template-columns: minmax(0, 1fr); margin: .5em 0 0; list-style: none; }
+.md-typeset .ix.ix-is-live .ix-examples > li { grid-area: 1 / 1; margin: 0; }
+.ix.ix-is-live .ix-examples > li:not(.ix-current) { visibility: hidden; }
+.ix.ix-is-live .ix-examples > li.ix-revealed .ix-show { visibility: hidden; }
+.ix .ix-answer, .ix .ix-shown-answer { display: block; margin-top: .25em; padding-left: .6em; border-left: 3px solid var(--ix-line); }
+/* The answer, hint and changed-values note share one grid cell under the play bar. The
+   comparison itself follows the last slider */
+.md-typeset .ix .ix-answer-area { display: grid; grid-template-columns: minmax(0, 1fr); margin: .8em 0 0; }
+.md-typeset .ix .ix-answer-area > p { grid-area: 1 / 1; margin: 0; }
+.ix .ix-answer-area > .ix-off { visibility: hidden; }
+.md-typeset .ix .ix-hint, .md-typeset .ix .ix-differs, .md-typeset .ix .ix-changes { font-size: .7rem; color: var(--md-default-fg-color--light); }
+.md-typeset .ix .ix-changes { margin: .2em 0 0; }
+/* An example's two questions, one per drive, share one place: switching the drive moves nothing */
+.md-typeset .ix.ix-is-live .ix-prompts { display: grid; grid-template-columns: minmax(0, 1fr); }
+.md-typeset .ix.ix-is-live .ix-prompts > .ix-question { grid-area: 1 / 1; }
+.ix.ix-is-live .ix-prompts > .ix-question:not(.ix-drive) { visibility: hidden; }
+.ix .ix-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .8em; margin: .5em 0 0; }
+.ix .ix-stepper .ix-reset { margin-left: auto; }
+.ix .ix-stepper button:disabled { opacity: .4; cursor: default; }
+.ix .ix-step-count { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Results */
+.md-typeset .ix .ix-summary { margin: 1em 0 .4em; padding: .5em .7em; background: var(--ix-surface); border-radius: .2rem; font-variant-numeric: tabular-nums; }
+/* A drive's results wait for its end */
+.md-typeset .ix.ix-waiting .ix-summary, .md-typeset .ix.ix-waiting .ix-table { display: none; }
+.md-typeset .ix .ix-table { display: table; width: 100%; margin: .8em 0 0; border-collapse: collapse; font-size: .7rem; font-variant-numeric: tabular-nums; }
+/* Fixed columns: a changed value never changes a column's width, so nothing below moves */
+.md-typeset .ix .ix-table { table-layout: fixed; }
+.md-typeset .ix .ix-table thead th:first-child { width: 40%; }
+.md-typeset .ix .ix-table caption { caption-side: top; padding: 0 0 .3em; text-align: left; font-weight: 700; }
+.md-typeset .ix .ix-table th, .md-typeset .ix .ix-table td { padding: .35em .5em; text-align: left; vertical-align: top; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+.md-typeset .ix .ix-table thead th { font-weight: 700; color: var(--md-default-fg-color--light); }
+.md-typeset .ix .ix-table tbody th { font-weight: 400; }
+.md-typeset .ix .ix-table td { white-space: nowrap; }
+/* The allowed range may wrap in a narrow column: its text doesn't change with the values */
+.md-typeset .ix .ix-checks td[data-label="Allowed"] { white-space: normal; }
+.ix .ix-table .ix-glyph { margin-right: .4em; vertical-align: -1px; }
+.ix .ix-pass, .ix .ix-fail { font-weight: 700; white-space: nowrap; }
+.ix .ix-pass { color: var(--ix-pass); }
+.ix .ix-fail { color: var(--ix-fail); }
+/* In a narrow column each check is a small card: its name, then the allowed range and the value
+   side by side, then the result on a line of its own */
+@container (max-width: 30rem) {
+  .md-typeset .ix .ix-checks thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .md-typeset .ix .ix-checks tbody, .md-typeset .ix .ix-checks { display: block; }
+  .md-typeset .ix .ix-checks caption { display: block; }
+  .md-typeset .ix .ix-checks tr { display: grid; grid-template-columns: 1fr 1fr; gap: .1em .8em; padding: .5em 0; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+  .md-typeset .ix .ix-checks th, .md-typeset .ix .ix-checks td { padding: 0; border: 0; white-space: normal; }
+  .md-typeset .ix .ix-checks tbody th { grid-column: 1 / -1; font-weight: 700; }
+  .md-typeset .ix .ix-checks td:last-child { grid-column: 1 / -1; }
+  .ix .ix-checks td[data-label]::before { content: attr(data-label); display: block; font-size: .6rem; color: var(--md-default-fg-color--light); }
+  .md-typeset .ix .ix-table:not(.ix-checks) th, .md-typeset .ix .ix-table:not(.ix-checks) td { padding: .35em .25em; }
+  .ix .ix-table:not(.ix-checks) .ix-glyph { display: block; margin: 0 0 .1em; }
+}
+
+/* The values to change, in one of the site's collapsible blocks */
+.md-typeset .ix details.ix-settings { margin: 1em 0 0; }
+.ix .ix-controls { display: grid; gap: .7em; padding: .2em 0 .6em; font-size: .8rem; }
+.ix .ix-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 .8em; align-items: baseline; }
+.ix .ix-control label { font-weight: 700; }
+.ix .ix-control output { min-width: 16ch; font-size: .7rem; color: var(--md-default-fg-color--light); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.ix .ix-control input, .ix .ix-control small { grid-column: 1 / -1; }
+/* The help text's short form shows only in the enlarged figure */
+.ix .ix-control .ix-key { display: none; }
+.ix .ix-control small, .ix .ix-controls > small { font-size: .64rem; line-height: 1.4; color: var(--md-default-fg-color--light); }
+.ix .ix-choice { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .6em; }
+.ix .ix-choice > span, .ix .ix-choice > label { font-weight: 700; }
+.md-typeset .ix .ix-group { margin: .4em 0 -.2em; font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--md-default-fg-color--light); }
+.md-typeset .ix .ix-model-note { margin: .5em 0 0; font-size: .7rem; color: var(--md-default-fg-color--light); }
+.ix .ix-announce, .ix .ix-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Enlarged: the figure in a modal dialog over the whole window, the stage (question, drawing,
+   play bar, answer, summary, caption) on the left and the side (values, tables) on the right,
+   each scrolling on its own. Screens only: printing brings the figure back to the page.
+   motion-lab.js shows the button from its WIDE_MIN_EM on */
+@media screen {
+  html.ix-wide-open { overflow: hidden; }
+  .ix-dialog { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; color: var(--md-typeset-color); background: var(--md-default-bg-color); }
+  .ix-dialog::backdrop { background: var(--md-default-bg-color); }
+  .md-typeset figure.ix.ix-wide { display: grid; height: 100%; grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 1fr); gap: 0 1.6rem; margin: 0; padding: .8rem 1.2rem; }
+  .ix.ix-wide .ix-stage, .ix.ix-wide .ix-side { min-height: 0; overflow-y: auto; }
+  .md-typeset .ix.ix-wide .ix-steps > p, .ix.ix-wide details.ix-settings > summary { display: none; }
+  .md-typeset .ix.ix-wide details.ix-settings { margin: 0; }
+  .ix.ix-wide .ix-controls { gap: .35em; }
+  /* The sliders' help texts stay on the page: enlarged, their short form gives the tables room */
+  .ix.ix-wide .ix-control small { display: none; }
+  .ix.ix-wide .ix-control .ix-key { display: block; }
+  .md-typeset .ix.ix-wide .ix-table { margin-top: .5em; font-size: .64rem; }
+  .md-typeset .ix.ix-wide .ix-table th, .md-typeset .ix.ix-wide .ix-table td { padding: .2em .4em; }
+}
+
+/* On paper: the static drawing with its own notes and legend, and every example's answer */
+@media print {
+  .md-typeset .ix [data-live], .md-typeset .ix .ix-live-plot { display: none !important; }
+  .md-typeset .ix.ix-is-live .ix-static, .md-typeset .ix .ix-answer[hidden]:not([data-live]) { display: block !important; }
+  .ix .ix-question { visibility: visible !important; }
+  .md-typeset .ix.ix-is-live .ix-static-only { display: inline !important; }
+  .md-typeset .ix .ix-legend [data-static-unused] { display: none !important; }
+  .md-typeset .ix .ix-legend li:not([data-static-unused]) { display: inline-flex !important; visibility: visible !important; }
+  .md-typeset .ix.ix-is-live .ix-examples { display: block; margin-left: 1.2em; list-style: decimal; }
+  .md-typeset .ix .ix-examples li { display: list-item !important; visibility: visible !important; }
+}
